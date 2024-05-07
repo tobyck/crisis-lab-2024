@@ -12,7 +12,7 @@ void setup()
 {
     // Start serial
     Serial.begin(115200);
-    Serial.println("LPS28DFW Example 1 - Basic Readings! I AM GOING TO KMS IF THIS FUCKING WORKS");
+    Serial.println("LPS28DFW Example 1 - Basic Readings!");
 
     // Initialize the I2C library
     Wire.begin();

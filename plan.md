@@ -35,3 +35,13 @@ Tools:
 - Can prob just quickly hack something together with TS
 - Cache last 5min or so in case something breaks (reliability as relevant impl.)
 - Also decides when to activate alerts
+
+
+
+## Dates things will be done by
+
+### 14/5/24
+
+- dashboard recieves data, displays 2 graphs, pressure over time and wave height over time
+- Forwarding bit of websocket is done
+- Ardunio can send data in a decent format
