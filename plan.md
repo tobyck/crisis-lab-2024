@@ -36,12 +36,33 @@ Tools:
 - Cache last 5min or so in case something breaks (reliability as relevant impl.)
 - Also decides when to activate alerts
 
+### Alert
 
+- Instagram bot
+- Email bot (Maybe)
+- Siren
+- Wave display with servers 
 
 ## Dates things will be done by
 
 ### 14/5/24
 
-- dashboard recieves data, displays 2 graphs, pressure over time and wave height over time
+- dashboard recieves (fake) data, displays 2 graphs, pressure over time and wave height over time
 - Forwarding bit of websocket is done
 - Ardunio can send data in a decent format
+
+### 21/5/24
+
+- Dashboard works
+- Past incidents tab works
+- Relay sever done
+- Detecting alerts on server, and seeing them on dashboard
+
+### 28/5/24
+
+- Instagram bot working
+- RSS feed is working
+
+### 4/6/24
+
+- Physical alert system done
