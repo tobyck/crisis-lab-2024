@@ -33,7 +33,7 @@
     - Pressure (in pascals apparently)
     - Max height
     - Alerts for tsunamis over a given threshhold
-- Alerting device
+- Alerting device:
     - Can't be your laptop
     - Needs to be able to alert the whole room
     - No longer than 20s
@@ -47,4 +47,3 @@
     - Best dashboard
     - Best alerting device
     - Science communication
-
