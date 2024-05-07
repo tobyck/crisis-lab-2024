@@ -61,9 +61,9 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     ```
     arduino-cli upload -p PUT_YOUR_PORT_HERE --fqbn arduino:avr:uno embedded
     ```
-
-    > [!NOTE]
-    > If this command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add youseft to the `dialup` group. More detail is [here](https://askubuntu.com/a/133244).
+    
+> [!NOTE]
+> If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add youseft to the `dialup` group. More detail is [here](https://askubuntu.com/a/133244).
 
 ### Relay Server
 
