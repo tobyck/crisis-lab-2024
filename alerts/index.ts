@@ -1,7 +1,5 @@
 import {InstagramPost} from './instagrambot';
 
-
-process.stdout.write("would you like to post? ")
 if (prompt("Would you like to post to instagram? (y/n?)") === "y") {
     process.stdout.write("How tall is the wave? (in cm) ");
     for await (const line of console) {
