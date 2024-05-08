@@ -50,10 +50,17 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     arduino-cli compile --fqbn SparkFun:avr:RedBoard embedded
     ```
 
-4. Plug in the board and find out where it's attached
+4. Plug in the board and find out where it's attached (you're looking for the port)
 
     ```
     arduino-cli board list
+    ```
+
+    You should you something like this:
+
+    ```
+    Port         Protocol Type              Board Name FQBN Core
+    /dev/ttyUSB0 serial   Serial Port (USB) Unknown
     ```
 
 5. Upload onto the board
@@ -68,7 +75,7 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
 6. Optionally monitor logs
 
     ```
-    arduino-cli monitor -p /dev/ttyUSB0 --config baudrate=115200
+    arduino-cli monitor -p PUT_YOUR_PORT_HERE --config baudrate=115200
     ```
 
 Once you've verified that everything is working with the steps above, you can use `start.sh` instead. Run the script for instructions.
