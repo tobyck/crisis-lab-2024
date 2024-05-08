@@ -2,3 +2,6 @@ node_modules
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+.env
+*/bun.lockb
+*/package-lock.json
