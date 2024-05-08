@@ -1,4 +1,6 @@
 #include "sensor.h"
+// #include <ArduinoWebsockets.h>
+#include <ESP8266WiFi.h>
 
 LPS28DFW sensor;
 
