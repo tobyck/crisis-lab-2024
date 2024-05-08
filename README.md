@@ -6,7 +6,7 @@ This repository contains all the code for our CrisisLab 2024 project.
 
 The project has three main components:
  - An Arduino attached to a pressure sensor to read data and send it (unprocessed) through a websocket to the relay server. This embedded bit is done in C partly for speed, but mostly because we're lazy.
- - A server to take the raw data from the Arduino, relay the data to all the instances of the dashboard and maintain a cache for rendundency, determine whether or not there should be an alert, and if so, inform the dashboard.
+ - A server to take the raw data from the Arduino, relay the data to all the instances of the dashboard and maintain a cache for rendundency, determine whether or not there should be an alert, and if so, inform the dashboard and other components of the project.
  - The dashboard with graphs, information, and alerts. Written in Vue with vue-chartjs for the graphs.
 
 ## Setup
@@ -41,7 +41,7 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     Then you can install them with:
 
     ```
-    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/Links2004/arduinoWebSockets
+    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/gilmaimon/ArduinoWebsockets
     ```
 
 3. Compile
@@ -50,10 +50,17 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     arduino-cli compile --fqbn SparkFun:avr:RedBoard embedded
     ```
 
-4. Plug in the board and find out where it's attached
+4. Plug in the board and find out where it's attached (you're looking for the port)
 
     ```
     arduino-cli board list
+    ```
+
+    You should see something like this:
+
+    ```
+    Port         Protocol Type              Board Name FQBN Core
+    /dev/ttyUSB0 serial   Serial Port (USB) Unknown
     ```
 
 5. Upload onto the board
@@ -63,7 +70,22 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     ```
     
 > [!NOTE]
-> If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add youseft to the `dialup` group. More detail is [here](https://askubuntu.com/a/133244).
+> If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add yourself to the `dialout` group. More detail is [here](https://askubuntu.com/a/133244).
+
+6. Optionally monitor logs
+
+    ```
+    arduino-cli monitor -p PUT_YOUR_PORT_HERE --config baudrate=115200
+    ```
+
+Once you've verified that everything is working with the steps above, you can use `start.sh` instead. Run the script with no arguments for instructions.
+
+> [!IMPORTANT]
+> `start.sh` must be run from inside the `embedded/` directory.
+> ```
+> cd embedded
+> ./start.sh
+> ```
 
 ### Relay Server
 
