@@ -7,7 +7,7 @@ const readFileAsync = promisify(readFile);
 
 
 export function postToInsta(height: string) {
-    let postToInsta = async (height: string) => {
+    const postToInsta = async (height: string) => {
         const ig = new IgApiClient();
         ig.state.generateDevice(process.env.IG_USERNAME);
         await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
