@@ -56,7 +56,7 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     arduino-cli board list
     ```
 
-    You should you something like this:
+    You should see something like this:
 
     ```
     Port         Protocol Type              Board Name FQBN Core
