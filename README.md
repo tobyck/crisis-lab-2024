@@ -41,7 +41,7 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     Then you can install them with:
 
     ```
-    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/Links2004/arduinoWebSockets
+    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/gilmaimon/ArduinoWebsockets
     ```
 
 3. Compile
@@ -63,7 +63,22 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     ```
     
 > [!NOTE]
-> If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add youseft to the `dialup` group. More detail is [here](https://askubuntu.com/a/133244).
+> If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add youseft to the `dialout` group. More detail is [here](https://askubuntu.com/a/133244).
+
+6. Optionally monitor logs
+
+    ```
+    arduino-cli monitor -p /dev/ttyUSB0 --config baudrate=115200
+    ```
+
+Once you've verified that everything is working with the steps above, you can use `start.sh` instead. Run the script for instructions.
+
+> [!IMPORTANT]
+> `start.sh` must be run from inside the `embedded/` directory.
+> ```
+> cd embedded
+> ./start.sh
+> ```
 
 ### Relay Server
 
