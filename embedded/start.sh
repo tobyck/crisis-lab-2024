@@ -10,7 +10,6 @@ Examples:
   ./start.sh cl /dev/ttyUSB0        Compile and load onto the board on /dev/ttyUSB0
   ./start.sh m COM4                 Monitor board on COM4
   ./start.sh clm COM3               Compile, load, and monitor on COM3"
-	exit 1
 fi
 
 compile="arduino-cli compile --fqbn SparkFun:avr:RedBoard ."
