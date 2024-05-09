@@ -26,7 +26,7 @@ const props = defineProps(['name','data-source', 'loaded']);
 console.log(props.dataSource, props.dataSource.loaded);
 
 const chartData = computed(() => ({
-    labels: props.dataSource.timestamps,
+    //labels: props.dataSource.timestamps,
     datasets: [
         {                     
             label: 'Data One',
@@ -42,6 +42,47 @@ const chartData = computed(() => ({
     ] 
 }))
 const chartOptions = computed(() => ({
-    responsive:true,
+    responsive: true,
+    scales: {
+      x: {
+        type: 'linear',
+        min: 0,
+        max: 10,
+        title: {
+            text: "Time (s)",
+            display: true,
+        },
+        ticks: {
+            // Include a dollar sign in the ticks
+            callback(value, index, ticks) {
+                return value-10;
+            }
+        }
+      },
+      y: {
+        min: 1018,
+        max: 1022,
+        title: {
+            text: "Pressure (Pa)",
+            display: true,
+        },
+      }
+    },
+    animation: {
+        duration: 0,
+    },
+    plugins: {
+        legend: {
+            display: false,
+        },
+        title: {
+            text: 'Sensor Pressure',
+            display: true,
+            font: {
+                size: 20,
+                weight: '',
+            }
+        }
+    }
 }))
 </script>

@@ -24,8 +24,13 @@ const timestamps = computed(() =>
 )
 
 const pressure = computed(() => ({
-    timestamps: timestamps.value, 
-    values: packetData.map(({pressure}) => pressure),
+    //timestamps: timestamps.value, 
+    values: packetData.map(({pressure, timeStamp}, ind) => 
+        ({
+            x: 10 - (Date.now() - timeStamp) / 1000, 
+            y: pressure
+        })
+    ),//.filter(({x,y}, i) => x < 10 && x >= 0.1),
     loaded: loaded.value
 }))
 </script>
