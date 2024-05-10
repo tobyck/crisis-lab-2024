@@ -28,16 +28,27 @@ ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
     })
 })
 
-let currentPressure = 1020, currentWaveHeight = 1;
+function* randGenerator (avg: number, variation: number, bound: number): Generator<number> {
+    let val = avg;
+    while (true) {
+        yield val;
+        let dv = Math.random() * variation;
+        if (Math.random() > (val - avg + bound) / bound / 2) {
+            val += dv;
+        } else {
+            val -= dv
+        }
+    }
+}
+
+let currentPressure = randGenerator(1020, 0.2, 1);
+let currentWaveHeight = randGenerator(1, 0.2, 1);
 
 setInterval(() => {
-    currentPressure += Math.random() * 0.1 - 0.05;
-    currentWaveHeight += Math.random() * 0.1 - 0.05;
-
     let newPacket: Packet = {
         timeStamp: Date.now(),
-        pressure: Math.random() * 2 + 1019,
-        waveHeight: currentWaveHeight
+        pressure: currentPressure.next().value,
+        waveHeight: currentWaveHeight.next().value
     }
     prevData.pushpop(newPacket);
     for (let conn of conns) {

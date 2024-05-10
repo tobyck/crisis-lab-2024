@@ -2,11 +2,36 @@
   <Header />
   <div class="flex">
         <Chart 
+            name="height"
+            :options="{
+                y: 'Wave height (cm)',
+                title: 'Wave Height',
+                minY: 0,
+                maxY: 3,
+                color: 'skyblue'
+            }"
+            :data-source="height"
+        />
+        <Chart 
             name="pressure"
+            :options="{
+                y: 'Pressure (Pa)',
+                title: 'Sensor Pressure',
+                minY: 1018,
+                maxY: 1022,
+                color: 'rgb(100, 126, 255)'
+            }"
             :data-source="pressure"
         />
   </div>
 </template>
+
+<style scoped>
+div.flex {
+    display: flex;
+    flex-wrap: wrap;
+}
+</style>
 
 <script setup>
 import Header from './components/Header.vue';
@@ -24,13 +49,24 @@ const timestamps = computed(() =>
 )
 
 const pressure = computed(() => ({
-    //timestamps: timestamps.value, 
-    values: packetData.map(({pressure, timeStamp}, ind) => 
+    values: packetData.filter(t => t != null)
+        .map(({pressure, timeStamp}) => 
         ({
             x: 10 - (Date.now() - timeStamp) / 1000, 
             y: pressure
         })
-    ),//.filter(({x,y}, i) => x < 10 && x >= 0.1),
+    ),
+    loaded: loaded.value
+}))
+
+const height = computed(() => ({
+    values: packetData.filter(t => t != null)
+        .map(({waveHeight, timeStamp}) => 
+        ({
+            x: 10 - (Date.now() - timeStamp) / 1000, 
+            y: waveHeight
+        })
+    ),
     loaded: loaded.value
 }))
 </script>

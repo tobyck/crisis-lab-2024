@@ -11,7 +11,26 @@
 
 <style scoped>
 div {
-    width: 40%;
+    width: 40vw;
+    margin-left: 5vw;
+    margin-right: 5vw;
+    /*background-color: red; /* temp */
+}
+
+@media screen and (max-width: 1200px) {
+    div {
+        width: max(480px, 40vw);
+        margin-left: max(25vw - 240px,0px);
+        margin-right: max(25vw - 240px,0px);
+    }
+}
+
+
+@media screen and (max-width: 1000px) {
+    div {
+        width: min(90%, 600px);
+        margin-left: max(5%, calc((100% - 600px) / 2));
+    }
 }
 </style>
 
@@ -22,7 +41,10 @@ import { Chart as ChartJS, Title, Tooltip, Legend, LineController, LinearScale, 
 
 ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement)
 
-const props = defineProps(['name','data-source', 'loaded']);
+ChartJS.defaults.color = '#a1a1a1';
+ChartJS.defaults.borderColor = '#272727';
+
+const props = defineProps(['name','data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
 
 const chartData = computed(() => ({
@@ -32,7 +54,7 @@ const chartData = computed(() => ({
             label: 'Data One',
             backgroundColor: '#f87979',
             pointBackgroundColor: 'white',
-            borderColor: 'dodgerblue',
+            borderColor: props.options.color,
             borderWidth: 1,
             radius: 0,
             pointBorderColor: '#249EBF',
@@ -53,17 +75,16 @@ const chartOptions = computed(() => ({
             display: true,
         },
         ticks: {
-            // Include a dollar sign in the ticks
             callback(value, index, ticks) {
                 return value-10;
             }
         }
       },
       y: {
-        min: 1018,
-        max: 1022,
+        min: props.options.minY,
+        max: props.options.maxY,
         title: {
-            text: "Pressure (Pa)",
+            text: props.options.y,
             display: true,
         },
       }
@@ -76,12 +97,12 @@ const chartOptions = computed(() => ({
             display: false,
         },
         title: {
-            text: 'Sensor Pressure',
+            text: props.options.title,
             display: true,
             font: {
                 size: 20,
                 weight: '',
-            }
+            },
         }
     }
 }))
