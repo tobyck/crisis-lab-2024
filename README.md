@@ -78,3 +78,9 @@ cd frontend
 npm install
 npm run dev
 ```
+
+You'll also need to run either the real websocket (TBC) or the fake websocket:
+```
+cd demos/fake-ws
+bun fake-ws.ts
+```
