@@ -1,5 +1,7 @@
 <template>
   <Header />
+  <div class="padding">
+  </div>
   <div class="flex">
         <Chart 
             name="height"
@@ -12,11 +14,37 @@
             }"
             :data-source="height"
         />
+        <div class="padding"></div>
         <Chart 
             name="pressure"
             :options="{
                 y: 'Pressure (Pa)',
                 title: 'Sensor Pressure',
+                minY: 1018,
+                maxY: 1022,
+                color: 'rgb(100, 126, 255)'
+            }"
+            :data-source="pressure"
+        />
+        <div class="padding"></div>
+        <div class="padding-in-place-of-log"></div>
+        <!-- <Chart 
+            name="pressure"
+            :options="{
+                y: 'Pressure (Pa)',
+                title: 'Sensor Pressure',
+                minY: 1018,
+                maxY: 1022,
+                color: 'rgb(100, 126, 255)'
+            }"
+            :data-source="pressure"
+        /> -->
+        <div class="padding"></div>
+        <Chart 
+            name="live-view"
+            :options="{
+                y: 'Wave height (cm)',
+                title: 'Live View',
                 minY: 1018,
                 maxY: 1022,
                 color: 'rgb(100, 126, 255)'
@@ -30,7 +58,20 @@
 div.flex {
     display: flex;
     flex-wrap: wrap;
+    row-gap: 1vw;
 }
+div.padding-in-place-of-log {
+    border-radius: 25px;
+    border: 2px solid rgb(180, 190, 254);
+    width: 39vw;
+    margin-left: 5vw;
+    margin-right: 5vw;
+}
+
+div.padding {
+    padding-top: 1vw;
+}
+
 </style>
 
 <script setup>

@@ -11,10 +11,13 @@
 
 <style scoped>
 div {
-    width: 40vw;
+    border-radius: 25px;
+    border: 2px solid rgb(180, 190, 254);
+    width: 39vw;
     margin-left: 5vw;
     margin-right: 5vw;
     /*background-color: red; /* temp */
+
 }
 
 @media screen and (max-width: 1200px) {
@@ -41,7 +44,7 @@ import { Chart as ChartJS, Title, Tooltip, Legend, LineController, LinearScale, 
 
 ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement)
 
-ChartJS.defaults.color = '#a1a1a1';
+ChartJS.defaults.color = 'rgb(205, 214, 244)';
 ChartJS.defaults.borderColor = '#272727';
 
 const props = defineProps(['name','data-source', 'loaded', 'options']);
