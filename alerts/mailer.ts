@@ -8,11 +8,11 @@ const readFileAsync = promisify(readFile);
 const transporter = createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
-    user: "crisislab2024@gmail.com",
-    pass: "incorrect horse capacitor nail",
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
   },
 });
 
@@ -24,7 +24,15 @@ const sendMail = async (mailDetails: MailOptions) => {
     } 
 };
 
-export async function sendEmail() {
-    let recipients = await readFileAsync('./mail.txt', {encoding: 'utf-8'});
-    
+export async function sendEmail(height: string) {
+    let recipients = await readFileAsync('mail-list.txt', {encoding: 'utf-8'});
+    const message = 'WARNING A FAKE TSUNAMI OF HEIGHT ' + height + 'cm HAS BEEN RECORDED';
+    const options = {
+        from: "Crisis Lab 2024 Tsunami Mail <crisislab2024@gmail.com>", // sender address
+        bcc: recipients, // receiver email
+        subject: 'FAKE TSUNAMI DETECTED', // Subject line
+        text: message,
+        html: message
+    };
+    sendMail(options);
 }

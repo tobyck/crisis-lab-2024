@@ -6,7 +6,8 @@ if (prompt("Would you like to post to instagram? (y/n?)") === "y") {
     for await (const line of console) {
         process.stdout.write("Making an instagram post now with the caption: \n");
         process.stdout.write("\"WARNING A FAKE TSUNAMI OF HEIGHT " + line + "cm HAS BEEN RECORDED\"");
-        postToInsta(line)
+        //postToInsta(line);
+        sendEmail(line);
         break;
     }
 } else {
