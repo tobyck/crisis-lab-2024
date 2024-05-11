@@ -1,4 +1,5 @@
-import {postToInsta} from './instagrambot';
+import { postToInsta } from './instagrambot';
+import { sendEmail } from './mailer';
 
 if (prompt("Would you like to post to instagram? (y/n?)") === "y") {
     process.stdout.write("How tall is the wave? (in cm) ");
