@@ -68,7 +68,7 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     ```
     arduino-cli upload -p PUT_YOUR_PORT_HERE --fqbn arduino:avr:uno embedded
     ```
-    
+
 > [!NOTE]
 > If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add yourself to the `dialout` group. More detail is [here](https://askubuntu.com/a/133244).
 
@@ -81,11 +81,30 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
 Once you've verified that everything is working with the steps above, you can use `start.sh` instead. Run the script with no arguments for instructions.
 
 > [!IMPORTANT]
-> `start.sh` must be run from inside the `embedded/` directory.
+> `start.sh` must be run from inside the `embedded/main/` directory.
 > ```
-> cd embedded
+> cd embedded/main
 > ./start.sh
 > ```
+
+You can test that this works and sends data via WebSocket by:
+
+1. Changing the ssid and password in embedded/client/client.ino to your WiFi ssid and password.
+
+2. Plug in WiFi board and upload code
+
+// TODO: Will do this tomorrow
+
+3. Moving into the demos/max-fake-ws directory and installing dependencies
+
+    ```
+    cd demos/max-fake-ws
+    npm install
+    ```
+
+4. Run node servertest.js
+
+5. Press reset button on WiFi card, and look at the command line output from the NodeJS server.
 
 ### Relay Server
 

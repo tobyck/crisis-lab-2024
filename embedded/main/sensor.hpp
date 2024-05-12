@@ -1,3 +1,8 @@
+/*
+ * Author: Toby Connor-Kebbell & Maxwell Robati
+ * Version: 12/05/2024
+ * Purpose: Gather data from pressure sensor
+ */
 #pragma once
 
 #include <SparkFun_LPS28DFW_Arduino_Library.h>

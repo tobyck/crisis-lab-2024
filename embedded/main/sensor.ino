@@ -1,3 +1,8 @@
+/*
+ * Author: Toby Connor-Kebbell & Maxwell Robati
+ * Version: 12/05/2024
+ * Purpose: Gather data from pressure sensor
+ */
 #include "sensor.hpp"
 
 void init_sensor(LPS28DFW sensor) {

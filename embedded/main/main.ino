@@ -1,3 +1,9 @@
+/*
+ * Author: Toby Connor-Kebbell & Maxwell Robati
+ * Version: 12/05/2024
+ * Purpose: Collect sensor data and transmit it to the WiFi card
+ */
+
 #include "sensor.hpp"
 
 // Virtual Serial to output to WiFi card, Recieve pin 2, Transmit pin 3.

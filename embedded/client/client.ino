@@ -1,17 +1,14 @@
 /*
  * Author: Maxwell Robati
- * Version: 11/05/24
+ * Version: 12/05/24
  * Purpose: Sends sensor data via WiFi card to relay server.
  */
-//#define RXPin 5
-//#define TXPin 6
-//SoftwareSerial outputSerial = SoftwareSerial(RXPin, TXPin);
 #include "client.hpp"
 
-const char* ssid = ""; // Wifi Name
-const char* password = ""; // Wifi Password 
-const char* websockets_server_host = "192.168.1.39"; // Server hostname
-const uint16_t websockets_server_port = 80; // Server port
+const char* ssid = "";      // Change what's inside the "" to your Wifi Name
+const char* password = "";  // "                                 " Wifi Password 
+const char* websockets_server_host = "192.168.1.39";  // Server hostname
+const uint16_t websockets_server_port = 80;           // Server port
 
 WebsocketsClient client;
 
