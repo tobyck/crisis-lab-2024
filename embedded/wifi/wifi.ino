@@ -1,11 +1,17 @@
-int br = 0;
+#include <SoftwareSerial.h>
+
+#define RXPin 2
+#define TXPin 3
+
+// Virtual Serial to output to WiFi card, Recieve pin 2, Transmit pin 3.
+SoftwareSerial outputSerial = SoftwareSerial(RXPin, TXPin);
+
 void setup() {
-  Serial.setDebugOutput(true);
   Serial.begin(9600);
-  br = Serial.baudRate();
+  outputSerial.begin(9600);
 }
 
 void loop() {
-  Serial.printf("Serial is %d bps\n", br);
-  delay(100);
+  outputSerial.println("Hello from Arduino");
+  delay(500);
 }
