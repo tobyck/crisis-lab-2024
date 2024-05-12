@@ -89,20 +89,20 @@ Once you've verified that everything is working with the steps above, you can us
 
 You can test that this works and sends data via WebSocket by:
 
-1. Changing the ssid and password in embedded/client/client.ino to your WiFi ssid and password.
+1. Changing the ssid and password in `embedded/client/client.ino` to your WiFi ssid and password.
 
 2. Plug in WiFi board and upload code
 
 // TODO: Will do this tomorrow
 
-3. Moving into the demos/max-fake-ws directory and installing dependencies
+3. Moving into the `demos/max-fake-ws` directory and installing dependencies
 
     ```
     cd demos/max-fake-ws
     npm install
     ```
 
-4. Run node servertest.js
+4. Run `node servertest.js`
 
 5. Press reset button on WiFi card, and look at the command line output from the NodeJS server.
 
