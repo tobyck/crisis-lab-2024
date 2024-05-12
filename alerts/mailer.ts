@@ -1,8 +1,10 @@
 import { createTransport } from 'nodemailer';
 import type { MailOptions } from 'nodemailer/lib/sendmail-transport';
-import { readFile } from 'fs';
+import { readFile, writeFile } from 'fs';
 import { promisify } from 'util';
+import { v4 } from 'uuid';
 const readFileAsync = promisify(readFile);
+const writeFileAsync = promisify(writeFile);
 
 // create reusable transporter object using the default SMTP transport
 const transporter = createTransport({
@@ -25,14 +27,31 @@ const sendMail = async (mailDetails: MailOptions) => {
 };
 
 export async function sendEmail(height: string) {
-    let recipients = await readFileAsync('mail-list.txt', {encoding: 'utf-8'});
-    const message = 'WARNING A FAKE TSUNAMI OF HEIGHT ' + height + 'cm HAS BEEN RECORDED';
-    const options = {
-        from: "Crisis Lab 2024 Tsunami Mail <crisislab2024@gmail.com>", // sender address
-        bcc: recipients, // receiver email
-        subject: 'FAKE TSUNAMI DETECTED', // Subject line
-        text: message,
-        html: message
-    };
-    sendMail(options);
+    let recipients = JSON.parse(await readFileAsync('mail-list.json', {encoding: 'utf-8'}));
+
+    for (let [uid, email] of Object.entries(recipients)) {
+        console.log(email, uid);
+        const message = 'WARNING A FAKE TSUNAMI OF HEIGHT ' + height + 'cm HAS BEEN RECORDED';
+        const options = {
+            from: "Crisis Lab 2024 Tsunami Mail <crisislab2024@gmail.com>",
+            to: email as string, 
+            subject: 'FAKE TSUNAMI DETECTED',
+            text: message,
+            html: message + `<br><a href="https://example.com?uid=${uid}">Unsubscribe</a>`
+        };
+        sendMail(options);
+    }
+}
+
+export async function addEmail(email: string) {
+    let list = JSON.parse(await readFileAsync('mail-list.json', {encoding: 'utf-8'}));
+    let uid = v4();
+    list[uid] = email;
+    await writeFileAsync('mail-list.json', JSON.stringify(list));
+}
+
+export async function removeEmail(uuid: string) {
+    let list = JSON.parse(await readFileAsync('mail-list.json', {encoding: 'utf-8'}));
+    delete list[uuid];
+    await writeFileAsync('mail-list.json', JSON.stringify(list));
 }
