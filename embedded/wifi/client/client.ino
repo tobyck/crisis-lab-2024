@@ -8,10 +8,10 @@
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 
-#define RXPin 3
-#define TXPin 1
+//#define RXPin 5
+//#define TXPin 6
 
-SoftwareSerial outputSerial = SoftwareSerial(RXPin, TXPin);
+//SoftwareSerial outputSerial = SoftwareSerial(RXPin, TXPin);
 
 const char* ssid = ""; // Wifi Name
 const char* password = ""; // Wifi Password 
@@ -83,7 +83,7 @@ void loop() {
   if(Serial.available()) {
     // Store up to 20 bytes from Arduino into buffer, terminating at a newline
     Serial.readBytesUntil('\n', buffer, 20);
-    Serial.println(buffer);
+    //Serial.println(buffer);
   }
 
   // Keep connection open
