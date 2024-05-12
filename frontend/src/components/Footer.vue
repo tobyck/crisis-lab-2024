@@ -2,7 +2,7 @@
     <div>
         <a href='https://github.com/tobyck/crisis-lab-2024' target='_blank'>GitHub</a>
         <a href='https://www.instagram.com/crisislabs.2024.whs/' target='_blank'>Instagram</a>
-        <a href='javascript:void' @click='mailClicked'>Mailing list</a>
+        <a href='javascript:0' @click='mailClicked'>Mailing list</a>
     </div>
 </template>
 
