@@ -1,4 +1,3 @@
-// TODO: Make Arduino UNO generate random data and send that to WiFi card to send to the server.
 /*
  * Author: Maxwell Robati
  * Version: 11/05/24
@@ -10,7 +9,6 @@
 
 //#define RXPin 5
 //#define TXPin 6
-
 //SoftwareSerial outputSerial = SoftwareSerial(RXPin, TXPin);
 
 const char* ssid = ""; // Wifi Name
@@ -83,13 +81,17 @@ void loop() {
   if(Serial.available()) {
     // Store up to 20 bytes from Arduino into buffer, terminating at a newline
     Serial.readBytesUntil('\n', buffer, 20);
-    //Serial.println(buffer);
+    // Remove \n
+    buffer[strlen(buffer)-1] = '\0';
   }
 
   // Keep connection open
   if(client.available()) {
     client.poll();    // Poll the server
-    sendData(buffer); // Send Pressure sensor Data to Relay server
+    // If the buffer has data, send it.
+    if(strlen(buffer) != 0) {
+      sendData(buffer); // Send Pressure sensor data to Relay server
+    }
   }
   delay(500);
 }

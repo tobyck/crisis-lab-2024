@@ -12,6 +12,9 @@ void setup() {
 }
 
 void loop() {
-  outputSerial.println("Hello from Arduino");
+  // Replace randNum with genuine sensor data
+  int randNum = random(3000);
+  outputSerial.println(String(random(3000)));
+  Serial.println(String(randNum));
   delay(500);
 }
