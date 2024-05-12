@@ -3,20 +3,15 @@
  * Version: 11/05/24
  * Purpose: Sends sensor data via WiFi card to relay server.
  */
-#include <ArduinoWebsockets.h>
-#include <ESP8266WiFi.h>
-#include <SoftwareSerial.h>
-
 //#define RXPin 5
 //#define TXPin 6
 //SoftwareSerial outputSerial = SoftwareSerial(RXPin, TXPin);
+#include "client.hpp"
 
 const char* ssid = ""; // Wifi Name
 const char* password = ""; // Wifi Password 
 const char* websockets_server_host = "192.168.1.39"; // Server hostname
 const uint16_t websockets_server_port = 80; // Server port
-
-using namespace websockets;
 
 WebsocketsClient client;
 
@@ -24,8 +19,6 @@ void setup() {
   // Begin the serial
   Serial.setDebugOutput(true);
   Serial.begin(9600);
-
-  //outputSerial.begin(9600);
 
   // Connect to wifi
   WiFi.begin(ssid, password);
