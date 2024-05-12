@@ -62,7 +62,10 @@ div.padding {
     padding-top: 1vw;
 }
 
+dev.paddingBottom {
 
+    padding: 100px;
+}
 
 </style>
 

@@ -16,9 +16,10 @@ a:hover {
     text-decoration:underline;
 }
 div {
-    position: absolute;
+    position: fixed;
     width: 100%;
-    bottom: 5px;
+    bottom: 0;
+    background-color: var(--backgroundColor);
 }
 </style>
 
