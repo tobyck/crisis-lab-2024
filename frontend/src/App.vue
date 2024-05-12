@@ -41,6 +41,7 @@
             :data-source="pressure"
         />
   </div>
+  <Footer />
 </template>
 
 <style scoped>
@@ -85,6 +86,7 @@ div.padding {
 <script setup>
 import Header from './components/Header.vue';
 import Chart from './components/Chart.vue';
+import Footer from './components/Footer.vue';
 import { ref, computed } from 'vue';
 import { packetData, initWebsocket, loaded } from './ws.js';
 
