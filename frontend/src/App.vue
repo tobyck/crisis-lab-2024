@@ -6,8 +6,8 @@
         <Chart 
             name="height"
             :options="{
-                y: 'Wave height (cm)',
-                title: 'Wave Height',
+                y: 'Water level (cm)',
+                title: 'Water Level',
                 minY: 0,
                 maxY: 3,
                 color: 'skyblue'
@@ -84,13 +84,6 @@ import { packetData, initWebsocket, loaded } from './ws.js';
 
 initWebsocket();
 
-const timestamps = computed(() => 
-    packetData.map(({timeStamp}) => timeStamp).map(t => {
-        let secs = (Date.now() - t) / 1000;
-        return secs;
-    })
-)
-
 const pressure = computed(() => ({
     values: packetData.filter(t => t != null)
         .map(({pressure, timeStamp}) => 
@@ -104,10 +97,10 @@ const pressure = computed(() => ({
 
 const height = computed(() => ({
     values: packetData.filter(t => t != null)
-        .map(({waveHeight, timeStamp}) => 
+        .map(({waterLevel, timeStamp}) => 
         ({
             x: 10 - (Date.now() - timeStamp) / 1000, 
-            y: waveHeight
+            y: waterLevel
         })
     ),
     loaded: loaded.value
