@@ -12,7 +12,9 @@
 <style scoped>
 div {
     border-radius: 25px;
-    border: 2px solid rgb(180, 190, 254);
+    border-style: solid;
+    border-width: 2px;
+    border-color: var(--borderColor);
     width: 39vw;
     margin-left: 5vw;
     margin-right: 5vw;
@@ -35,6 +37,8 @@ div {
         margin-left: max(5%, calc((100% - 600px) / 2));
     }
 }
+
+
 </style>
 
 <script setup>
@@ -49,6 +53,9 @@ ChartJS.defaults.borderColor = '#272727';
 
 const props = defineProps(['name','data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
+
+let borderColor = ref("rgb(243, 139, 168)");
+
 
 const chartData = computed(() => ({
     //labels: props.dataSource.timestamps,
