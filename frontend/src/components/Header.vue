@@ -12,6 +12,7 @@ header>span {
 }
 
 header {
+    font-size: 40px;
     text-align: center;
     border-radius: 25px;
     border: 2px solid rgb(180, 190, 254);
@@ -19,5 +20,11 @@ header {
     margin-right: 5vw;
     padding-top: 1vw;
     padding-bottom: 1vw;
+}
+
+@media screen and (min-width: 2400px) {
+    header>span {
+        font-size: 120px;
+    }
 }
 </style>
