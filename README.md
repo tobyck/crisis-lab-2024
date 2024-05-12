@@ -22,12 +22,13 @@ cd whs-crisis-lab
 
 This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If you haven't already installed it, do that first.
 
-1. Install board definitions for the SparkFun board
+1. Install board definitions for the SparkFun Arduino Uno and the ESP8266 WiFi board
     
     ```
     arduino-cli core install arduino:avr
-    arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/sparkfun/Arduino_Boards/main/IDE_Board_Manager/package_sparkfun_index.json
+    arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/sparkfun/Arduino_Boards/main/IDE_Board_Manager/package_sparkfun_index.json https://arduino.esp8266.com/stable/package_esp8266com_index.json
     arduino-cli core install SparkFun:avr:RedBoard
+    arduino-cli core install esp8266:esp8266
     ```
 
 2. Install dependencies
@@ -44,10 +45,10 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/gilmaimon/ArduinoWebsockets
     ```
 
-3. Compile
+3. Compile the code for the Arduino (change `embedded/main` to the path relative to wherever you are)
 
     ```
-    arduino-cli compile --fqbn SparkFun:avr:RedBoard embedded
+    arduino-cli compile --fqbn SparkFun:avr:RedBoard embedded/main
     ```
 
 4. Plug in the board and find out where it's attached (you're looking for the port)
@@ -72,39 +73,32 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
 > [!NOTE]
 > If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add yourself to the `dialout` group. More detail is [here](https://askubuntu.com/a/133244).
 
-6. Optionally monitor logs
+6. Compile and upload the code for the WiFi board using the same method and same port, but change the FQBN to `esp8266:esp8266:generic`
+
+    ```
+    arduino-cli compile --fqbn esp8266:esp8266:generic embedded/client
+    arduino-cli upload -p PUT_YOUR_PORT_HERE --fqbn esp8266:esp8266:generic embedded/client
+    ```
+
+7. If you like, you can know motinor logs in the serial output.
 
     ```
     arduino-cli monitor -p PUT_YOUR_PORT_HERE --config baudrate=115200
     ```
 
-Once you've verified that everything is working with the steps above, you can use `start.sh` instead. Run the script with no arguments for instructions.
+To verify that everything is working properly you can use a dummy server:
 
-> [!IMPORTANT]
-> `start.sh` must be run from inside the `embedded/main/` directory.
-> ```
-> cd embedded/main
-> ./start.sh
-> ```
+1. Change the SSID and password in `embedded/client/client.ino` to your WiFi SSID and password.
 
-You can test that this works and sends data via WebSocket by:
-
-1. Changing the ssid and password in `embedded/client/client.ino` to your WiFi ssid and password.
-
-2. Plug in WiFi board and upload code
-
-// TODO: Will do this tomorrow
-
-3. Moving into the `demos/max-fake-ws` directory and installing dependencies
+2. Go to `demos/max-fake-ws`, install dependencies and launch server:
 
     ```
     cd demos/max-fake-ws
     npm install
+    npm run dev
     ```
 
-4. Run `node servertest.js`
-
-5. Press reset button on WiFi card, and look at the command line output from the NodeJS server.
+3. Press reset button on WiFi board, and look at the output from the server.
 
 ### Relay Server
 

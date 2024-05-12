@@ -1,15 +1,13 @@
-//const WebSocketServer = require('ws');
-
 import { WebSocketServer } from 'ws';
 
-const wss = new WebSocketServer({ host: "192.168.1.39", port: 80 });
+const ws = new WebSocketServer({ host: "127.0.0.1", port: 8080 });
 
-console.log("Created new WebSocketServer on port " + wss.options.port);
-console.log(wss.options.host);
+console.log("Created new WebSocketServer on port " + ws.options.port);
+console.log(ws.options.host);
 
-wss.on('connection', ws => {
+ws.on('connection', ws => {
 	console.log("WebSocket Connection accepted.");
-	ws.send("Welcome from "+wss.options.host+":"+wss.options.port+"!");
+	ws.send("Welcome from "+ws.options.host+":"+ws.options.port+"!");
 
 	ws.on('error', err => {
 		console.log(err);
