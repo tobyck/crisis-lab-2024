@@ -14,7 +14,7 @@ div {
     border-radius: 25px;
     border-style: solid;
     border-width: 2px;
-    border-color: var(--borderColor);
+    border-color: v-bind('THEME.borderColor');
     width: 39vw;
     margin-left: 5vw;
     margin-right: 5vw;
@@ -44,6 +44,7 @@ div {
 <script setup>
 import { Line } from 'vue-chartjs'
 import { ref, computed } from 'vue'
+import { THEME } from '@/theme';
 import { Chart as ChartJS, Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement } from 'chart.js'
 
 ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement)
@@ -53,8 +54,6 @@ ChartJS.defaults.borderColor = '#272727';
 
 const props = defineProps(['name','data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
-
-let borderColor = ref("rgb(243, 139, 168)");
 
 
 const chartData = computed(() => ({
@@ -76,28 +75,28 @@ const chartData = computed(() => ({
 const chartOptions = computed(() => ({
     responsive: true,
     scales: {
-      x: {
-        type: 'linear',
-        min: 0,
-        max: 10,
-        title: {
-            text: "Time (s)",
-            display: true,
-        },
-        ticks: {
-            callback(value, index, ticks) {
-                return value-10;
+        x: {
+            type: 'linear',
+            min: 0,
+            max: 10,
+            title: {
+                text: "Time (s)",
+                display: true,
+            },
+            ticks: {
+                callback(value) {
+                    return value-10;
+                }
             }
-        }
-      },
-      y: {
-        min: props.options.minY,
-        max: props.options.maxY,
-        title: {
-            text: props.options.y,
-            display: true,
         },
-      }
+        y: {
+            min: props.options.minY,
+            max: props.options.maxY,
+            title: {
+                text: props.options.y,
+                display: true,
+            },
+        }
     },
     animation: {
         duration: 0,

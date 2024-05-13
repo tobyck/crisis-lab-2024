@@ -1,27 +1,29 @@
+<script setup>
+import { THEME } from '../theme.js';
+</script>
+
 <template>
     <header>
-        <span class = "emoji">&#128680 </span>
-        <span class = "textTsunami">A TSUNAMI IS HAPPENING</span>
-        <span class= "textNormal">Crisis Labs 2024 Dashboard</span>
-        <span class = "emoji"> &#128680</span>
-        </header>
+        <span class="textTsunami" v-if="THEME.alertActive">&#128680; A TSUNAMI IS HAPPENING &#128680;</span>
+        <span class="textNormal" v-if="!THEME.alertActive">Crisis Labs 2024 Dashboard</span>
+    </header>
 </template>
 
 <style scoped>
 header>span.textNormal {
     height: 50px;
     font-size: 40px;
-    background: -webkit-linear-gradient(315deg, var(--headerColor1), var(--headerColor2));
+    background: -webkit-linear-gradient(315deg, v-bind('THEME.headerColor1'), v-bind('THEME.headerColor2'));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
-    display: var(--tsunamiNotHappening);
 }
 
 header {
     font-size: 40px;
     text-align: center;
     border-radius: 25px;
-    border: 2px solid var(--borderColor);
+    border: 2px solid v-bind('THEME.borderColor');
     margin-left: 5vw;
     margin-right: 5vw;
     padding-top: 1vw;
@@ -34,10 +36,7 @@ header {
     }
 }
 
-header> span.emoji {
-    display: var(--tsunamiHappening);
-}
-header> span.textTsunami {
-    display: var(--tsunamiHappening);
+span.textTsunami {
+    color: v-bind('THEME.borderColor');
 }
 </style>

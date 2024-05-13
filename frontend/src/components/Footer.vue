@@ -23,7 +23,7 @@ div {
 }
 </style>
 
-<script setup>
+<script>
 function mailClicked() {
     console.log('todo: open mail dialog')
 }

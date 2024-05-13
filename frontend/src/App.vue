@@ -1,47 +1,49 @@
 <template>
-  <Header />
-  <div class="padding">
-  </div>
-  <div class="flex">
-        <Chart 
-            name="height"
-            :options="{
-                y: 'Water level (cm)',
-                title: 'Water Level',
-                minY: 0,
-                maxY: 3,
-                color: 'skyblue'
-            }"
-            :data-source="height"
-        />
-        <div class="padding"></div>
-        <Chart 
-            name="pressure"
-            :options="{
-                y: 'Pressure (Pa)',
-                title: 'Sensor Pressure',
-                minY: 1018,
-                maxY: 1022,
-                color: 'rgb(100, 126, 255)'
-            }"
-            :data-source="pressure"
-        />
-        <div class="padding"></div>
-        <div class="padding-in-place-of-log"></div>
-        <div class="padding"></div>
-        <Chart 
-            name="live-view"
-            :options="{
-                y: 'Wave height (cm)',
-                title: 'Live View',
-                minY: 1018,
-                maxY: 1022,
-                color: 'rgb(100, 126, 255)'
-            }"
-            :data-source="pressure"
-        />
-  </div>
-  <Footer />
+    <div class="body">
+        <Header />
+        <div class="padding">
+        </div>
+        <div class="flex">
+                <Chart 
+                    name="height"
+                    :options="{
+                        y: 'Water level (cm)',
+                        title: 'Water Level',
+                        minY: 0,
+                        maxY: 3,
+                        color: 'skyblue'
+                    }"
+                    :data-source="height"
+                />
+                <div class="padding"></div>
+                <Chart 
+                    name="pressure"
+                    :options="{
+                        y: 'Pressure (Pa)',
+                        title: 'Sensor Pressure',
+                        minY: 1018,
+                        maxY: 1022,
+                        color: 'rgb(100, 126, 255)'
+                    }"
+                    :data-source="pressure"
+                />
+                <div class="padding"></div>
+                <div class="padding-in-place-of-log"></div>
+                <div class="padding"></div>
+                <Chart 
+                    name="live-view"
+                    :options="{
+                        y: 'Wave height (cm)',
+                        title: 'Live View',
+                        minY: 1018,
+                        maxY: 1022,
+                        color: 'rgb(100, 126, 255)'
+                    }"
+                    :data-source="pressure"
+                />
+        </div>
+        <Footer />
+    </div>
 </template>
 
 <style scoped>
@@ -52,7 +54,7 @@ div.flex {
 }
 div.padding-in-place-of-log {
     border-radius: 25px;
-    border: 2px solid  var(--borderColor);
+    border: 2px solid v-bind('THEME.borderColor');
     width: 39vw;
     margin-left: 5vw;
     margin-right: 5vw;
@@ -61,28 +63,23 @@ div.padding-in-place-of-log {
 div.padding {
     padding-top: 1vw;
 }
-
+/* keeping this typo for posterity */
 dev.paddingBottom {
 
     padding: 100px;
 }
-
 </style>
 
 
 <style>
-:root {
-    --borderColor: rgb(180, 190, 254);
-    --headerColor1: #94e2d5;
-    --headerColor2: #89b4fa;
-    --textColor: #cdd6f4;
-    --backgroundColor: #181825;
-    --tsunamiNotHappening: all;
-
-    --tsunamiHappening: none;
-    /* --borderColor: #f38ba8;
-    --headerColor1: #d20f39;
-    --headerColor2: #d20f39; */
+body {
+    margin: 0 !important;
+}
+div.body {
+    font-family: "Inter var experimental", "Inter var", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    background-color: v-bind('THEME.backgroundColor');
+    min-height: 835px;
+    clear: both;
 }
 </style>
 
@@ -90,6 +87,7 @@ dev.paddingBottom {
 import Header from './components/Header.vue';
 import Chart from './components/Chart.vue';
 import Footer from './components/Footer.vue';
+import { THEME } from './theme';
 import { ref, computed } from 'vue';
 import { packetData, initWebsocket, loaded } from './ws.js';
 
