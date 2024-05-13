@@ -78,7 +78,7 @@ body {
 div.body {
     font-family: "Inter var experimental", "Inter var", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     background-color: v-bind('THEME.backgroundColor');
-    min-height: 835px;
+    min-height: 100vh;
     clear: both;
 }
 </style>
