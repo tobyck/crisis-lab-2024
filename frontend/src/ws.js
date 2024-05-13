@@ -1,6 +1,9 @@
 import { reactive, ref } from 'vue';
+import { THEME } from './theme.js';
 
 export let packetData = reactive([]);
+
+export let incidents = reactive([]);
 
 export const loaded = ref(false);
 
@@ -14,7 +17,15 @@ export async function initWebsocket () {
         } else if (data.type == 'init') { // initial array
             loaded.value = true;
             packetData.push(...data.data);
+            incidents.push(...data.incidents);
             console.log(data);
+        } else if (data.type == 'alert') {
+            console.log('ALERT!!!!! WEE WOO WEE WOO')
+            THEME.alertActive = true;
+            incidents.push(data.data);
+            setTimeout(() => {
+                THEME.alertActive = false;
+            }, 10000);
         }
     })
 }

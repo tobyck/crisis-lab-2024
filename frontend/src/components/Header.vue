@@ -5,7 +5,7 @@ import { THEME } from '../theme.js';
 <template>
     <header>
         <span class="textTsunami" v-if="THEME.alertActive">&#128680; A TSUNAMI IS HAPPENING &#128680;</span>
-        <span class="textNormal" v-if="!THEME.alertActive">Crisis Labs 2024 Dashboard</span>
+        <span class="textNormal" v-if="!THEME.alertActive">CRISiSLab 2024 Dashboard</span>
     </header>
 </template>
 

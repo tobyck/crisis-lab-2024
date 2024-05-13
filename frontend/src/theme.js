@@ -1,6 +1,6 @@
 import { reactive, computed } from 'vue';
 export const THEME = reactive({
-    alertActive: true,
+    alertActive: false,
     dark: true,
     borderColor: computed(() => THEME.alertActive ? 
         alertGradient[Math.floor(THEME.timeStamp / 50) % 32]
@@ -19,7 +19,7 @@ export const THEME = reactive({
 
 setInterval(() => {
     THEME.timeStamp = Date.now();
-    console.log(THEME.borderColor.value, alertGradient)
+    //console.log(THEME.borderColor.value, alertGradient)
 }, 50);
 
 

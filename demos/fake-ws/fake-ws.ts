@@ -1,6 +1,7 @@
 import { IncomingMessage } from 'http';
 import r_ws from 'ws';
 import { RingBuffer } from './ring-buffer';
+import { question } from 'readline-sync';
 
 type DataPacket = {
     timeStamp: number;
@@ -21,7 +22,8 @@ let prevData = new RingBuffer<DataPacket>(bufferSize * hertz);
 ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
     conn.send(JSON.stringify({
         type: 'init',
-        data: prevData.toArray()
+        data: prevData.toArray(),
+        incidents: incidents
     }));
     console.log('new connection');
     conns.push(conn);
@@ -62,3 +64,28 @@ setInterval(() => {
         conn.send(toDeliver);
     }
 }, 1000 / hertz)
+
+let incidents: Incident[] = [];
+
+while (true) {
+    let trigger = question('alert?');
+    if (trigger.trim() === 'y') {
+        let incident = {
+            timeStamp: Date.now(),
+            height: prevData.get(0).waterLevel
+        };
+        incidents.push(incident);
+        for (let conn of conns) {
+            conn.send(JSON.stringify({
+                type: 'alert',
+                data: incident
+            }))
+        }
+
+    }
+}
+
+type Incident = {
+    timeStamp: number;
+    height: number;
+}
