@@ -1,17 +1,19 @@
-# [CrisisLab](https://www.crisislab.org.nz/crisislabchallenge) 2024
+# [CRISiSLab](https://www.crisislab.org.nz/crisislabchallenge) 2024
 
 _Created by [me](https://github.com/tobyck), [chunkybanana](https://github.com/chunkybanana), [Alex Berry](https://github.com/AlexBerry0), and [aketon08](https://github.com/aketon08)._
 
-This repository contains all the code for our CrisisLab 2024 project.
+This repository contains all the code for our CRISiSLab 2024 project.
 
-The project has three main components:
- - An Arduino attached to a pressure sensor to read data and send it (unprocessed) through a websocket to the relay server. This embedded bit is done in C partly for speed, but mostly because we're lazy.
- - A server to take the raw data from the Arduino, relay the data to all the instances of the dashboard and maintain a cache for rendundency, determine whether or not there should be an alert, and if so, inform the dashboard and other components of the project.
+The project has four main components:
  - The dashboard with graphs, information, and alerts. Written in Vue with vue-chartjs for the graphs.
+ - The alert system; When a tsunami is detected, an Instagram bot automatically posts a warning, and an e-mail bot sends out emails to people on the mailing list.
+ - An Arduino attached to a pressure sensor to read data and send it through a WebSocket to the relay server.
+ - A server to take the raw data from the Arduino; do calculations to determine wave height; relay the data to all instances of the dashboard and maintain a cache for redundancy; and determine whether or not there should be an alert, and if so, inform the dashboard and other components of the project.
+
 
 ## Setup
 
-First, obviously, clone this repo:
+First, clone this repo:
 
 ```
 git clone https://github.com/tobyck/crisis-lab-2024.git whs-crisis-lab
@@ -57,7 +59,7 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     arduino-cli board list
     ```
 
-    You should see something like this:
+    You should see something like this: (Port is `/dev/ttyUSB0`)
 
     ```
     Port         Protocol Type              Board Name FQBN Core
@@ -71,16 +73,16 @@ This method uses [the Arduino CLI](https://arduino.github.io/arduino-cli). If yo
     ```
 
 > [!NOTE]
-> If that last command errors saying you don't have permission, _don't_ just try as root as (in my experience) it won't be able to find your board definitions, I assume because they're installed on a per-user basis. Instead you probaby need to add yourself to the `dialout` group. More detail is [here](https://askubuntu.com/a/133244).
+> If that last command errors saying you don't have permission, _don't_ just try as root, as (in my experience) it won't be able to find your board definitions. I assume this is because they're installed on a per-user basis. Instead you probaby need to add yourself to the `dialout` group. More detail [here](https://askubuntu.com/a/133244).
 
-6. Compile and upload the code for the WiFi board using the same method and same port, but change the FQBN to `esp8266:esp8266:generic`
+6. Compile and upload the code for the WiFi board following through the same steps from `step 4`, but change the FQBN to `esp8266:esp8266:generic`
 
     ```
     arduino-cli compile --fqbn esp8266:esp8266:generic embedded/client
     arduino-cli upload -p PUT_YOUR_PORT_HERE --fqbn esp8266:esp8266:generic embedded/client
     ```
 
-7. If you like, you can know motinor logs in the serial output.
+7. If you want, you can monitor logs in the serial output.
 
     ```
     arduino-cli monitor -p PUT_YOUR_PORT_HERE --config baudrate=115200
