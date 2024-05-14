@@ -1,3 +1,7 @@
+<script setup>
+import { THEME } from '../theme.js';
+</script>
+
 <template>
     <div>
         <a href='https://github.com/tobyck/crisis-lab-2024' target='_blank'>GitHub</a>
@@ -19,8 +23,9 @@ div {
     position: fixed;
     width: 100%;
     bottom: 0;
-    background-color: var(--backgroundColor);
+    background-color: v-bind('THEME.backgroundColor');
 }
+
 </style>
 
 <script>
