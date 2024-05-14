@@ -24,11 +24,12 @@
 div.box {
     border-radius: 25px;
     border: 2px solid v-bind('THEME.borderColor');
-    width: 39vw;
+    width: 40vw;
     margin-left: 5vw;
     margin-right: 5vw;
     color: v-bind('THEME.textColor');
-    height: 19.5vw;
+    max-height: 20vw;
+    box-sizing: border-box;
     overflow-y: scroll;
 }
 

@@ -15,11 +15,11 @@ div {
     border-style: solid;
     border-width: 2px;
     border-color: v-bind('THEME.borderColor');
-    width: 39vw;
+    width: 40vw;
     margin-left: 5vw;
     margin-right: 5vw;
     /*background-color: red; /* temp */
-
+    box-sizing: border-box;
 }
 
 @media screen and (max-width: 1200px) {
@@ -49,8 +49,8 @@ import { Chart as ChartJS, Title, Tooltip, Legend, LineController, LinearScale, 
 
 ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement)
 
-ChartJS.defaults.color = 'rgb(205, 214, 244)';
-ChartJS.defaults.borderColor = '#272727';
+ChartJS.defaults.color = THEME.textColor;
+ChartJS.defaults.borderColor = THEME.gridColor;
 
 const props = defineProps(['name','data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);

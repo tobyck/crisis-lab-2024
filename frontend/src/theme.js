@@ -4,17 +4,19 @@ export const THEME = reactive({
     dark: true,
     borderColor: computed(() => THEME.alertActive ? 
         alertGradient[Math.floor(THEME.timeStamp / 50) % 32]
-        : 'rgb(180, 190, 254)'
+        : THEME.dark ? 'rgb(180, 190, 254)' : 'rgb(114, 135, 253)'
     ),
     backgroundColor: computed(() => THEME.alertActive ? 
         alertBackgroundGradient[Math.floor(THEME.timeStamp / 50) % 32]
-        : 'rgb(24, 24, 37)'
+        : THEME.dark ? 'rgb(24, 24, 37)' : 'rgb(230, 233, 239)'
     ),
-    headerColor1: '#94e2d5',
-    headerColor2: '#89b4fa',
-    textColor: '#cdd6f4',
-    alertColor: 'green',
+    headerColor1: computed(() => THEME.dark ? 'rgb(148, 226, 213)' : 'rgb(23, 146, 153)'),
+    headerColor2: computed(() => THEME.dark ? 'rgb(137, 180, 250)' : 'rgb(30, 102, 245)'),
+    textColor: computed(() => THEME.dark ? '#cdd6f4' : 'rgb(76, 79, 105)'),
     timeStamp: Date.now(),
+    gridColor: computed(() => THEME.dark ? 'rgb(49, 50, 68)' : 'rgb(204, 208, 218)'),
+    graphColor1: computed(() => THEME.dark ? 'rgb(137, 220, 235)' : 'rgb(4, 165, 229)'),
+    graphColor2: computed(() => THEME.dark ? 'rgb(137, 180, 250)' : 'rgb(30, 102, 245)'),
 })
 
 setInterval(() => {
