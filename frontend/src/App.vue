@@ -42,6 +42,7 @@
                 :data-source="pressure"
             />
         </div>
+        <div class="paddingBottom"></div>
         <Footer />
     </div>
 </template>
@@ -61,6 +62,12 @@ dev.paddingBottom {
 
     padding: 100px;
 }
+/* exept that that code is actually needed so heres it agian without the typo */
+div.paddingBottom {
+
+padding: 10px;
+}
+
 </style>
 
 

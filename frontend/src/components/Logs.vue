@@ -32,6 +32,22 @@ div.box {
     overflow-y: scroll;
 }
 
+@media screen and (max-width: 1200px) {
+    div.box {
+        width: max(480px, 40vw);
+        margin-left: max(25vw - 240px,0px);
+        margin-right: max(25vw - 240px,0px);
+    }
+}
+
+
+@media screen and (max-width: 1000px) {
+    div.box {
+        width: min(90%, 600px);
+        margin-left: max(5%, calc((100% - 600px) / 2));
+    }
+}
+
 p.incidents {
     font-size: 20px;
     text-align: center;
