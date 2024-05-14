@@ -24,7 +24,6 @@ div {
     width: 100%;
     bottom: 0;
     background-color: v-bind('THEME.backgroundColor');
-    z-index: 20;
 }
 
 </style>
