@@ -24,8 +24,8 @@ header {
     text-align: center;
     border-radius: 25px;
     border: 2px solid v-bind('THEME.borderColor');
-    margin-left: 5vw;
-    margin-right: 5vw;
+    margin-left: max(25vw - 240px,0px);
+    margin-right: max(25vw - 240px,0px);
     padding-top: 1vw;
     padding-bottom: 1vw;
 }
