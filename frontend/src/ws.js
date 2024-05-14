@@ -25,7 +25,7 @@ export async function initWebsocket () {
             incidents.push(data.data);
             setTimeout(() => {
                 THEME.alertActive = false;
-            }, 10000);
+            }, 20000);
         }
     })
 }
