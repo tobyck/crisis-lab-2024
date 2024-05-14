@@ -28,7 +28,7 @@ div.box {
     margin-left: 5vw;
     margin-right: 5vw;
     color: v-bind('THEME.textColor');
-    height: 18vw;
+    height: 19.5vw;
     overflow-y: scroll;
 }
 
