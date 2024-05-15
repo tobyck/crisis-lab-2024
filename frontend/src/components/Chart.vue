@@ -131,6 +131,9 @@ const chartOptions = computed(() => ({
                 weight: '',
             },
             color: THEME.textColor,
+        },
+        tooltip: {
+            enabled: false
         }
     }
 }))
