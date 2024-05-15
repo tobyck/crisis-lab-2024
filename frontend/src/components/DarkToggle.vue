@@ -1,6 +1,6 @@
 <template>
     <label class="switch" for="checkbox">
-        <input type="checkbox" id="checkbox">
+        <input type="checkbox" id="checkbox" @click="toggle()">
         <span class="slider round"></span>
     </label>
 </template>
@@ -8,8 +8,8 @@
 .switch {
     position: relative;
     display: inline-block;
-    width: 32px;
-    height: 20px;
+    width: 30px;
+    height: 18px;
 }
 
 .switch input { 
@@ -25,7 +25,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    /*background-color: #ccc;*/
+    border: 1px solid v-bind('THEME.borderColor');
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 20px;
@@ -36,8 +37,8 @@
     content: "";
     height: 12px;
     width: 12px;
-    left: 4px;
-    bottom: 4px;
+    left: 2px;
+    bottom: 2px;
     background-color: white;
     -webkit-transition: .4s;
     transition: .4s;
@@ -45,7 +46,7 @@
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  /*background-color: #2196F3;*/
 }
 
 input:focus + .slider {
@@ -60,10 +61,15 @@ input:checked + .slider:before {
 
 /* Rounded sliders */
 .slider.round {
-  border-radius: 20px;
+  border-radius: 18px;
 }
 
 .slider.round:before {
   border-radius: 50%;
 }
 </style>
+
+<script setup>
+import { THEME } from '../theme.js'
+let toggle = () => THEME.dark = !THEME.dark
+</script>
