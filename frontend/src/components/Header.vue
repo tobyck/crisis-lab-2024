@@ -28,6 +28,7 @@ header {
     margin-right: max(25vw - 240px,0px);
     padding-top: 1vw;
     padding-bottom: 1vw;
+    margin-top: 5px;
 }
 
 @media screen and (min-width: 2400px) {
