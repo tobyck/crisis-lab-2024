@@ -1,6 +1,6 @@
 <template>
     <label class="switch" for="checkbox">
-        <input type="checkbox" id="checkbox" @click="toggle()" :checked="THEME.defaultMode ? 'true' : ''">
+        <input type="checkbox" id="checkbox" @click="toggle()" :checked="THEME.defaultMode ? 'true' : undefined">
         <span class="slider round"></span>
     </label>
 </template>
@@ -25,7 +25,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    /*background-color: #ccc;*/
     border: 1px solid v-bind('THEME.borderColor');
     -webkit-transition: .4s;
     transition: .4s;
@@ -47,14 +46,6 @@
     color: v-bind('THEME.textColor');
     content: ' ☼'
 }
-
-input:checked + .slider {
-  /*background-color: #2196F3;*/
-}
-
-/*input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}*/
 
 input:checked + .slider:before {
   -webkit-transform: translateX(12px);
