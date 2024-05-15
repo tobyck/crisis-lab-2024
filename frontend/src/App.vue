@@ -11,7 +11,7 @@
                     title: 'Water Level',
                     minY: 0,
                     maxY: 3,
-                    color: 'skyblue'
+                    color: THEME.graphColor1
                 }"
                 :data-source="height"
             />
@@ -23,7 +23,7 @@
                     title: 'Sensor Pressure',
                     minY: 1018,
                     maxY: 1022,
-                    color: 'rgb(100, 126, 255)'
+                    color: THEME.graphColor2
                 }"
                 :data-source="pressure"
             />
@@ -37,7 +37,7 @@
                     title: 'Live View',
                     minY: 1018,
                     maxY: 1022,
-                    color: 'rgb(100, 126, 255)'
+                    color: THEME.graphColor2
                 }"
                 :data-source="pressure"
             />

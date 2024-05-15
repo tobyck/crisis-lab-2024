@@ -82,11 +82,19 @@ const chartOptions = computed(() => ({
             title: {
                 text: "Time (s)",
                 display: true,
+                color: THEME.textColor,
             },
             ticks: {
                 callback(value) {
                     return value-10;
-                }
+                },
+                color: THEME.textColor,
+            },
+            grid: {
+                color: THEME.gridColor,
+            },
+            border: {
+                color: THEME.gridColor,
             }
         },
         y: {
@@ -95,7 +103,17 @@ const chartOptions = computed(() => ({
             title: {
                 text: props.options.y,
                 display: true,
+                color: THEME.textColor,
             },
+            ticks: {
+                color: THEME.textColor,
+            },
+            grid: {
+                color: THEME.gridColor,
+            },
+            border: {
+                color: THEME.gridColor,
+            }
         }
     },
     animation: {
@@ -112,6 +130,7 @@ const chartOptions = computed(() => ({
                 size: 20,
                 weight: '',
             },
+            color: THEME.textColor,
         }
     }
 }))

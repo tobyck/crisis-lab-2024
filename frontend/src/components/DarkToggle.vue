@@ -1,6 +1,6 @@
 <template>
     <label class="switch" for="checkbox">
-        <input type="checkbox" id="checkbox" @click="toggle()">
+        <input type="checkbox" id="checkbox" @click="toggle()" :checked="THEME.defaultMode ? 'true' : ''">
         <span class="slider round"></span>
     </label>
 </template>
@@ -39,24 +39,28 @@
     width: 12px;
     left: 2px;
     bottom: 2px;
-    background-color: white;
+    background-color: v-bind('THEME.lighterBackground');
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 50%;
+    font-size: 10px;
+    color: v-bind('THEME.textColor');
+    content: ' ☼'
 }
 
 input:checked + .slider {
   /*background-color: #2196F3;*/
 }
 
-input:focus + .slider {
+/*input:focus + .slider {
   box-shadow: 0 0 1px #2196F3;
-}
+}*/
 
 input:checked + .slider:before {
   -webkit-transform: translateX(12px);
   -ms-transform: translateX(12px);
   transform: translateX(12px);
+  content: "  ☾"; /* I apologize for the hair space, but it's necessary */
 }
 
 /* Rounded sliders */
@@ -71,5 +75,5 @@ input:checked + .slider:before {
 
 <script setup>
 import { THEME } from '../theme.js'
-let toggle = () => THEME.dark = !THEME.dark
+let toggle = () => localStorage.setItem('dark',THEME.dark = !THEME.dark)
 </script>

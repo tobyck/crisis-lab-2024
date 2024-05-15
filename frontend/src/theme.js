@@ -1,7 +1,10 @@
 import { reactive, computed } from 'vue';
+
+let defaultMode = localStorage.getItem('dark') ? localStorage.getItem('dark') == 'true' : window.matchMedia?.('(prefers-color-scheme: dark)')?.matches
 export const THEME = reactive({
     alertActive: false,
-    dark: true,
+    defaultMode,
+    dark: defaultMode,
     borderColor: computed(() => THEME.alertActive ? 
         alertGradient[Math.floor(THEME.timeStamp / 50) % 32]
         : THEME.dark ? 'rgb(180, 190, 254)' : 'rgb(114, 135, 253)'
@@ -17,12 +20,14 @@ export const THEME = reactive({
     gridColor: computed(() => THEME.dark ? 'rgb(49, 50, 68)' : 'rgb(204, 208, 218)'),
     graphColor1: computed(() => THEME.dark ? 'rgb(137, 220, 235)' : 'rgb(4, 165, 229)'),
     graphColor2: computed(() => THEME.dark ? 'rgb(137, 180, 250)' : 'rgb(30, 102, 245)'),
+    lighterBackground: computed(() => THEME.dark ? 'rgb(49, 50, 68)' : 'rgb(204, 208, 218)')
 })
 
 setInterval(() => {
     THEME.timeStamp = Date.now();
     //console.log(THEME.borderColor.value, alertGradient)
 }, 50);
+
 
 
 
