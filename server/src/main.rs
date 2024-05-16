@@ -1,21 +1,26 @@
-use dotenv::dotenv;
-use std::env;
-
+use futures_util::{FutureExt, StreamExt};
 use warp::Filter;
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
+    let echo = warp::path("echo")
+        .and(warp::ws())
+        .map(|ws: warp::ws::Ws| {
+            ws.on_upgrade(|websocket| {
+                let (tx, rx) = websocket.split();
+                rx.forward(tx).map(|result| {
+                    if let Err(e) = result {
+                        eprintln!("websocket error: {:?}", e);
+                    }
+                })
+            })
+        });
 
-    let site_dir = env::var("SITE_DIR").expect("Error reading SITE_DIR environment variable");
+    let routes = echo;
 
-    let assets = warp::fs::dir(site_dir.clone());
-
-    let index = warp::get()
-        .and(warp::path::end())
-        .and(warp::fs::file(site_dir + "index.html"));
-
-    let routes = index.or(assets);
-
-    warp::serve(routes).run(([127, 0, 0, 1], 8080)).await;
+    warp::serve(routes)
+        .tls()
+        .cert_path("tls/cert.pem")
+        .key_path("tls/key.rsa")
+        .run(([127, 0, 0, 1], 8080)).await;
 }
