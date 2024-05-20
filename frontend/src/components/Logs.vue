@@ -1,7 +1,7 @@
 <template>
     <div class="box">
         <p class="incidents">Logs
-            <StatusLight :status="true" name="Relay:" />
+            <StatusLight :status="true" name="Relay" />
         </p>
         <div v-for="incident in [...incidents].reverse()">
             <p>Tsunami of height {{
