@@ -1,6 +1,8 @@
 <template>
     <div class="box">
-        <p class="incidents">Past Incidents</p>
+        <p class="incidents">Logs
+            <StatusLight :status="true" name="Relay:" />
+        </p>
         <div v-for="incident in [...incidents].reverse()">
             <p>Tsunami of height {{
                 incident.height.toFixed(2)
@@ -28,6 +30,7 @@ div.box {
     margin-left: 5vw;
     margin-right: 5vw;
     color: v-bind('THEME.textColor');
+    min-height: 20vw;
     max-height: 20vw;
     box-sizing: border-box;
     overflow-y: scroll;
@@ -73,4 +76,5 @@ span.alert {
 <script setup>
 import { incidents } from '../ws.js';
 import { THEME } from '@/theme.js';
+import StatusLight from './StatusLight.vue';
 </script>

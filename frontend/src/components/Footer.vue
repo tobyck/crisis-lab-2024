@@ -16,6 +16,7 @@ a {
     color: v-bind('THEME.textColor');
     padding: 5px;
     text-decoration: none;
+    /*margin-right: 10px;*/
 }
 a:hover {
     text-decoration:underline;
@@ -24,7 +25,9 @@ div {
     position: fixed;
     width: 100%;
     bottom: 0;
-    background-color: v-bind('THEME.backgroundColor');
+    background-color: v-bind('THEME.lighterBackground');
+    padding: 0.4vh;
+    /*text-align: center;*/
 }
 
 </style>

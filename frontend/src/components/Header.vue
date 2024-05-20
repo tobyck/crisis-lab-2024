@@ -22,13 +22,12 @@ header>span.textNormal {
 header {
     font-size: 40px;
     text-align: center;
-    border-radius: 25px;
-    border: 2px solid v-bind('THEME.borderColor');
+    /*border-radius: 25px;
+    border: 2px solid v-bind('THEME.borderColor');*/
     margin-left: max(25vw - 240px,0px);
     margin-right: max(25vw - 240px,0px);
     padding-top: 1vw;
     padding-bottom: 1vw;
-    margin-top: 5px;
 }
 
 @media screen and (min-width: 2400px) {

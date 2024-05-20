@@ -6,11 +6,12 @@ export const THEME = reactive({
     defaultMode,
     dark: defaultMode,
     borderColor: computed(() => THEME.alertActive ? 
-        alertGradient[Math.floor(THEME.timeStamp / 50) % 32]
+        (THEME.dark ? alertGradient : lightTextGradient)[Math.floor(THEME.timeStamp / 50) % 32]
         : THEME.dark ? 'rgb(180, 190, 254)' : 'rgb(114, 135, 253)'
     ),
+    baseBorderColor: computed(() => THEME.dark ? 'rgb(180, 190, 254)' : 'rgb(114, 135, 253)'),
     backgroundColor: computed(() => THEME.alertActive ? 
-        alertBackgroundGradient[Math.floor(THEME.timeStamp / 50) % 32]
+        (THEME.dark ? alertBackgroundGradient : lightAlertGradient) [Math.floor(THEME.timeStamp / 50) % 32]
         : THEME.dark ? 'rgb(24, 24, 37)' : 'rgb(230, 233, 239)'
     ),
     headerColor1: computed(() => THEME.dark ? 'rgb(148, 226, 213)' : 'rgb(23, 146, 153)'),
@@ -56,3 +57,8 @@ const alertGradient = createRGBGradient(alertColor1, alertColor2, 16);
 
 let alertBackgroundGradient = createRGBGradient([24, 24, 37], [60, 24, 37], 16);
 alertBackgroundGradient = alertBackgroundGradient.slice(10).concat(alertBackgroundGradient.slice(0, 10));
+
+let lightAlertGradient = createRGBGradient([230, 233, 239], [230, 180, 180], 16);
+lightAlertGradient = lightAlertGradient.slice(10).concat(lightAlertGradient.slice(0, 10));
+
+let lightTextGradient = createRGBGradient([160, 80, 80], [255, 40, 60], 16);

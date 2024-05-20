@@ -25,7 +25,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    border: 1px solid v-bind('THEME.borderColor');
+    border: 1px solid v-bind('THEME.baseBorderColor');
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 20px;
@@ -44,14 +44,16 @@
     border-radius: 50%;
     font-size: 10px;
     color: v-bind('THEME.textColor');
-    content: ' ☼'
+    content: '☼';
+    text-align: center;
+    line-height: 11.7px;
 }
 
 input:checked + .slider:before {
   -webkit-transform: translateX(12px);
   -ms-transform: translateX(12px);
   transform: translateX(12px);
-  content: "  ☾"; /* I apologize for the hair space, but it's necessary */
+  content: "☾"; /* I apologize for the hair space, but it's necessary */
 }
 
 /* Rounded sliders */
@@ -61,6 +63,10 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+label {
+    margin-top: 2px;
 }
 </style>
 

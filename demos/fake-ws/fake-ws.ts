@@ -9,8 +9,8 @@ type DataPacket = {
     waterLevel: number;
 }
 
-const hertz = 25;
-const bufferSize = 10;
+const hertz = 10;
+const bufferSize = 20;
 
 
 let ws = new r_ws.Server({ port: 8081 });

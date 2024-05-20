@@ -78,7 +78,7 @@ const chartOptions = computed(() => ({
         x: {
             type: 'linear',
             min: 0,
-            max: 10,
+            max: 20,
             title: {
                 text: "Time (s)",
                 display: true,
@@ -86,7 +86,7 @@ const chartOptions = computed(() => ({
             },
             ticks: {
                 callback(value) {
-                    return value-10;
+                    return value-20;
                 },
                 color: THEME.textColor,
             },

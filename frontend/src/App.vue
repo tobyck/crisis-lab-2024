@@ -1,8 +1,7 @@
 <template>
     <div class="body">
         <Header />
-        <div class="padding">
-        </div>
+        <!--<div class="padding"></div>-->
         <div class="flex">
             <Chart 
                 name="height"
@@ -15,7 +14,7 @@
                 }"
                 :data-source="height"
             />
-            <div class="padding"></div>
+            <!--<div class="padding"></div>-->
             <Chart 
                 name="pressure"
                 :options="{
@@ -27,9 +26,9 @@
                 }"
                 :data-source="pressure"
             />
-            <div class="padding"></div>
+            <!--<div class="padding"></div>-->
             <Logs />
-            <div class="padding"></div>
+            <!--<div class="padding"></div>-->
             <Chart 
                 name="live-view"
                 :options="{
@@ -42,7 +41,7 @@
                 :data-source="pressure"
             />
         </div>
-        <div class="paddingBottom"></div>
+        <!--<div class="paddingBottom"></div>-->
         <Footer />
     </div>
 </template>
@@ -51,7 +50,8 @@
 div.flex {
     display: flex;
     flex-wrap: wrap;
-    row-gap: 1vw;
+    row-gap: 4vw;
+    /*column-gap: 2vw;*/
 }
 
 div.padding {
@@ -73,7 +73,7 @@ padding: 10px;
 
 <style>
 body {
-    margin: 0 !important;
+    margin: 0;
 }
 div.body {
     font-family: "Inter var experimental", "Inter var", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -100,7 +100,7 @@ const pressure = computed(() => ({
     values: packetData.filter(t => t != null)
         .map(({pressure, timeStamp}) => 
         ({
-            x: 10 - (Date.now() - timeStamp) / 1000, 
+            x: 20 - (Date.now() - timeStamp) / 1000, 
             y: pressure
         })
     ),
@@ -111,7 +111,7 @@ const height = computed(() => ({
     values: packetData.filter(t => t != null)
         .map(({waterLevel, timeStamp}) => 
         ({
-            x: 10 - (Date.now() - timeStamp) / 1000, 
+            x: 20 - (Date.now() - timeStamp) / 1000, 
             y: waterLevel
         })
     ),
