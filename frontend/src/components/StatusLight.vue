@@ -1,3 +1,4 @@
+
 <template>
     <span class="container">
         {{ props.name }}
@@ -12,7 +13,7 @@
 
 <script setup>
 const props = defineProps(['name','status']);
-
+import { THEME } from '../theme.js';
 </script>
 
 <style scoped>
@@ -25,13 +26,11 @@ const props = defineProps(['name','status']);
     display: inline-block;
 }
 .light-on{
-    background-color: rgb(141, 212, 0);
-    box-shadow: #225 0 -1px 7px 1px, inset rgb(90, 135, 0) 0 -1px 9px, #7D0 0 0px 8px;
+    background-color: v-bind('THEME.statusLightOn');
 }
 
 .light-off {
-    background-color: #940;
-    box-shadow: #225 0 -1px 7px 1px, inset #600 0 -1px 9px, #F00 0 0px 8px;
+    background-color: v-bind('THEME.statusLightOff');
 }
 
 span.container {

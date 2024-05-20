@@ -2,6 +2,8 @@
     <div class="box">
         <p class="incidents">Logs
             <StatusLight :status="true" name="Relay" />
+            <StatusLight :status="false" name="Sensor" />
+            <StatusLight :status="true" name="Alerts" />
         </p>
         <div v-for="incident in [...incidents].reverse()">
             <p>Tsunami of height {{

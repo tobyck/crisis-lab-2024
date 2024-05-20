@@ -21,7 +21,9 @@ export const THEME = reactive({
     gridColor: computed(() => THEME.dark ? 'rgb(49, 50, 68)' : 'rgb(204, 208, 218)'),
     graphColor1: computed(() => THEME.dark ? 'rgb(137, 220, 235)' : 'rgb(4, 165, 229)'),
     graphColor2: computed(() => THEME.dark ? 'rgb(137, 180, 250)' : 'rgb(30, 102, 245)'),
-    lighterBackground: computed(() => THEME.dark ? 'rgb(49, 50, 68)' : 'rgb(204, 208, 218)')
+    lighterBackground: computed(() => THEME.dark ? 'rgb(49, 50, 68)' : 'rgb(204, 208, 218)'),
+    statusLightOn: computed(() => THEME.dark ? 'rgb(166, 227, 161)' : 'rgb(64, 160, 43)'),
+    statusLightOff: computed(() => THEME.dark ? 'rgb(243, 139, 168)' : 'rgb(210, 15, 57)')
 })
 
 setInterval(() => {
