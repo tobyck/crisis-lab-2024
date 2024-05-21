@@ -1,7 +1,6 @@
 <template>
     <div class="body">
         <Header />
-        <!--<div class="padding"></div>-->
         <div class="flex">
             <Chart 
                 name="height"
@@ -14,7 +13,6 @@
                 }"
                 :data-source="height"
             />
-            <!--<div class="padding"></div>-->
             <Chart 
                 name="pressure"
                 :options="{
@@ -26,9 +24,7 @@
                 }"
                 :data-source="pressure"
             />
-            <!--<div class="padding"></div>-->
             <Logs />
-            <!--<div class="padding"></div>-->
             <Chart 
                 name="live-view"
                 :options="{
@@ -41,31 +37,25 @@
                 :data-source="pressure"
             />
         </div>
-        <!--<div class="paddingBottom"></div>-->
         <Footer />
     </div>
 </template>
 
 <style scoped>
 div.flex {
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
     display: flex;
     flex-wrap: wrap;
-    row-gap: 4vw;
-    /*column-gap: 2vw;*/
+    row-gap: 3vw;
+    column-gap: 3vw;
 }
 
-div.padding {
-    padding-top: 1vw;
-}
 /* keeping this typo for posterity */
 dev.paddingBottom {
 
     padding: 100px;
-}
-/* exept that that code is actually needed so heres it agian without the typo */
-div.paddingBottom {
-
-padding: 10px;
 }
 
 </style>

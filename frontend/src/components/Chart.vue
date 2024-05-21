@@ -11,14 +11,11 @@
 
 <style scoped>
 div {
-    border-radius: 25px;
+    border-radius: 1.5vh;
     border-style: solid;
     border-width: 2px;
     border-color: v-bind('THEME.borderColor');
     width: 40vw;
-    margin-left: 5vw;
-    margin-right: 5vw;
-    /*background-color: red; /* temp */
     box-sizing: border-box;
 }
 

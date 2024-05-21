@@ -26,11 +26,9 @@
 
 <style scoped>
 div.box {
-    border-radius: 25px;
+    border-radius: 1.5vh;
     border: 2px solid v-bind('THEME.borderColor');
     width: 40vw;
-    margin-left: 5vw;
-    margin-right: 5vw;
     color: v-bind('THEME.textColor');
     min-height: 20vw;
     max-height: 20vw;
@@ -50,6 +48,9 @@ div.box {
         height: min(40%, 600px);
     }
 }
+
+
+
 
 p.incidents {
     font-size: 20px;
