@@ -1,7 +1,6 @@
 <template>
     <div class="body">
         <Header />
-        <!--<div class="padding"></div>-->
         <div class="flex">
             <Chart 
                 name="height"
@@ -14,7 +13,6 @@
                 }"
                 :data-source="height"
             />
-            <!--<div class="padding"></div>-->
             <Chart 
                 name="pressure"
                 :options="{
@@ -26,9 +24,8 @@
                 }"
                 :data-source="pressure"
             />
-            <!--<div class="padding"></div>-->
             <Logs />
-            <!--<div class="padding"></div>-->
+            <div class="liveView">
             <Chart 
                 name="live-view"
                 :options="{
@@ -40,8 +37,8 @@
                 }"
                 :data-source="pressure"
             />
+            </div>
         </div>
-        <!--<div class="paddingBottom"></div>-->
         <Footer />
     </div>
 </template>
@@ -63,10 +60,13 @@ dev.paddingBottom {
     padding: 100px;
 }
 /* exept that that code is actually needed so heres it agian without the typo */
-div.paddingBottom {
 
-padding: 10px;
+@media screen and (max-width: 800px) {
+    div.liveView {
+        display: none;
+    }
 }
+
 
 </style>
 

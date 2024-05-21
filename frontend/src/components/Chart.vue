@@ -11,7 +11,7 @@
 
 <style scoped>
 div {
-    border-radius: 25px;
+    border-radius: 1vh;
     border-style: solid;
     border-width: 2px;
     border-color: v-bind('THEME.borderColor');
