@@ -26,7 +26,7 @@
 
 <style scoped>
 div.box {
-    border-radius: 1.5vh;
+    border-radius: 1vh;
     border: 2px solid v-bind('THEME.borderColor');
     width: 40vw;
     color: v-bind('THEME.textColor');
@@ -34,6 +34,13 @@ div.box {
     max-height: 20vw;
     box-sizing: border-box;
     overflow-y: scroll;
+}
+
+@media screen and (max-width: 800px) {
+    div.box {
+        min-height: 40vw;
+        max-height: 40vw;
+    }
 }
 
 @media screen and (max-width: 1000px) {

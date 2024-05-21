@@ -22,7 +22,6 @@ import { THEME } from '../theme.js';
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    /*float: left;*/
     display: inline-block;
 }
 .light-on{
@@ -34,6 +33,7 @@ import { THEME } from '../theme.js';
 }
 
 span.container {
+    padding-top: 1vh;
     font-size: 10px;
     float: right;
     margin-right: 20px;

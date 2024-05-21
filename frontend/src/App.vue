@@ -25,6 +25,7 @@
                 :data-source="pressure"
             />
             <Logs />
+            <div class="liveView">
             <Chart 
                 name="live-view"
                 :options="{
@@ -36,6 +37,7 @@
                 }"
                 :data-source="pressure"
             />
+            </div>
         </div>
         <Footer />
     </div>
@@ -57,6 +59,14 @@ dev.paddingBottom {
 
     padding: 100px;
 }
+/* exept that that code is actually needed so heres it agian without the typo */
+
+@media screen and (max-width: 800px) {
+    div.liveView {
+        display: none;
+    }
+}
+
 
 </style>
 
