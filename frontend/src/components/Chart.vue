@@ -113,6 +113,10 @@ const chartOptions = computed(() => ({
             }
         }
     },
+    normalized: true,
+    parsing: false,
+    animation: false,
+    spanGaps: true,
     animation: false,
     plugins: {
         legend: {
