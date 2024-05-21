@@ -113,9 +113,7 @@ const chartOptions = computed(() => ({
             }
         }
     },
-    animation: {
-        duration: 0,
-    },
+    animation: false,
     plugins: {
         legend: {
             display: false,
