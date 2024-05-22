@@ -1,7 +1,7 @@
 **/node_modules
 .vscode/*
 !.vscode/extensions.json
-.DS_Store
-.env
+**/.DS_Store
+**/.env
 */bun.lockb
 */package-lock.json
