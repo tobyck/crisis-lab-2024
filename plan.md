@@ -2,9 +2,13 @@
 
 ## Todo
 
-- [ ] Get arduino dev environment setup
-- [ ] Handle data from sensor and sending it on a WS
-- [ ] Design frontend on paper
+- Embedded
+    - [X] Get arduino dev environment setup
+    - [ ] Figure out how to install library for the wifi board
+    - [ ] Make sure the WS lib can fit on the board
+    - [ ] Handle data from sensor and sending it on a WS
+- Frontend
+    - [ ] Design on paper
 
 ## Outline
 
