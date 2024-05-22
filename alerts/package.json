@@ -3,14 +3,18 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/uuid": "^9.0.8"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@types/nodemailer": "^6.4.15",
     "dotenv": "^16.4.5",
     "instagram-private-api": "^1.46.1",
-    "request-promise": "^4.2.6"
+    "nodemailer": "^6.9.13",
+    "request-promise": "^4.2.6",
+    "uuid": "^9.0.1"
   }
 }

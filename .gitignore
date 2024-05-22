@@ -3,5 +3,4 @@
 !.vscode/extensions.json
 **/.DS_Store
 **/.env
-*/bun.lockb
-*/package-lock.json
+alerts/mail-list.txt
