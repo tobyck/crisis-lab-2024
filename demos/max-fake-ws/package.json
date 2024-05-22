@@ -1,0 +1,9 @@
+{
+	"type": "module",
+	"scripts": {
+		"dev": "node servertest.js"
+	},
+	"dependencies": {
+		"ws": "^8.17.0"
+	}
+}
