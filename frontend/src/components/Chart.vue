@@ -11,10 +11,12 @@
 
 <style scoped>
 div {
+    border-radius: 1vh;
+    border-style: solid;
+    border-width: 2px;
+    border-color: v-bind('THEME.borderColor');
     width: 40vw;
-    margin-left: 5vw;
-    margin-right: 5vw;
-    /*background-color: red; /* temp */
+    box-sizing: border-box;
 }
 
 @media screen and (max-width: 1200px) {
@@ -32,20 +34,24 @@ div {
         margin-left: max(5%, calc((100% - 600px) / 2));
     }
 }
+
+
 </style>
 
 <script setup>
 import { Line } from 'vue-chartjs'
 import { ref, computed } from 'vue'
+import { THEME } from '@/theme';
 import { Chart as ChartJS, Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement } from 'chart.js'
 
 ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement)
 
-ChartJS.defaults.color = '#a1a1a1';
-ChartJS.defaults.borderColor = '#272727';
+ChartJS.defaults.color = THEME.textColor;
+ChartJS.defaults.borderColor = THEME.gridColor;
 
 const props = defineProps(['name','data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
+
 
 const chartData = computed(() => ({
     //labels: props.dataSource.timestamps,
@@ -66,32 +72,52 @@ const chartData = computed(() => ({
 const chartOptions = computed(() => ({
     responsive: true,
     scales: {
-      x: {
-        type: 'linear',
-        min: 0,
-        max: 10,
-        title: {
-            text: "Time (s)",
-            display: true,
+        x: {
+            type: 'linear',
+            min: 0,
+            max: 20,
+            title: {
+                text: "Time (s)",
+                display: true,
+                color: THEME.textColor,
+            },
+            ticks: {
+                callback(value) {
+                    return value-20;
+                },
+                color: THEME.textColor,
+            },
+            grid: {
+                color: THEME.gridColor,
+            },
+            border: {
+                color: THEME.gridColor,
+            }
         },
-        ticks: {
-            callback(value, index, ticks) {
-                return value-10;
+        y: {
+            min: props.options.minY,
+            max: props.options.maxY,
+            title: {
+                text: props.options.y,
+                display: true,
+                color: THEME.textColor,
+            },
+            ticks: {
+                color: THEME.textColor,
+            },
+            grid: {
+                color: THEME.gridColor,
+            },
+            border: {
+                color: THEME.gridColor,
             }
         }
-      },
-      y: {
-        min: props.options.minY,
-        max: props.options.maxY,
-        title: {
-            text: props.options.y,
-            display: true,
-        },
-      }
     },
-    animation: {
-        duration: 0,
-    },
+    normalized: true,
+    parsing: false,
+    animation: false,
+    spanGaps: true,
+    animation: false,
     plugins: {
         legend: {
             display: false,
@@ -103,6 +129,10 @@ const chartOptions = computed(() => ({
                 size: 20,
                 weight: '',
             },
+            color: THEME.textColor,
+        },
+        tooltip: {
+            enabled: false
         }
     }
 }))

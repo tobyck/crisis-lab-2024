@@ -20,7 +20,6 @@ export class RingBuffer<T> {
     }
     pushpop (item: T): T {
         let old = this.array[this.start];
-        console.log(this.start)
         this.array[this.start] = item;
         this.start = (this.start + 1) % this.length;
         return old;
