@@ -1,4 +1,4 @@
-# [CRISiSLab](https://www.crisislab.org.nz/crisislabchallenge) 2024
+# [CRISiSLab Challenge](https://www.crisislab.org.nz/crisislabchallenge) 2024
 
 _Created by [me](https://github.com/tobyck), [chunkybanana](https://github.com/chunkybanana), [Alex Berry](https://github.com/AlexBerry0), and [aketon08](https://github.com/aketon08)._
 
