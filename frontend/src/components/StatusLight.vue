@@ -1,4 +1,3 @@
-
 <template>
     <span class="container">
         {{ props.name }}
@@ -12,7 +11,7 @@
 </template>
 
 <script setup>
-const props = defineProps(['name','status']);
+const props = defineProps(['name', 'status']);
 import { THEME } from '../theme.js';
 </script>
 
@@ -24,7 +23,8 @@ import { THEME } from '../theme.js';
     border-radius: 50%;
     display: inline-block;
 }
-.light-on{
+
+.light-on {
     background-color: v-bind('THEME.statusLightOn');
 }
 
@@ -35,7 +35,6 @@ import { THEME } from '../theme.js';
 span.container {
     padding-top: 1vh;
     font-size: 10px;
-    float: right;
     margin-right: 20px;
 }
 </style>

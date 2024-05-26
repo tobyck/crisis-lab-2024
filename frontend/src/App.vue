@@ -2,41 +2,29 @@
     <div class="body">
         <Header />
         <div class="flex">
-            <Chart 
-                name="height"
-                :options="{
-                    y: 'Water level (cm)',
-                    title: 'Water Level',
-                    minY: 0,
-                    maxY: 3,
-                    color: THEME.graphColor1
-                }"
-                :data-source="height"
-            />
-            <Chart 
-                name="pressure"
-                :options="{
-                    y: 'Pressure (Pa)',
-                    title: 'Sensor Pressure',
-                    minY: 1018,
-                    maxY: 1022,
-                    color: THEME.graphColor2
-                }"
-                :data-source="pressure"
-            />
             <Logs />
-            <div class="liveView">
-            <Chart 
-                name="live-view"
-                :options="{
+            <Chart name="height" :options="{
+                y: 'Water level (cm)',
+                title: 'Water Level',
+                minY: 0,
+                maxY: 3,
+                color: THEME.graphColor
+            }" :data-source="height" />
+            <Chart name="pressure" :options="{
+                y: 'Pressure (Pa)',
+                title: 'Sensor Pressure',
+                minY: 1018,
+                maxY: 1022,
+                color: THEME.graphColor2
+            }" :data-source="pressure" />
+            <div class="live-view">
+                <Chart name="live-view" :options="{
                     y: 'Wave height (cm)',
                     title: 'Live View',
                     minY: 1018,
                     maxY: 1022,
                     color: THEME.graphColor2
-                }"
-                :data-source="pressure"
-            />
+                }" :data-source="pressure" />
             </div>
         </div>
         <Footer />
@@ -47,27 +35,16 @@
 div.flex {
     justify-content: center;
     align-items: center;
-    height: 80vh;
+    height: calc(100vh - 80px);
     display: flex;
-    flex-wrap: wrap;
-    row-gap: 3vw;
-    column-gap: 3vw;
+    flex-flow: column wrap;
+    row-gap: 0;
+    column-gap: 0;
 }
 
-/* keeping this typo for posterity */
-dev.paddingBottom {
-
-    padding: 100px;
+.live-view {
+    display: v-bind('THEME.isMobile ? "none" : "block"');
 }
-/* exept that that code is actually needed so heres it agian without the typo */
-
-@media screen and (max-width: 800px) {
-    div.liveView {
-        display: none;
-    }
-}
-
-
 </style>
 
 
@@ -75,12 +52,18 @@ dev.paddingBottom {
 body {
     margin: 0;
 }
+
 div.body {
-    font-family: "Inter var experimental", "Inter var", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    font-family: 'DejaVu Sans Mono', 'Courier New', Courier, monospace;
     background-color: v-bind('THEME.backgroundColor');
     min-height: 100vh;
     clear: both;
     user-select: none;
+}
+
+@font-face {
+    font-family: "DejaVu Sans Mono";
+    src: url('DejaVuSansMono.ttf');
 }
 </style>
 
@@ -98,23 +81,23 @@ initWebsocket();
 
 const pressure = computed(() => ({
     values: packetData.filter(t => t != null)
-        .map(({pressure, timeStamp}) => 
+        .map(({ pressure, timeStamp }) =>
         ({
-            x: 20 - (Date.now() - timeStamp) / 1000, 
+            x: 20 - (Date.now() - timeStamp) / 1000,
             y: pressure
         })
-    ),
+        ),
     loaded: loaded.value
 }))
 
 const height = computed(() => ({
     values: packetData.filter(t => t != null)
-        .map(({waterLevel, timeStamp}) => 
+        .map(({ waterLevel, timeStamp }) =>
         ({
-            x: 20 - (Date.now() - timeStamp) / 1000, 
+            x: 20 - (Date.now() - timeStamp) / 1000,
             y: waterLevel
         })
-    ),
+        ),
     loaded: loaded.value
 }))
 </script>

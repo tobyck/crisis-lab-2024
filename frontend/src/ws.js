@@ -7,7 +7,7 @@ export let incidents = reactive([]);
 
 export const loaded = ref(false);
 
-export async function initWebsocket () {
+export async function initWebsocket() {
     let ws = new WebSocket('ws://localhost:8081');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);

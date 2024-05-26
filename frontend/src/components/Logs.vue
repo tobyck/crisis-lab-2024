@@ -1,70 +1,89 @@
 <template>
     <div class="box">
-        <p class="incidents">Logs
-            <StatusLight :status="true" name="Relay" />
-            <StatusLight :status="false" name="Sensor" />
-            <StatusLight :status="true" name="Alerts" />
-        </p>
-        <div v-for="incident in [...incidents].reverse()">
-            <p>Tsunami of height {{
-                incident.height.toFixed(2)
-            }} cm 
-            <span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
-            <span v-else>detected</span>
-            at {{ 
-                Intl.DateTimeFormat('en-GB', {
-                    dateStyle: 'short',
-                    timeStyle: 'long',
-                    timeZone: 'Pacific/Auckland',
-                }).format(new Date(incident.timeStamp)).replace(',','').replace(/ GMT+.*/,'')
-            }}
-            <div v-if="THEME.alertActive && Date.now() - incident.timeStamp < 20 * 1000" class="circle"></div>
-            </p>
+        <div class="header">
+            <div class="incidents">Logs</div>
+            <div class="status">
+                <StatusLight :status="true" name="Relay" />
+                <StatusLight :status="false" name="Sensor" />
+                <StatusLight :status="true" name="Alerts" />
+            </div>
+        </div>
+        <div class="rest">
+            <div v-for="incident in [...incidents].reverse()">
+                <span>Tsunami of height {{
+                    incident.height.toFixed(2)
+                    }} cm
+                    <span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
+                    <span v-else>detected</span>
+                    at {{
+                        Intl.DateTimeFormat('en-GB', {
+                            dateStyle: 'short',
+                            timeStyle: 'long',
+                            timeZone: 'Pacific/Auckland',
+                        }).format(new Date(incident.timeStamp)).replace(',', '').replace(/ GMT+.*/, '')
+                    }}
+                    <span v-if="THEME.alertActive && Date.now() - incident.timeStamp < 20 * 1000" class="circle"></span>
+                </span>
+            </div>
+            <div class="undetected" v-if="incidents.length == 0">No tsunami have been detected yet</div>
         </div>
     </div>
 </template>
 
 <style scoped>
 div.box {
-    border-radius: 1vh;
-    border: 2px solid v-bind('THEME.borderColor');
-    width: 40vw;
+    height: calc(100vh - 80px);
     color: v-bind('THEME.textColor');
-    min-height: 20vw;
-    max-height: 20vw;
     box-sizing: border-box;
     overflow-y: scroll;
+    width: 40vw;
+    background-color: v-bind('THEME.backgroundColor3');
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 900px) {
     div.box {
-        min-height: 40vw;
-        max-height: 40vw;
+        width: 100vw !important;
+        height: calc((100vh - 80px) / 3) !important;
     }
 }
 
-@media screen and (max-width: 1000px) {
-    div.box {
-        width: min(90%, 600px);
-        margin-left: max(5%, calc((100% - 600px) / 2));
-    }
+.header {
+    height: 50px;
 }
 
-@media screen and (max-height: 1000px) {
-    div.box {
-        height: min(40%, 600px);
-    }
+.rest {
+    height: calc(100% - 50px);
+    display: v-bind('incidents.length == 0 ? "flex" : "block"');
+    align-items: v-bind('incidents.length == 0 ? "center" : "flex-start"');
+}
+
+.status,
+.rest {
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+}
+
+.rest>div {
+    width: 100%;
 }
 
 
 
-
-p.incidents {
+div.incidents {
     font-size: 20px;
     text-align: center;
-    margin-top: 7px;
+    /*margin-top: 7px;*/
     position: sticky;
 }
+
+.undetected {
+    font-size: 14px;
+    text-align: center;
+    font-style: italic;
+    width: 100%;
+}
+
+
 
 div.box p {
     margin-left: 10px;
