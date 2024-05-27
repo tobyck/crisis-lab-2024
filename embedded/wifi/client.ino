@@ -1,71 +1,91 @@
 /*
  * Author: Maxwell Robati
- * Version: 12/05/24
+ * Version: 23/05/24
  * Purpose: Sends sensor data via WiFi card to relay server.
  */
 #include "client.hpp"
 
-const char* ssid = "";      // Change what's inside the "" to your Wifi Name
-const char* password = "";  // "                                 " Wifi Password 
-const char* websockets_server_host = "192.168.1.39";  // Server hostname
-const uint16_t websockets_server_port = 80;           // Server port
+const char* ssid = "";  // Change what's inside the "" to your Wifi Name
+const char* pass = "";  // "                                 " Wifi Password 
 
-WebsocketsClient client;
+WiFiClient wifiClient;
+MqttClient mqttClient(wifiClient);
+
+// inTopic is just for testing
+const char* broker = "test.mosquitto.org";
+int         port   = 1883;
+const char* inTopic = "sensor/in";
+const char* outTopic = "sensor/out";
 
 void setup() {
   // Begin the serial
   Serial.setDebugOutput(true);
   Serial.begin(9600);
+  while(!Serial) {
+    ; // Wait for serial to begin, only needed for using USB Port.
+  }
 
-  // Connect to wifi
-  WiFi.begin(ssid, password);
+  // Attempt to connect to WiFi
+  Serial.print("Attempting to connect to WPA SSID: ");
+  Serial.println(ssid);
 
   // Wait to connect, abort after 15 seconds.
-  for(int i = 0; i < 15 && WiFi.status() != WL_CONNECTED; i++) {
+  for(int i = 0; i < 15 && WiFi.begin(ssid, pass) != WL_CONNECTED; i++) {
+    // Retry
     Serial.print(".");
     delay(1000);
   }
-
+  
+  // Couldn't connect to WiFi, abort.
   if(WiFi.status() != WL_CONNECTED) {
     Serial.println("No WiFi!");
     return;
   }
-
-  Serial.println("\nWiFi connected, Connecting to server");
-  //Serial.println(WiFi.localIP());   // WiFi IP address
-  // Try to connect to WebSocket Server
-  bool connected = client.connect(websockets_server_host, websockets_server_port, "/");
-  if(connected) {
-    Serial.println("Connected!");
-    client.send("Hello server!");
-  } else {
-    Serial.println("Not Connected.");
+  
+  // Connected to WiFi
+  Serial.print("\nWiFi connected, Connecting to MQTT broker: ");
+  Serial.println(broker);
+  
+  // Try to connect to the broker
+  if(!mqttClient.connect(broker, port)) {
+    Serial.print("MQTT connnection failed! Error code: ");
+    Serial.println(mqttClient.connectError());
+    return;
   }
-  client.onMessage(handleMessage);
-  client.onEvent(handleEvent);
+  
+  Serial.println("Connected!");
+  mqttClient.onMessage(handleMessage);
+  mqttClient.subscribe(inTopic);
 }
 
 // Handle messages from server
-void handleMessage(WebsocketsMessage message) {
-  auto data = message.data();
-  // Log message
-  Serial.print("Got message: ");
-  Serial.println(data);
-}
-
-// Handle events
-void handleEvent(WebsocketsClient &client, WebsocketsEvent event, String data) {
-  if(event == WebsocketsEvent::ConnectionClosed) {
-    Serial.println("Connection closed.");
+void handleMessage(int messageSize) {
+  // Log message topic
+  Serial.print("Got message with topic: '");
+  Serial.print(mqttClient.messageTopic());
+  Serial.print(", retained? ");
+  Serial.print(mqttClient.messageRetain() ? "true" : "false");
+  Serial.print("', length: ");
+  Serial.print(messageSize);
+  
+  Serial.println(", bytes:");
+  // Log message contents
+  while(mqttClient.available()) {
+    Serial.print((char)mqttClient.read());
   }
+  Serial.println();
 }
 
 // Send data to relay server over WiFi
 void sendData(char msg[20]) {
-  client.send(msg);
+  mqttClient.beginMessage(outTopic);
+  mqttClient.print(msg);
+  mqttClient.endMessage();
 }
 
 void loop() {
+  // Call poll to keep the server alive, avoids being disconnected by the broker.
+  mqttClient.poll();
   // Get Sensor data from Arduino
   char buffer[20] = "";
   if(Serial.available()) {
@@ -76,8 +96,7 @@ void loop() {
   }
 
   // Keep connection open
-  if(client.available()) {
-    client.poll();    // Poll the server
+  if(mqttClient.available()) {
     // If the buffer has data, send it.
     if(strlen(buffer) != 0) {
       sendData(buffer); // Send Pressure sensor data to Relay server

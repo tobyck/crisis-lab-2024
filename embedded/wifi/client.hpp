@@ -1,16 +1,13 @@
 /*
  * Author: Maxwell Robati
- * Version: 12/05/24
+ * Version: 23/05/24
  * Purpose: Sends sensor data via WiFi card to relay server.
  */
- #pragma once
+#pragma once
 
-#include <ArduinoWebsockets.h>
+#include <ArduinoMqttClient.h>
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 
-using namespace websockets;
-
-void handleMessage(WebsocketsMessage message);
-void handleEvent(WebsocketsClient &client, WebsocketsEvent event, String data);
+void handleMessage(int messageSize);
 void sendData(char msg[20]);
