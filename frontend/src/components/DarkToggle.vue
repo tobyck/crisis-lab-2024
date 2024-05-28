@@ -4,7 +4,8 @@
             Dark Mode
         </span>
         <label class="switch" for="checkbox">
-            <input type="checkbox" id="checkbox" @click="toggle()" :checked="THEME.defaultMode ? 'true' : undefined">
+            <input type="checkbox" id="checkbox" @click="THEME.toggleDark()"
+                :checked="THEME.defaultMode ? 'true' : undefined">
             <span class="slider round"></span>
         </label>
     </span>
@@ -94,5 +95,4 @@ label {
 
 <script setup>
 import { THEME } from '../theme.js'
-let toggle = () => localStorage.setItem('dark', THEME.dark = !THEME.dark)
 </script>

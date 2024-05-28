@@ -4,15 +4,6 @@
     <!--</div>-->
 </template>
 
-<style scoped>
-@media screen and (max-width: 900px) {
-    div {
-        width: 100vw !important;
-    }
-}
-</style>
-
-
 <script setup>
 import { Line } from 'vue-chartjs'
 import { ref, computed } from 'vue'

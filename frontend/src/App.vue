@@ -75,6 +75,7 @@ div.footer {
 
 div.log-box {
     flex: 2 2;
+    flex-basis: 0;
 }
 
 div.chart-container {
@@ -84,6 +85,7 @@ div.chart-container {
     justify-content: center;
     align-items: stretch;
     row-gap: 10px;
+    flex-basis: 0;
 }
 
 div.chart-box {
@@ -94,11 +96,27 @@ div.chart-box {
     border-radius: 1vw;
 }
 
-div.live-view {
-    display: v-bind('THEME.isMobile ? "none" : "block"');
+@media screen and (max-width: 900px) {
+    div.live-view {
+        visibility: hidden;
+        display: none;
+    }
 
-    /*width: 100%;*/
-    /*flex: 1 1 1;*/
+    div.main {
+        flex-flow: column;
+        row-gap: 10px;
+    }
+
+    div.chart-container {
+        flex: 2 2;
+        flex-basis: 0;
+    }
+
+    div.log-box {
+        flex: 1 1;
+        flex-basis: 0;
+        order: 2;
+    }
 }
 </style>
 

@@ -29,7 +29,7 @@ header {
     /*background-color: v-bind('THEME.backgroundColor2');*/
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 550px) {
     header>span {
         font-size: 25px !important;
     }
