@@ -67,6 +67,7 @@
     content: '☼';
     text-align: center;
     line-height: 11.7px;
+    font-family: 'Arial', sans-serif;
 }
 
 input:checked+.slider:before {

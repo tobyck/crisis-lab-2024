@@ -12,7 +12,7 @@
             <div v-for="incident in [...incidents].reverse()">
                 <span>Tsunami of height {{
                     incident.height.toFixed(2)
-                    }} cm
+                }} cm
                     <span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
                     <span v-else>detected</span>
                     at {{
@@ -32,12 +32,15 @@
 
 <style scoped>
 div.box {
-    height: calc(100vh - 80px);
+    height: 100%;
+    width: 100%;
     color: v-bind('THEME.textColor');
     box-sizing: border-box;
     overflow-y: scroll;
-    width: 40vw;
-    background-color: v-bind('THEME.backgroundColor3');
+    /*width: 38.5vw;*/
+    background-color: v-bind('THEME.backgroundColor');
+    /*margin: 0.5vw 0.5vw 0.5vw 1vw;*/
+    border-radius: 1vw;
 }
 
 @media screen and (max-width: 900px) {
@@ -73,6 +76,7 @@ div.incidents {
     font-size: 20px;
     text-align: center;
     /*margin-top: 7px;*/
+    padding-top: 5px;
     position: sticky;
 }
 

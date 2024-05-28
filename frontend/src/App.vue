@@ -1,49 +1,104 @@
 <template>
     <div class="body">
-        <Header />
-        <div class="flex">
-            <Logs />
-            <Chart name="height" :options="{
-                y: 'Water level (cm)',
-                title: 'Water Level',
-                minY: 0,
-                maxY: 3,
-                color: THEME.graphColor
-            }" :data-source="height" />
-            <Chart name="pressure" :options="{
-                y: 'Pressure (Pa)',
-                title: 'Sensor Pressure',
-                minY: 1018,
-                maxY: 1022,
-                color: THEME.graphColor2
-            }" :data-source="pressure" />
-            <div class="live-view">
-                <Chart name="live-view" :options="{
-                    y: 'Wave height (cm)',
-                    title: 'Live View',
-                    minY: 1018,
-                    maxY: 1022,
-                    color: THEME.graphColor2
-                }" :data-source="pressure" />
+        <div class="header">
+            <Header />
+        </div>
+        <div class="main">
+            <div class="log-box">
+                <Logs />
+            </div>
+            <div class="chart-container">
+                <div class="chart-box">
+                    <Chart name="height" :options="{
+                        y: 'Water level (cm)',
+                        title: 'Water Level',
+                        minY: 0,
+                        maxY: 3,
+                        color: THEME.graphColor
+                    }" :data-source="height" />
+                </div>
+                <div class="chart-box">
+                    <Chart name="pressure" :options="{
+                        y: 'Pressure (Pa)',
+                        title: 'Sensor Pressure',
+                        minY: 1018,
+                        maxY: 1022,
+                        color: THEME.graphColor2
+                    }" :data-source="pressure" />
+                </div>
+                <div class="live-view chart-box">
+                    <Chart name="live-view" :options="{
+                        y: 'Wave height (cm)',
+                        title: 'Live View',
+                        minY: 1018,
+                        maxY: 1022,
+                        color: THEME.graphColor2
+                    }" :data-source="pressure" />
+                </div>
             </div>
         </div>
-        <Footer />
+        <div class="footer">
+            <Footer />
+        </div>
     </div>
 </template>
 
 <style scoped>
-div.flex {
+div.main {
     justify-content: center;
-    align-items: center;
-    height: calc(100vh - 80px);
+    align-items: stretch;
     display: flex;
-    flex-flow: column wrap;
+    flex-flow: row;
     row-gap: 0;
     column-gap: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    column-gap: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
-.live-view {
+div.body {
+    display: flex;
+    flex-flow: column;
+    row-gap: 10px;
+}
+
+div.header {
+    height: 50px;
+}
+
+
+div.footer {
+    height: 20px;
+}
+
+div.log-box {
+    flex: 2 2;
+}
+
+div.chart-container {
+    display: flex;
+    flex-flow: column wrap;
+    flex: 3 3;
+    justify-content: center;
+    align-items: stretch;
+    row-gap: 10px;
+}
+
+div.chart-box {
+    flex: 1 1;
+    background-color: v-bind('THEME.backgroundColor');
+    /*margin: 0.5vw 1vw 0.5vw 0.5vw;*/
+    padding: 0vw 0.5vw 0.5vw 0.5vw;
+    border-radius: 1vw;
+}
+
+div.live-view {
     display: v-bind('THEME.isMobile ? "none" : "block"');
+
+    /*width: 100%;*/
+    /*flex: 1 1 1;*/
 }
 </style>
 
@@ -55,15 +110,16 @@ body {
 
 div.body {
     font-family: 'DejaVu Sans Mono', 'Courier New', Courier, monospace;
-    background-color: v-bind('THEME.backgroundColor');
+    background-color: v-bind('THEME.backgroundColor2');
     min-height: 100vh;
+    max-height: 100vh;
     clear: both;
     user-select: none;
 }
 
 @font-face {
     font-family: "DejaVu Sans Mono";
-    src: url('DejaVuSansMono.ttf');
+    src: url('SF-Pro.ttf');
 }
 </style>
 

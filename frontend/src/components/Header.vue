@@ -25,7 +25,8 @@ header {
     font-size: 40px;
     text-align: center;
     width: 100vw;
-    background-color: v-bind('THEME.backgroundColor2');
+    padding-top: 0.5vw;
+    /*background-color: v-bind('THEME.backgroundColor2');*/
 }
 
 @media screen and (max-width: 900px) {

@@ -1,15 +1,10 @@
 <template>
-    <div>
-        <Line v-if="dataSource.loaded" ref="chart" :id="name" :options="chartOptions" :data="chartData" />
-    </div>
+    <!--<div>-->
+    <Line v-if="dataSource.loaded" ref="chart" :id="name" :options="chartOptions" :data="chartData" />
+    <!--</div>-->
 </template>
 
 <style scoped>
-div {
-    width: 59vw;
-    height: calc((100vh - 80px) / 3)
-}
-
 @media screen and (max-width: 900px) {
     div {
         width: 100vw !important;
