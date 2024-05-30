@@ -44,10 +44,11 @@ impl<T: Copy + Send> Cache<T> {
         self.next_index += 1;
         self.next_index %= self.capacity;
     }
-}
 
-// cache of processed data wrapped in Arc and RwLock to make it thread-safe
-pub type SharedCache = Arc<RwLock<Cache<DataPacket>>>;
+    pub fn to_vec(&self) -> Vec<T> {
+        self.content.to_vec()
+    }
+}
 
 #[derive(Debug, Copy, Clone, Serialize)]
 pub struct DataPacket {
@@ -60,6 +61,9 @@ pub struct DataPacket {
     #[serde(with = "serde_millis")]
     timestamp: Instant
 }
+
+// cache of processed data wrapped in Arc and RwLock to make it thread-safe
+pub type SharedCache = Arc<RwLock<Cache<DataPacket>>>;
 
 #[derive(Clone, Serialize)]
 pub struct Alert {

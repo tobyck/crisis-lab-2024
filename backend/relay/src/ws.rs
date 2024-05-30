@@ -1,14 +1,19 @@
 /*
 * Author: Toby Connor-Kebbell
 * Date: May 2024
+*
+* This file is responsible for receiving data packets on the broadcast channel
+* and realying it to clients over WebSockets. It also sends previous data from
+* the cache and all the previous alerts that have occured since the server has
+* been up.
 * */
 
-use log::error;
+use log::{error, warn};
 use futures::{SinkExt, StreamExt, TryFutureExt};
 use tokio::sync::broadcast::{Receiver, Sender};
 use warp::{filters::ws::{Message, WebSocket}, reject::Rejection, reply::Reply, Filter};
 
-use crate::data::{DataPacket, SharedAlertsVec, SharedCache};
+use crate::data::{DataPacket, InitialDataPacket, SharedAlertsVec, SharedCache};
 
 #[allow(unused_variables)]
 pub async fn handle_connection(
@@ -19,13 +24,21 @@ pub async fn handle_connection(
 ) {
     let (mut websocket_tx, _) = websocket.split();
 
+    websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
+        previous_data: cache.read().await.to_vec(),
+        previous_alerts: alerts.read().await.to_vec()
+    }).unwrap()))
+        .unwrap_or_else(|error| {
+            warn!("Failed to send initial data packet over websocket: {}", error);
+        }).await;
+
     tokio::task::spawn(async move {
         loop {
             match broadcast_rx.recv().await {
                 Ok(data) => {
                     websocket_tx.send(Message::text(serde_json::to_string(&data).unwrap()))
                         .unwrap_or_else(|error| {
-                            error!("Error trying to send data: {}", error);
+                            error!("Failed to send data packet over websocket: {}", error);
                         }).await;
                 },
                 Err(error) => error!("Error reading message from broadcast channel: {}", error)
