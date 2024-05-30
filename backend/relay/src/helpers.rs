@@ -13,7 +13,7 @@ use serde::Serialize;
 // JSON serialisable struct which will be the reply for all rejections
 #[derive(Serialize)]
 struct RejectionMessage {
-    message: String
+    error: String
 }
 
 pub async fn handle_rejection(error: Rejection) -> Result<impl Reply, Infallible> {
@@ -29,14 +29,14 @@ pub async fn handle_rejection(error: Rejection) -> Result<impl Reply, Infallible
     }
 
     Ok(reply::with_status(
-        reply::json(&RejectionMessage { message: message.to_string() }), 
+        reply::json(&RejectionMessage { error: message.to_string() }),
         status
     ))
 } 
 
 pub fn get_port_from_env(name: &str) -> u16 {
     env::var(name)
-        .unwrap_or_else(|error| panic!("Error reading environment variable {}: {}", name, error))
+        .expect("Error reading environment variable")
         .parse::<u16>()
-        .unwrap_or_else(|error| panic!("Unable to parse {} as a u16: {}", name, error))
+        .expect("Unable to parse port as a u16")
 }

@@ -12,6 +12,8 @@ use tokio::sync::RwLock;
 
 use serde::Serialize;
 
+const ALERT_THRESHOLD_CM: f32 = 8.0;
+
 #[derive(Debug)]
 pub struct Cache<T> {
     content: Vec<T>,
@@ -42,10 +44,6 @@ impl<T: Copy + Send> Cache<T> {
         self.next_index += 1;
         self.next_index %= self.capacity;
     }
-
-    pub fn read_last(&self) -> Option<T> {
-        self.content.last().copied()
-    }
 }
 
 // cache of processed data wrapped in Arc and RwLock to make it thread-safe
@@ -53,24 +51,56 @@ pub type SharedCache = Arc<RwLock<Cache<DataPacket>>>;
 
 #[derive(Debug, Copy, Clone, Serialize)]
 pub struct DataPacket {
-    pub pressure: f32,
-    pub wave_height: f32,
-    pub waveform: f32,
+    pressure: f32,
+    height: f32,
+    waveform: f32,
 
-    pub sent: bool,
+    alert: bool,
 
     #[serde(with = "serde_millis")]
-    pub timestamp: Instant
+    timestamp: Instant
 }
 
-pub async fn process_and_cache_data(pressure: f32, cache: &SharedCache) {
-    let mut lock = cache.write().await;
+#[derive(Clone, Serialize)]
+pub struct Alert {
+    height: f32,
 
-    lock.write(DataPacket {
+    #[serde(with = "serde_millis")]
+    timestamp: Instant
+}
+
+pub type SharedAlertsVec = Arc<RwLock<Vec<Alert>>>;
+
+// this is the data send when a client connects for the first time
+#[derive(Serialize)]
+pub struct InitialDataPacket {
+    pub previous_data: Vec<DataPacket>,
+    pub previous_alerts: Vec<Alert>
+}
+
+pub async fn process_data(pressure: f32, cache: &SharedCache, alerts: &SharedAlertsVec) -> DataPacket {
+    let mut alerts_lock = alerts.write().await;
+
+    // todo: actually calculate these
+    let height: f32 = 8.0;
+    let waveform: f32 = 0.0;
+    
+    let data = DataPacket {
         pressure,
-        wave_height: 0.0,
-        waveform: 0.0,
-        sent: false,
+        height,
+        waveform,
+        alert: height >= ALERT_THRESHOLD_CM,
         timestamp: Instant::now()
-    });
+    };
+
+    if data.alert {
+        alerts_lock.push(Alert {
+            height,
+            timestamp: Instant::now()
+        });
+    }
+
+    cache.write().await.write(data);
+
+    data
 }
