@@ -9,10 +9,10 @@
 use rumqttc::QoS;
 use warp::Filter;
 
-mod data;
-mod helpers;
 mod mqtt;
 mod ws;
+mod data;
+mod helpers;
 
 pub const FREQUENCY: u64 = 25;
 pub const CHANNEL_CAPACITY: usize = FREQUENCY as usize * 10;
