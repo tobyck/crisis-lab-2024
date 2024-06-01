@@ -9,7 +9,7 @@
 	in {
 		devShells = {
 			relay = pkgs.mkShell {
-				buildInputs = with pkgs; [
+				nativeBuildInputs = with pkgs; [
 					pkg-config
 					cmake
 					openssl
