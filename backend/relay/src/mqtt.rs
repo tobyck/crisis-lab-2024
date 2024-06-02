@@ -1,6 +1,11 @@
 /*
 * Author: Toby Connor-Kebbell
 * Date: May 2024
+*
+* This file handles everything MQTT related -- intialising the client with the
+* appropriate options, polling the event loop for messages, passing the message
+* to the function in data.rs to process the data, and sending it to the
+* WebSocket handlers.
 * */
 
 use std::{env, sync::Arc, time::Duration};
@@ -10,19 +15,16 @@ use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
 use crate::{
-    data::{process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}, 
-    CACHE_CAPACITY, CHANNEL_CAPACITY,
-    helpers
+    config::{CACHE_CAPACITY, CHANNEL_CAPACITY, MQTT_PORT},
+    data::{process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
 };
 
 #[inline]
 pub fn init_client(host: &str) -> (AsyncClient, EventLoop) {
-    // get port, username and password from environment variables
-    let mqtt_port = helpers::get_port_from_env("MQTT_PORT");
     let username = env::var("USERNAME").expect("Must set USERNAME environment variable");
     let password = env::var("PASSWORD").expect("Must set PASSWORD environment variable");
 
-    let mut options = MqttOptions::new("crisislab-relay-server", host, mqtt_port);
+    let mut options = MqttOptions::new("crisislab-relay-server", host, MQTT_PORT);
     options.set_keep_alive(Duration::from_secs(10));
     options.set_credentials(username, password);
 
@@ -65,6 +67,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
 
                         let data: DataPacket = process_data(pressure, &cache, &alerts).await;
 
+                        // send data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {
                             warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
                         }

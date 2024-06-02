@@ -6,17 +6,15 @@
 * functions from other modules to start everything up.
 * */
 
-use rumqttc::QoS;
-use warp::Filter;
+use std::convert::Infallible;
 
+use rumqttc::QoS;
+use warp::{reject::Rejection, reply::{self, Reply}, Filter, http::StatusCode};
+
+mod config;
 mod mqtt;
 mod ws;
 mod data;
-mod helpers;
-
-pub const FREQUENCY: u64 = 25;
-pub const CHANNEL_CAPACITY: usize = FREQUENCY as usize * 10;
-pub const CACHE_CAPACITY: usize = FREQUENCY as usize * 20;
 
 #[tokio::main]
 async fn main() {
@@ -33,10 +31,18 @@ async fn main() {
 
     // serve the websocket route and pass in said objects, and use a handler to
     // reply when something goes wrong
-    warp::serve(ws::route(broadcast_tx, cache, alerts).recover(helpers::handle_rejection))
+    warp::serve(ws::route(broadcast_tx, cache, alerts).recover(handle_rejection))
         .tls()
         .cert_path("tls/cert.crt")
         .key_path("tls/cert.key")
-        .run(([0, 0, 0, 0], helpers::get_port_from_env("WS_PORT")))
+        .run(([0, 0, 0, 0], config::WS_PORT))
         .await;
+}
+
+async fn handle_rejection(error: Rejection) -> Result<impl Reply, Infallible> {
+    if error.is_not_found() {
+        Ok(reply::with_status(reply::reply(), StatusCode::NOT_FOUND))
+    } else {
+        Ok(reply::with_status(reply::reply(), StatusCode::INTERNAL_SERVER_ERROR))
+    }
 }

@@ -12,7 +12,7 @@ use tokio::sync::RwLock;
 
 use serde::Serialize;
 
-const ALERT_THRESHOLD_CM: f32 = 8.0;
+use crate::config::{ALERT_COOLDOWN, ALERT_THRESHOLD};
 
 #[derive(Debug)]
 pub struct Cache<T> {
@@ -56,7 +56,9 @@ pub struct DataPacket {
     height: f32,
     waveform: f32,
 
-    alert: bool,
+    // this says whether or not to trigger a new alert (not whether or not then
+    // wave height is above the threshold)
+    trigger_alert: bool,
 
     #[serde(with = "serde_millis")]
     timestamp: Instant
@@ -89,15 +91,22 @@ pub async fn process_data(pressure: f32, cache: &SharedCache, alerts: &SharedAle
     let height: f32 = 8.0;
     let waveform: f32 = 0.0;
     
+    let trigger_alert = height >= ALERT_THRESHOLD && match alerts_lock.last() {
+        // only make another alert if the previous one was long enough ago
+        Some(alert) => alert.timestamp.elapsed() > ALERT_COOLDOWN,
+        // if there haven't been any alerts yet then we should certainly alert
+        None => true
+    };
+
     let data = DataPacket {
         pressure,
         height,
         waveform,
-        alert: height >= ALERT_THRESHOLD_CM,
+        trigger_alert,
         timestamp: Instant::now()
     };
 
-    if data.alert {
+    if trigger_alert {
         alerts_lock.push(Alert {
             height,
             timestamp: Instant::now()
