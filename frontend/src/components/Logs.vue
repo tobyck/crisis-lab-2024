@@ -40,17 +40,25 @@ div.box {
     /*width: 38.5vw;*/
     background-color: v-bind('THEME.backgroundColor');
     /*margin: 0.5vw 0.5vw 0.5vw 1vw;*/
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
     border-radius: 1vw;
+    row-gap: 0.5vw;
+    padding: 0.5vw;
 }
 
 .header {
     height: 50px;
+    flex: 0 0 50px;
 }
 
 .rest {
-    height: calc(100% - 50px);
+    flex: 1;
+    flex-basis: 0;
     display: v-bind('incidents.length == 0 ? "flex" : "block"');
     align-items: v-bind('incidents.length == 0 ? "center" : "flex-start"');
+    overflow-y: scroll;
 }
 
 .status,

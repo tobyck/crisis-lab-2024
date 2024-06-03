@@ -19,6 +19,7 @@ a {
     text-decoration: none;
     margin-left: 10px;
     margin-right: 10px;
+    user-select: all !important;
 }
 
 a:hover {
@@ -31,6 +32,7 @@ div {
     bottom: 0;
     background-color: v-bind('THEME.backgroundColor2');
     padding: 0.4vh;
+    z-index: 100;
     /*text-align: center;*/
 }
 
