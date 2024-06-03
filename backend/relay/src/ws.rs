@@ -36,11 +36,13 @@ pub async fn handle_connection(
 
         loop {
             tokio::select! {
+                // If the client sends an empty message, it's disconnected; end the loop
                 msg = websocket_rx.next() => {
                     if msg.is_none() {
                         break;
                     }
                 }
+                // If we receive a message from the broadcast channel, send it to the client
                 data = broadcast_rx.recv() => {
                     match data {
                         Ok(data) => {
