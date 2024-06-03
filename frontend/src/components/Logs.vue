@@ -12,7 +12,7 @@
             <div v-for="incident in [...incidents].reverse()">
                 <span>Tsunami of height {{
                     incident.height.toFixed(2)
-                    }} cm
+                }} cm
                     <span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
                     <span v-else>detected</span>
                     at {{
@@ -20,7 +20,7 @@
                             dateStyle: 'short',
                             timeStyle: 'long',
                             timeZone: 'Pacific/Auckland',
-                        }).format(new Date(incident.timeStamp)).replace(',', '').replace(/ GMT+.*/, '')
+                        }).format(new Date(incident.timestamp)).replace(',', '').replace(/ GMT+.*/, '')
                     }}
                     <span v-if="THEME.alertActive && Date.now() - incident.timeStamp < 20 * 1000" class="circle"></span>
                 </span>

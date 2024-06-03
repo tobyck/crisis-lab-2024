@@ -155,9 +155,9 @@ initWebsocket();
 
 const pressure = computed(() => ({
     values: packetData.filter(t => t != null)
-        .map(({ pressure, timeStamp }) =>
+        .map(({ pressure, timestamp }) =>
         ({
-            x: 20 - (Date.now() - timeStamp) / 1000,
+            x: 20 - (Date.now() - timestamp) / 1000,
             y: pressure
         })
         ),
@@ -166,9 +166,9 @@ const pressure = computed(() => ({
 
 const height = computed(() => ({
     values: packetData.filter(t => t != null)
-        .map(({ height, timeStamp }) =>
+        .map(({ height, timestamp }) =>
         ({
-            x: 20 - (Date.now() - timeStamp) / 1000,
+            x: 20 - (Date.now() - timestamp) / 1000,
             y: height
         })
         ),
