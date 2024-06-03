@@ -24,20 +24,6 @@ pub async fn handle_connection(
 ) {
     let (mut websocket_tx, mut websocket_rx) = websocket.split();
 
-    let (stop_tx, stop_rx) = tokio::sync::watch::channel(false);
-
-    tokio::task::spawn(async move {
-        loop {
-            // Check if the client has closed the connection
-            if websocket_rx.next().await.is_none() {
-                let _ = stop_tx.send(true);
-                break;
-            }
-        }
-    });
-
-    let mut stop_rx = stop_rx;
-
     tokio::task::spawn(async move {
         // send initial previous data and alerts upon connection
         websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
@@ -50,8 +36,8 @@ pub async fn handle_connection(
 
         loop {
             tokio::select! {
-                _ = stop_rx.changed() => {
-                    if *stop_rx.borrow() {
+                msg = websocket_rx.next() => {
+                    if msg.is_none() {
                         break;
                     }
                 }
