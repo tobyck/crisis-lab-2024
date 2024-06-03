@@ -22,7 +22,21 @@ pub async fn handle_connection(
     cache: SharedCache,
     alerts: SharedAlertsVec
 ) {
-    let (mut websocket_tx, _) = websocket.split();
+    let (mut websocket_tx, mut websocket_rx) = websocket.split();
+
+    let (stop_tx, stop_rx) = tokio::sync::watch::channel(false);
+
+    tokio::task::spawn(async move {
+        loop {
+            // Check if the client has closed the connection
+            if websocket_rx.next().await.is_none() {
+                let _ = stop_tx.send(true);
+                break;
+            }
+        }
+    });
+
+    let mut stop_rx = stop_rx;
 
     tokio::task::spawn(async move {
         // send initial previous data and alerts upon connection
@@ -35,16 +49,25 @@ pub async fn handle_connection(
             }).await;
 
         loop {
-            match broadcast_rx.recv().await { // get next message from the channel
-                Ok(data) => {
-                    // serialise as json and send to client
-                    websocket_tx.send(Message::text(serde_json::to_string(&data).unwrap()))
-                        .unwrap_or_else(|error| {
-                            error!("Failed to send data packet over websocket: {}", error);
-                        }).await;
-                },
-                Err(error) => error!("Error reading message from broadcast channel: {}", error)
-            } 
+            tokio::select! {
+                _ = stop_rx.changed() => {
+                    if *stop_rx.borrow() {
+                        break;
+                    }
+                }
+                data = broadcast_rx.recv() => {
+                    match data {
+                        Ok(data) => {
+                            // serialise as json and send to client
+                            websocket_tx.send(Message::text(serde_json::to_string(&data).unwrap()))
+                                .unwrap_or_else(|error| {
+                                    error!("Failed to send data packet over websocket: {}", error);
+                                }).await;
+                        },
+                        Err(error) => error!("Error reading message from broadcast channel: {}", error)
+                    }
+                }
+            }
         }
     });
 }
