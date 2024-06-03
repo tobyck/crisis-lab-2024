@@ -166,10 +166,10 @@ const pressure = computed(() => ({
 
 const height = computed(() => ({
     values: packetData.filter(t => t != null)
-        .map(({ waterLevel, timeStamp }) =>
+        .map(({ height, timeStamp }) =>
         ({
             x: 20 - (Date.now() - timeStamp) / 1000,
-            y: waterLevel
+            y: height
         })
         ),
     loaded: loaded.value
