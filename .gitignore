@@ -1,3 +1,7 @@
 **/node_modules
 **/.DS_Store
 **/.env
+# Note: this is only for the top-level ones that I had to add to fix rust-analyzer
+Cargo.lock
+target
+Cargo.toml
