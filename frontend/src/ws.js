@@ -17,7 +17,6 @@ export async function initWebsocket() {
             loaded.value = true;
             packetData.push(...data.previous_data);
             incidents.push(...data.previous_alerts);
-            console.log(data);
         } else {
             packetData.shift();
             packetData.push(data);
