@@ -32,9 +32,6 @@ async fn main() {
     // serve the websocket route and pass in said objects, and use a handler to
     // reply when something goes wrong
     warp::serve(ws::route(broadcast_tx, cache, alerts).recover(handle_rejection))
-        .tls()
-        .cert_path("tls/cert.crt")
-        .key_path("tls/cert.key")
         .run(([0, 0, 0, 0], config::WS_PORT))
         .await;
 }
