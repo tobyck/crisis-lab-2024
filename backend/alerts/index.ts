@@ -36,10 +36,16 @@ serve({
             }
             // TODO: password
 
-            let message = `WARNING A FAKE TSUNAMI OF HEIGHT ${url.searchParams.get("height")}cm HAS BEEN RECORDED`;
+            let json = await req.json();
+            if (json.height === undefined) {
+                return new Response("No height provided", { status: 400 });
+            }
 
+            let message = `WARNING A FAKE TSUNAMI OF HEIGHT ${json.height}cm HAS BEEN RECORDED`;
+            console.log('Triggering alert', message)
             sendEmail(message);
             postInstagram(message);
+            return new Response("Alert sent!");
         }
         return new Response("Not found", { status: 404 });
     },

@@ -12,30 +12,37 @@ const transporter = createTransport({
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
+    tls: {
+        ciphers: 'SSLv3',
+        rejectUnauthorized: false
+    },
+    requireTLS: true,
     auth: {
         user: process.env.EMAIL,
-        pass: process.env.PASSWORD
+        pass: process.env.EMAIL_PASSWORD
     },
+    logger: true,
+    debug: true,
 });
 
 const sendMail = async (mailDetails: MailOptions) => {
     try {
         const info = await transporter.sendMail(mailDetails);
     } catch (error) {
-        console.log(error);
+        console.log('Failed to send email', error);
     }
 };
 
 export async function sendEmail(message: string) {
     let recipients = JSON.parse(await readFileAsync('mail-list.json', { encoding: 'utf-8' }));
     for (let [uid, email] of Object.entries(recipients)) {
-        console.log(email, uid);
+        //console.log(email, uid);
         const options = {
             from: "Crisis Lab 2024 Tsunami Mail <crisislab2024@gmail.com>",
             to: email as string,
             subject: 'FAKE TSUNAMI DETECTED',
             text: message,
-            html: message + `<br><a href="https://localhost:8783?uid=${uid}">Unsubscribe</a>`
+            html: message + `<br><a href="https://localhost:8783?uuid=${uid}">Unsubscribe</a>`
         };
         sendMail(options);
     }
