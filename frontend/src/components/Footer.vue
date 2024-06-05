@@ -17,8 +17,8 @@ import { THEME } from '../theme.js';
 a {
     color: v-bind('THEME.textColor');
     text-decoration: none;
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 0.5vw;
+    margin-right: 0.5vw;
     user-select: all !important;
 }
 
@@ -31,7 +31,7 @@ div {
     width: 100%;
     bottom: 0;
     background-color: v-bind('THEME.backgroundColor2');
-    padding: 0.4vh;
+    padding: 0.5vw;
     z-index: 100;
     /*text-align: center;*/
 }

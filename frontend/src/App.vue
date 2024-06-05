@@ -53,15 +53,15 @@ div.main {
     column-gap: 0;
     flex-grow: 1;
     flex-shrink: 1;
-    column-gap: 10px;
-    margin-left: 10px;
-    margin-right: 10px;
+    column-gap: 1vw;
+    margin-left: 1vw;
+    margin-right: 1vw;
 }
 
 div.body {
     display: flex;
     flex-flow: column;
-    row-gap: 10px;
+    row-gap: 1vw;
 }
 
 div.header {
@@ -84,7 +84,7 @@ div.chart-container {
     flex: 3 3;
     justify-content: center;
     align-items: stretch;
-    row-gap: 10px;
+    row-gap: 1vw;
     flex-basis: 0;
 }
 
