@@ -9,26 +9,16 @@
             </div>
         </div>
         <div class="rest">
-            <span v-for="incident in [...incidents].reverse()">
-                {{
-                    Intl.DateTimeFormat('en-GB', {
-                        dateStyle: 'short',
-                        timeStyle: 'long',
-                        timeZone: 'Pacific/Auckland',
-                    }).format(new Date(incident.timestamp))
-                        .replace(',', '').replace(/ GMT+.*/, '')
-                        .replace(/(..\/..\/)..(..) (.*)/, '[$3 $1$2]')
-                }}
-                {{
-                    incident.height.toFixed(2)
-                }}cm tsunami
-                <span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
+            <span v-for="log in logs">
+                <span>{{ log }}</span>
+
+                <!--<span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
                 <span v-else>detected</span>
 
-                <span v-if="THEME.alertActive && Date.now() - incident.timeStamp < 20 * 1000" class="circle"></span>
+                <span v-if="THEME.alertActive && Date.now() - incident.timeStamp < 20 * 1000" class="circle"></span>-->
                 <br />
             </span>
-            <div class="undetected" v-if="incidents.length == 0">No tsunami have been detected yet</div>
+            <div class="undetected" v-if="logs.length == 0">No tsunami have been detected yet</div>
         </div>
     </div>
 </template>
@@ -59,8 +49,8 @@ div.box {
 .rest {
     flex: 1;
     flex-basis: 0;
-    display: v-bind('incidents.length == 0 ? "flex" : "block"');
-    align-items: v-bind('incidents.length == 0 ? "center" : "flex-start"');
+    display: v-bind('logs.length == 0 ? "flex" : "block"');
+    align-items: v-bind('logs.length == 0 ? "center" : "flex-start"');
     overflow-y: scroll;
     padding-left: 0.8vw;
     padding-top: 0.8vw;
@@ -118,7 +108,7 @@ span.alert {
 </style>
 
 <script setup>
-import { incidents } from '../ws.js';
+import { logs } from '../ws.js';
 import { THEME } from '@/theme.js';
 import StatusLight from './StatusLight.vue';
 </script>

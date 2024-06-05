@@ -3,7 +3,7 @@ import { THEME } from './theme.js';
 
 export let packetData = reactive([]);
 
-export let incidents = reactive([]);
+export let logs = reactive([]);
 
 export const loaded = ref(false);
 
@@ -16,10 +16,13 @@ export async function initWebsocket() {
         if (loaded.value == false) { // init packet
             loaded.value = true;
             packetData.push(...data.previous_data);
-            incidents.push(...data.previous_alerts);
+            logs.push(...data.previous_alerts.map(stringifyIncident).reverse());
         } else {
             packetData.shift();
             packetData.push(data);
+            if (data.triggerAlert) {
+                logs.unshift(stringifyIncident(data));
+            }
             // TODO: handle alerts
         }
 
@@ -33,3 +36,14 @@ export async function initWebsocket() {
         */
     })
 }
+
+let stringifyIncident = ({ timestamp, height }) => `${Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'short',
+    timeStyle: 'long',
+    timeZone: 'Pacific/Auckland',
+}).format(new Date(timestamp))
+    .replace(',', '').replace(/ GMT+.*/, '')
+    .replace(/(..\/..\/)..(..) (.*)/, '[$3 $1$2]')
+    }
+    ${height.toFixed(2)
+    }cm tsunami detected`;
