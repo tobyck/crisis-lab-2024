@@ -23,5 +23,11 @@
 				];
 			};
 		};
+
+		devShells = {
+			broker = pkgs.mkShell {
+				buildInputs = [ pkgs.mosquitto ];
+			};
+		};
 	});
 }
