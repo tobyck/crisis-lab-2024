@@ -5,3 +5,5 @@ result
 
 # Had to add this to fix rust_analyzer in vscode
 Cargo.toml
+target
+Cargo.lock
