@@ -46,9 +46,10 @@ impl<T: Copy + Send> Cache<T> {
     }
 
     pub fn to_vec(&self) -> Vec<T> {
-        let vec = self.content.to_vec();
-        // I hope this doesn't leak memory
-        vec[self.next_index..].iter().chain(vec[..self.next_index].iter()).copied().collect()
+        self.content[self.next_index..].iter()
+            .chain(self.content[..self.next_index].iter())
+            .copied()
+            .collect()
     }
 }
 
