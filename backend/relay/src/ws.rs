@@ -22,7 +22,7 @@ pub async fn handle_connection(
     cache: SharedCache,
     alerts: SharedAlertsVec
 ) {
-    let (mut websocket_tx, _) = websocket.split();
+    let (mut websocket_tx, mut websocket_rx) = websocket.split();
 
     tokio::task::spawn(async move {
         // send initial previous data and alerts upon connection
@@ -35,16 +35,27 @@ pub async fn handle_connection(
             }).await;
 
         loop {
-            match broadcast_rx.recv().await { // get next message from the channel
-                Ok(data) => {
-                    // serialise as json and send to client
-                    websocket_tx.send(Message::text(serde_json::to_string(&data).unwrap()))
-                        .unwrap_or_else(|error| {
-                            error!("Failed to send data packet over websocket: {}", error);
-                        }).await;
-                },
-                Err(error) => error!("Error reading message from broadcast channel: {}", error)
-            } 
+            tokio::select! {
+                // If the client sends an empty message, it's disconnected; end the loop
+                msg = websocket_rx.next() => {
+                    if msg.is_none() {
+                        break;
+                    }
+                }
+                // If we receive a message from the broadcast channel, send it to the client
+                data = broadcast_rx.recv() => {
+                    match data {
+                        Ok(data) => {
+                            // serialise as json and send to client
+                            websocket_tx.send(Message::text(serde_json::to_string(&data).unwrap()))
+                                .unwrap_or_else(|error| {
+                                    error!("Failed to send data packet over websocket: {}", error);
+                                }).await;
+                        },
+                        Err(error) => error!("Error reading message from broadcast channel: {}", error)
+                    }
+                }
+            }
         }
     });
 }

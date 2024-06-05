@@ -3,29 +3,47 @@ import { THEME } from './theme.js';
 
 export let packetData = reactive([]);
 
-export let incidents = reactive([]);
+export let logs = reactive([]);
 
 export const loaded = ref(false);
 
-export async function initWebsocket () {
-    let ws = new WebSocket('ws://localhost:8081');
+export async function initWebsocket() {
+    let ws = new WebSocket('ws://0.0.0.0:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
-        if (data.type == 'data') { // new packet
-            packetData.shift();
-            packetData.push(data.data);
-        } else if (data.type == 'init') { // initial array
+        console.log(data);
+
+        if (loaded.value == false) { // init packet
             loaded.value = true;
-            packetData.push(...data.data);
-            incidents.push(...data.incidents);
-            console.log(data);
-        } else if (data.type == 'alert') {
+            packetData.push(...data.previous_data);
+            logs.push(...data.previous_alerts.map(stringifyIncident).reverse());
+        } else {
+            packetData.shift();
+            packetData.push(data);
+            if (data.triggerAlert) {
+                logs.unshift(stringifyIncident(data));
+            }
+            // TODO: handle alerts
+        }
+
+        /*
             console.log('ALERT!!!!! WEE WOO WEE WOO')
             THEME.alertActive = true;
             incidents.push(data.data);
             setTimeout(() => {
                 THEME.alertActive = false;
             }, 20000);
-        }
+        */
     })
 }
+
+let stringifyIncident = ({ timestamp, height }) => `${Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'short',
+    timeStyle: 'long',
+    timeZone: 'Pacific/Auckland',
+}).format(new Date(timestamp))
+    .replace(',', '').replace(/ GMT+.*/, '')
+    .replace(/(..\/..\/)..(..) (.*)/, '[$3 $1$2]')
+    }
+    ${height.toFixed(2)
+    }cm tsunami detected`;

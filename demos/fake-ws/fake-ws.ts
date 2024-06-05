@@ -33,7 +33,7 @@ ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
     })
 })
 
-function* randGenerator (avg: number, variation: number, bound: number): Generator<number> {
+function* randGenerator(avg: number, variation: number, bound: number): Generator<number> {
     let val = avg;
     while (true) {
         yield val;
@@ -57,7 +57,7 @@ setInterval(() => {
     }
     prevData.pushpop(newPacket);
     let toDeliver = JSON.stringify({
-        type: "data", 
+        type: "data",
         data: newPacket
     })
     for (let conn of conns) {

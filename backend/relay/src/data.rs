@@ -46,7 +46,10 @@ impl<T: Copy + Send> Cache<T> {
     }
 
     pub fn to_vec(&self) -> Vec<T> {
-        self.content.to_vec()
+        self.content[self.next_index..].iter()
+            .chain(self.content[..self.next_index].iter())
+            .copied()
+            .collect()
     }
 }
 
