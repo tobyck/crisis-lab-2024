@@ -16,7 +16,6 @@
 				src = ./backend/relay;
 
 				nativeBuildInputs = with pkgs; [
-					cargo
 					pkg-config
 					cmake
 					openssl
@@ -24,10 +23,11 @@
 			};
 		};
 
-		devShells = {
-			broker = pkgs.mkShell {
-				buildInputs = [ pkgs.mosquitto ];
-			};
+		devShells.default = pkgs.mkShell {
+			buildInputs = with pkgs; [
+				bun
+				mosquitto
+			];
 		};
 	});
 }
