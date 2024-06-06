@@ -1,6 +1,6 @@
 # Alerts
 
-This has a HTTP server running on port `8373`:
+This has a HTTP server running on port `8783`:
 
 - `GET /subscribe?email=[email]` - Subscribes an email to the alerts
 - `GET /unsubscribe?uuid=[email uuid]` - Unsubscribes an email from the alerts by the associated uuid, sent in the email
