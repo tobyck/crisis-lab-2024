@@ -1,9 +1,9 @@
 /*
  * Author: Maxwell Robati
- * Version: 23/05/24
+ * Version: 6/06/24
  * Purpose: Sends sensor data via WiFi card to relay server.
  */
-#include "client.hpp"
+#include "wifi.hpp"
 
 const char* ssid = "";  // Change what's inside the "" to your Wifi Name
 const char* pass = "";  // "                                 " Wifi Password 
@@ -28,9 +28,10 @@ void setup() {
   // Attempt to connect to WiFi
   Serial.print("Attempting to connect to WPA SSID: ");
   Serial.println(ssid);
+  WiFi.begin(ssid, pass);
 
   // Wait to connect, abort after 15 seconds.
-  for(int i = 0; i < 15 && WiFi.begin(ssid, pass) != WL_CONNECTED; i++) {
+  for(int i = 0; i < 15 && WiFi.status() != WL_CONNECTED; i++) {
     // Retry
     Serial.print(".");
     delay(1000);
