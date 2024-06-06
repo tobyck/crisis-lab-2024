@@ -8,7 +8,7 @@ export let logs = reactive([]);
 export const loaded = ref(false);
 
 export async function initWebsocket() {
-    let ws = new WebSocket('ws://0.0.0.0:8443');
+    let ws = new WebSocket('ws://170.64.254.27:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
         console.log(data);
