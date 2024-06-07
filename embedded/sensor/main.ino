@@ -21,5 +21,5 @@ void loop() {
 	Serial.println(pressure);
   // Send pressure data to WiFi card
   outputSerial.println(pressure);
-	delay(83);
+	delay(40);
 }

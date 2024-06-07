@@ -105,5 +105,5 @@ void loop() {
   if(strlen(buffer) != 0) {
     sendData(buffer); // Send Pressure sensor data to Relay server
   }
-  delay(83);
+  delay(40);
 }
