@@ -39,7 +39,7 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
     Then you can install them with:
 
     ```
-    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/knolleary/pubsubclient
+    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/arduino-libraries/ArduinoMqttClient.git
     ```
 
 3. Compile and upload `embedded/sensor` using the steps from earlier, with `SparkFun:avr:RedBoard` as the FQBN, and `embedded/wifi` with `esp8266:esp8266:generic`.

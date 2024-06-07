@@ -5,17 +5,19 @@
  */
 #include "wifi.hpp"
 
-const char* ssid = "";  // Change what's inside the "" to your Wifi Name
-const char* pass = "";  // "                                 " Wifi Password 
+const char* wifissid = "OPPO A17";  // Change what's inside the "" to your Wifi Name
+const char* wifipass = "password";  // "                                 " Wifi Password 
+
+const char* mqttuser = "sensor";
+const char* mqttpass = "rVcL1OjYHeJApPsA4fT9";		// remove this shit before committing
 
 WiFiClient wifiClient;
 MqttClient mqttClient(wifiClient);
 
 // inTopic is just for testing
-const char* broker = "test.mosquitto.org";
+const char* broker = "170.64.254.27";
 int         port   = 1883;
-const char* inTopic = "sensor/in";
-const char* outTopic = "sensor/out";
+const char* topic = "data";
 
 void setup() {
   // Begin the serial
@@ -27,8 +29,8 @@ void setup() {
 
   // Attempt to connect to WiFi
   Serial.print("Attempting to connect to WPA SSID: ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, pass);
+  Serial.println(wifissid);
+  WiFi.begin(wifissid, wifipass);
 
   // Wait to connect, abort after 15 seconds.
   for(int i = 0; i < 15 && WiFi.status() != WL_CONNECTED; i++) {
@@ -47,6 +49,9 @@ void setup() {
   Serial.print("\nWiFi connected, Connecting to MQTT broker: ");
   Serial.println(broker);
   
+  // Set mqtt user and pass for sensor
+  mqttClient.setUsernamePassword(mqttuser, mqttpass);
+
   // Try to connect to the broker
   if(!mqttClient.connect(broker, port)) {
     Serial.print("MQTT connnection failed! Error code: ");
@@ -55,10 +60,8 @@ void setup() {
   }
   
   Serial.println("Connected!");
-  mqttClient.onMessage(handleMessage);
-  mqttClient.subscribe(inTopic);
 }
-
+/*
 // Handle messages from server
 void handleMessage(int messageSize) {
   // Log message topic
@@ -76,12 +79,14 @@ void handleMessage(int messageSize) {
   }
   Serial.println();
 }
-
+*/
 // Send data to relay server over WiFi
 void sendData(char msg[20]) {
-  mqttClient.beginMessage(outTopic);
+  mqttClient.beginMessage(topic);
   mqttClient.print(msg);
   mqttClient.endMessage();
+  Serial.print("Sent data: ");
+  Serial.println(msg);
 }
 
 void loop() {
@@ -96,12 +101,9 @@ void loop() {
     buffer[strlen(buffer)-1] = '\0';
   }
 
-  // Keep connection open
-  if(mqttClient.available()) {
-    // If the buffer has data, send it.
-    if(strlen(buffer) != 0) {
-      sendData(buffer); // Send Pressure sensor data to Relay server
-    }
+  // If the buffer has data, send it.
+  if(strlen(buffer) != 0) {
+    sendData(buffer); // Send Pressure sensor data to Relay server
   }
-  delay(500);
+  delay(83);
 }
