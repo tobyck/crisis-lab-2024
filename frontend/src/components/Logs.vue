@@ -119,7 +119,7 @@ setInterval(() => {
     currentTime.value = Date.now();
 }, 40);
 
-let ws = new WebSocket('ws://localhost:8783/ws');
+let ws = new WebSocket('ws://170.64.254.27:8783/ws');
 
 let lastAlertMessage = ref(0);
 
