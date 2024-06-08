@@ -18,7 +18,7 @@ export async function initWebsocket() {
             packetData.push(...data.previous_data);
             logs.push(...data.previous_alerts.map(stringifyIncident).reverse());
             if (packetData.length < 500) {
-                packetData.push(...Array(500 - packetData.length).fill(null));
+                packetData.unshift(...Array(500 - packetData.length).fill(null));
             }
         } else {
             packetData.shift();
