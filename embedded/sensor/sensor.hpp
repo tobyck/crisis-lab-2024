@@ -11,6 +11,11 @@
 
 #define RXPin 2
 #define TXPin 3
+#define CAPin 7
+#define CWPin 8
 
 void init_sensor(LPS28DFW sensor);
 float get_pressure(LPS28DFW sensor);
+
+boolean calibratingAir;
+boolean calibratingWater;
