@@ -1,5 +1,6 @@
 package com.example.crisislab
 
+import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.*
 import kotlinx.coroutines.GlobalScope
@@ -12,7 +13,7 @@ class WebSocketClient(private val url: String) {
         install(WebSockets)
     }
 
-    fun connect(listener: WebSocketListener) {
+    fun connect(listener: MainActivity) {
         GlobalScope.launch {
             client.wss(url) {
                 listener.onConnected()

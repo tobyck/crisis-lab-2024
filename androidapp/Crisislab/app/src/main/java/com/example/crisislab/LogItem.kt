@@ -1,10 +1,9 @@
 package com.example.crisislab
 
-import java.time.LocalTime
 import java.util.UUID
 
 class LogItem(
     var height: String,
-    var time: LocalTime,
+    var time: String?,
     var id: UUID = UUID.randomUUID()
 )

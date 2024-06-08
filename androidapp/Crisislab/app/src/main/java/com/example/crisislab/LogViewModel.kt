@@ -19,7 +19,7 @@ class LogViewModel: ViewModel()
         logItems.postValue(list)
     }
 
-    fun updateLogItem(id: UUID, height: String, time: LocalTime){
+    fun updateLogItem(id: UUID, height: String, time: String){
         val list = logItems.value
         val log = list!!.find { it.id == id }!!
         log.height = height

@@ -19,7 +19,7 @@ class LogItemViewHolder(
         binding.height.text = logItem.height
 
         if (logItem.time != null) {
-            binding.time.text = timeFormat.format(logItem.time)
+            binding.time.text = logItem.time
         } else {
             binding.time.text = ""
         }
