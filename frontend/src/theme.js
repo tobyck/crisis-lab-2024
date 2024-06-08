@@ -11,7 +11,7 @@ const LIGHT = {
     backgroundColor2: '#f0f1ff',
     statusLightOn: '#44cc22',
     statusLightOff: '#ff007c',
-    backgroundColor3: '#e5e5ea',
+    backgroundColor3: '#E0E3EC',
     graphColor2: '#6a92e7'
 }
 
@@ -22,7 +22,7 @@ const DARK = {
     backgroundColor2: '#292e42',
     statusLightOn: '#77ff55',
     statusLightOff: '#ff007c',
-    backgroundColor3: '#00000020',
+    backgroundColor3: '#1C1F2D',
     graphColor2: '#7aa2f7'
 }
 

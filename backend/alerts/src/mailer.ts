@@ -6,7 +6,10 @@ import { v4 } from 'uuid';
 const readFileAsync = promisify(readFile);
 const writeFileAsync = promisify(writeFile);
 
+let DEBUG = process.env.DEBUG === "true";
+
 // create reusable transporter object using the default SMTP transport
+// this may randomly not work it's fine
 const transporter = createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
@@ -21,8 +24,8 @@ const transporter = createTransport({
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD
     },
-    logger: true,
-    debug: true,
+    logger: DEBUG,
+    debug: DEBUG,
 });
 
 const sendMail = async (mailDetails: MailOptions) => {

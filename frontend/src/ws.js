@@ -11,12 +11,15 @@ export async function initWebsocket() {
     let ws = new WebSocket('ws://170.64.254.27:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
-        console.log(data);
+        //console.log(data);
 
         if (loaded.value == false) { // init packet
             loaded.value = true;
             packetData.push(...data.previous_data);
             logs.push(...data.previous_alerts.map(stringifyIncident).reverse());
+            if (packetData.length < 500) {
+                packetData.push(...Array(500 - packetData.length).fill(null));
+            }
         } else {
             packetData.shift();
             packetData.push(data);

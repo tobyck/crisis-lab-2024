@@ -7,10 +7,11 @@ import { THEME } from '../theme.js';
         <span class="links">
             <a href='https://github.com/tobyck/crisis-lab-2024' target='_blank'>GitHub</a>
             <a href='https://www.instagram.com/crisislabs.2024.whs/' target='_blank'>Instagram</a>
-            <a href='javascript:;' @click='mailClicked'>Mailing list</a>
+            <a href='javascript:;' @click='openMail'>Mailing list</a>
         </span>
         <DarkToggle />
     </div>
+    <MailDialog v-if='mailOpen' @close="closeMail" />
 </template>
 
 <style scoped>
@@ -52,7 +53,11 @@ div {
 <script>
 import { THEME } from '../theme.js';
 import DarkToggle from './DarkToggle.vue';
-function mailClicked() {
-    console.log('todo: open mail dialog')
-}
+import { ref } from 'vue';
+import MailDialog from './MailDialog.vue';
+
+const mailOpen = ref(false);
+
+let openMail = () => mailOpen.value = true;
+let closeMail = () => mailOpen.value = false;
 </script>

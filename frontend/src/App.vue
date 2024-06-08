@@ -33,7 +33,7 @@
                         minY: 1018,
                         maxY: 1022,
                         color: THEME.graphColor2
-                    }" :data-source="pressure" />
+                    }" :data-source="height" />
                 </div>
             </div>
         </div>

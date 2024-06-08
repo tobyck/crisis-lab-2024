@@ -3,9 +3,9 @@
         <div class="header">
             <div class="incidents">Logs</div>
             <div class="status">
-                <StatusLight :status="true" name="Relay" />
+                <StatusLight :status="serverOnline" name="Relay" />
                 <StatusLight :status="false" name="Sensor" />
-                <StatusLight :status="true" name="Alerts" />
+                <StatusLight :status="alertOnline" name="Alerts" />
             </div>
         </div>
         <div class="rest">
@@ -54,6 +54,7 @@ div.box {
     overflow-y: scroll;
     padding-left: 0.8vw;
     padding-top: 0.8vw;
+    padding-bottom: 0.8vw;
     border-radius: 0.5vw;
     background-color: v-bind('THEME.backgroundColor3');
 }
@@ -108,7 +109,26 @@ span.alert {
 </style>
 
 <script setup>
-import { logs } from '../ws.js';
+import { logs, packetData, loaded } from '../ws.js';
 import { THEME } from '@/theme.js';
 import StatusLight from './StatusLight.vue';
+import { computed, ref } from 'vue';
+
+let currentTime = ref(Date.now());
+setInterval(() => {
+    currentTime.value = Date.now();
+}, 40);
+
+let ws = new WebSocket('ws://localhost:8783/ws');
+
+let lastAlertMessage = ref(0);
+
+ws.onmessage = () => {
+    lastAlertMessage.value = Date.now();
+};
+
+let alertOnline = computed(() => currentTime.value - lastAlertMessage.value < 2000);
+
+
+const serverOnline = computed(() => loaded.value && currentTime.value - packetData.at(-1)?.timestamp < 2000);
 </script>

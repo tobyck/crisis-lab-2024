@@ -63,8 +63,9 @@ const chartOptions = computed(() => ({
             }
         },
         y: {
-            min: props.options.minY,
-            max: props.options.maxY,
+            // TODO: Properly scale this
+            /*min: props.options.minY,
+            max: props.options.maxY,*/
             title: {
                 text: props.options.y,
                 display: true,
