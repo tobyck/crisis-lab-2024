@@ -11,11 +11,12 @@ function* randGenerator(avg: number, variation: number, bound: number): Generato
     }
 }
 
+// @ts-ignore
 let child = require('child_process');
 
 let gen = randGenerator(1020, 0.1, 0.5);
 
 setInterval(() => {
     let val = gen.next().value;
-    child.exec(`mosquitto_pub -h localhost -t data -u sensor -P $PASSWORD -m ` + val.toFixed(2))
+    child.exec(`mosquitto_pub -h 170.64.254.27 -t data -u sensor -P $PASSWORD -m ` + val.toFixed(2))
 }, 40)

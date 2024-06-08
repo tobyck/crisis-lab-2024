@@ -21,8 +21,8 @@ use crate::{
 
 #[inline]
 pub fn init_client(host: &str) -> (AsyncClient, EventLoop) {
-    let username = env::var("USERNAME").expect("Must set USERNAME environment variable");
-    let password = env::var("PASSWORD").expect("Must set PASSWORD environment variable");
+    let username = env::var("MQTT_USERNAME").expect("Error reading MQTT_USERNAME environment variable");
+    let password = env::var("MQTT_PASSWORD").expect("Error reading MQTT_PASSWORD environment variable");
 
     let mut options = MqttOptions::new("crisislab-relay-server", host, MQTT_PORT);
     options.set_keep_alive(Duration::from_secs(10));

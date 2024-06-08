@@ -22,3 +22,6 @@ pub const ALERT_THRESHOLD: f32 = 8.0;
 
 // seconds before another alert can be triggered
 pub const ALERT_COOLDOWN: Duration = Duration::from_secs(10);
+
+// endpoint to post alerts to do for social alerts
+pub const ALERT_ENDPOINT: &str = "http://localhost:8783/alert";

@@ -7,12 +7,14 @@
 * to hold the processed data, and a cache for storing recent data.
 * */
 
-use std::{sync::Arc, time::Instant};
+use std::{env, sync::Arc, time::Instant};
+
+use serde_json::json;
 use tokio::sync::RwLock;
-
 use serde::Serialize;
+use log::error;
 
-use crate::config::{ALERT_COOLDOWN, ALERT_THRESHOLD};
+use crate::config::{ALERT_COOLDOWN, ALERT_ENDPOINT, ALERT_THRESHOLD};
 
 #[derive(Debug)]
 pub struct Cache<T> {
@@ -87,11 +89,35 @@ pub struct InitialDataPacket {
     pub previous_alerts: Vec<Alert>
 }
 
+async fn post_alert(height: f32) {
+    let password = env::var("ALERT_PASSWORD").expect("Error reading ALERT_PASSWORD environment variable");
+
+    let body = json!({
+        "height": height,
+        "password": password
+    });
+
+    // send the above json the social alerts system
+    let client = reqwest::Client::new();
+    let response = client.post(ALERT_ENDPOINT)
+        .json(&body)
+        .send()
+        .await;
+
+    if let Err(error) = response {
+        error!("Error trying to post alert to {}: {}", ALERT_ENDPOINT, error);
+    }
+}
+
 pub async fn process_data(pressure: f32, cache: &SharedCache, alerts: &SharedAlertsVec) -> DataPacket {
     let mut alerts_lock = alerts.write().await;
 
+    const WATER_DENSITY: f64 = 998.0;
+    const AIR_DENSITY: f64 = 1.2;
+    const GRAVITY: f64 = 9.8;
+
     // todo: actually calculate these
-    let height: f32 = 8.0;
+    let height: f32 = (pressure * 100.0) / (WATER_DENSITY - AIR_DENSITY) / GRAVITY;
     let waveform: f32 = 0.0;
     
     let trigger_alert = height >= ALERT_THRESHOLD && match alerts_lock.last() {
@@ -101,6 +127,16 @@ pub async fn process_data(pressure: f32, cache: &SharedCache, alerts: &SharedAle
         None => true
     };
 
+    if trigger_alert {
+        let alert = Alert {
+            height,
+            timestamp: Instant::now()
+        };
+
+        alerts_lock.push(alert);
+        post_alert(height).await;
+    }
+
     let data = DataPacket {
         pressure,
         height,
@@ -108,13 +144,6 @@ pub async fn process_data(pressure: f32, cache: &SharedCache, alerts: &SharedAle
         trigger_alert,
         timestamp: Instant::now()
     };
-
-    if trigger_alert {
-        alerts_lock.push(Alert {
-            height,
-            timestamp: Instant::now()
-        });
-    }
 
     cache.write().await.write(data);
 
