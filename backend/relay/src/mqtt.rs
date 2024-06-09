@@ -10,7 +10,7 @@
 
 use std::{env, sync::Arc, time::Duration};
 
-use log::{error, warn};
+use log::{error, info, warn};
 use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
@@ -67,22 +67,39 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                         };
 
                         let mut split_message = message.split(" ");
-                        if split_message.next().is_some_and(|string| string == CALIBRATION_MSG_PREFIX) {
-                            let average_recent_pressure = cache.read().await
-                                .last_n(FREQUENCY * CALIBRATION_SECONDS)
-                                .map(|data| data.get_pressure())
-                                .sum();
 
-                            match split_message.next() {
-                                Some(AIR) => air_pressure = Some(average_recent_pressure),
-                                Some(WATER) => if let Some(air_pressure_value) = air_pressure {
-                                    resting_water_level = Some(
-                                        height_from_pressure(average_recent_pressure, air_pressure_value)
-                                    )
-                                } else {
-                                    warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet")
+                        // if the first part of the string signifies a calibration message
+                        if split_message.next().is_some_and(|str| str == CALIBRATION_MSG_PREFIX) {
+                            info!("Received calibration message");
+
+                            // get recent data from the cache
+                            let cache_lock = cache.read().await;
+                            let recent_data = cache_lock.last_n(FREQUENCY * CALIBRATION_SECONDS);
+
+                            // if there was enough data
+                            if let Some(data) = recent_data {
+                                let average_recent_pressure = data
+                                    .map(|data| data.get_pressure())
+                                    .sum();
+
+                                // calibrate depending on what the next part of the message is
+                                match split_message.next() {
+                                    Some(AIR) => {
+                                        info!("Calibrating air pressure");
+                                        air_pressure = Some(average_recent_pressure)
+                                    },
+                                    Some(WATER) => if let Some(air_pressure_value) = air_pressure {
+                                        info!("Calibrating water level");
+                                        resting_water_level = Some(
+                                            height_from_pressure(average_recent_pressure, air_pressure_value)
+                                        )
+                                    } else {
+                                        warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet")
+                                    },
+                                    _ => warn!("A calibration message was sent, but neither \"{}\" or \"{}\" was specified", AIR, WATER)
                                 }
-                                _ => warn!("A calibration message was sent, but neither \"{}\" or \"{}\" was specified", AIR, WATER)
+                            } else {
+                                warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
                             }
                         }
 
@@ -107,7 +124,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             &alerts
                         ).await;
 
-                        // send data to websocket handlers
+                        // send processed data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {
                             warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
                         }

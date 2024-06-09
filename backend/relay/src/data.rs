@@ -55,23 +55,28 @@ impl<T: Copy + Send> Cache<T> {
             .collect()
     }
 
-    pub fn last_n<'a>(&'a self, n: usize) -> Box<dyn Iterator<Item = &'a T> + 'a> {
+    // returns None if not enough data is in the cache
+    pub fn last_n<'a>(&'a self, n: usize) -> Option<Box<dyn Iterator<Item = &'a T> + 'a>> {
         let length = self.content.len();
+
+        if n > length {
+            return None;
+        }
 
         if self.next_index == 0 {
             // if the end of the cache is at end of the vec then just get the last n items normally
-            Box::new(self.content[length - n..].iter())
+            Some(Box::new(self.content[length - n..].iter()))
         } else if n <= self.next_index {
             // if the end of the cache is somewhere else but we don't need to wrap around
             let end_index = if self.next_index == 0 { length } else { self.next_index };
-            Box::new(self.content[end_index - n..end_index].iter())
+            Some(Box::new(self.content[end_index - n..end_index].iter()))
         } else {
             // otherwise, we need to wrap around and concatenate two sections
-            Box::new(
+            Some(Box::new(
                 self.content[length - (n - self.next_index)..]
                     .iter()
                     .chain(self.content[..self.next_index].iter())
-            )
+            ))
         }
     }
 }
@@ -218,17 +223,30 @@ mod tests {
     }
 
     #[test]
+    fn to_vec() {
+        let cache = cache_from_iter(3, [1, 2, 3]);
+        assert_eq!(cache.to_vec(), vec![1, 2, 3]);
+
+        let cache: Cache<i32> = Cache::new(3);
+        let empty_vec: Vec<i32> = Vec::new();
+        assert_eq!(cache.to_vec(), empty_vec);
+    }
+
+    #[test]
     fn last_n() {
         let cache = cache_from_iter(5, [1, 4, 8, 5, 6]);
         let last3 = cache.last_n(3);
-        assert!(last3.eq([8, 5, 6].iter()));
+        assert!(last3.is_some());
+        assert!(last3.unwrap().eq([8, 5, 6].iter()));
 
         let cache = cache_from_iter(5, [0, 0, 8, 5, 6, 1, 4]);
         let last4 = cache.last_n(4);
-        assert!(last4.eq([5, 6, 1, 4].iter()));
+        assert!(last4.is_some());
+        assert!(last4.unwrap().eq([5, 6, 1, 4].iter()));
 
         let cache = cache_from_iter(5, [0, 0, 0, 0, 6, 1, 4, 8, 5,]);
         let last2 = cache.last_n(2);
-        assert!(last2.eq([8, 5].iter()));
+        assert!(last2.is_some());
+        assert!(last2.unwrap().eq([8, 5].iter()));
     }
 }
