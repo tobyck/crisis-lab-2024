@@ -44,24 +44,22 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
 
 3. Compile and upload `embedded/sensor` using the steps from earlier, with `SparkFun:avr:RedBoard` as the FQBN, and `embedded/wifi` with `esp8266:esp8266:generic`.
 
-### Alert
+### Physical Alert System
 
-1. Install board definitions for the Arduino Uno
+1. Install dependencies:
 
-```
-arduino-cli core install arduino:avr
-```
-2.Install dependencies:
-
-If you don't already have this option set, you'll need to enable installing libraries from git repositories:  
+    If you don't already have this option set, you'll need to enable installing libraries from git repositories:  
 
     ```
     arduino-cli config set library.enable_unsafe_install true
     ```
- Then you can install them with:  
-```
-arduino-cli lib install --git-url https://github.com/adafruit/Adafruit_TiCoServo https://github.com/adafruit/Adafruit_NeoPixel
-```
-3. Compile and upload `embedded/physical-alerts` using the steps from earlier, with `arduino:avr` as the FQBN
-4. Run the file that doesn't exist yet to send signals to the arduino
+    
+    Then you can install them with:  
 
+    ```
+    arduino-cli lib install --git-url https://github.com/adafruit/Adafruit_TiCoServo https://github.com/adafruit/Adafruit_NeoPixel
+    ```
+   
+2. Compile and upload `embedded/physical-alerts` using the steps from earlier, with `arduino:avr` as the FQBN.
+
+3. Run the file that doesn't exist yet to send signals to the Arduino.
