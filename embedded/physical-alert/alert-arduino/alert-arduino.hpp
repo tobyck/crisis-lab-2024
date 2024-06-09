@@ -23,7 +23,7 @@ int increment = 1;
 int currentTonePin = 4;
 int triggerTime = 10000;
 
-String data = ""
+String data = "";
 
 unsigned long prevTimeTones = millis();
 unsigned long prevTimeServos;

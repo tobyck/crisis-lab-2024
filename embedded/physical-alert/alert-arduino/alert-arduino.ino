@@ -4,11 +4,12 @@
  * Purpose: Physical alert system.
  */
 
-#include "physical-alert.hpp"
+#include "alert-arduino.hpp"
 
 /*
  * Init.
  */
+
 
 void setup() {
 	servo1.attach(9);
@@ -26,19 +27,25 @@ void setup() {
 
 void loop() {
 	current = millis();
-
+    // Serial.println("test");
 	if (Serial.available()) {
+    Serial.println("test");
 		data = Serial.readStringUntil('\r');
 		if (data.startsWith("T")) {
 			isTriggering = true;
 			alertOn();
+      Serial.println("high");//for debugging
 			start = current;
 		}
+    
 	}
 
-	if (isTriggering && ((current - start) >= triggerTime)) {
-		isTriggering = false;
-	}
+
+  if (isTriggering == true && ((current - start) >= triggerTime)){
+    isTriggering = false;
+    Serial.println("low");//for debugging
+  }
+
 }
 
 void alertOn() {
