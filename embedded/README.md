@@ -36,7 +36,7 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
     arduino-cli config set library.enable_unsafe_install true
     ```
 
-    Then you can install them with:
+    Then you can install them with:  
 
     ```
     arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/arduino-libraries/ArduinoMqttClient.git
@@ -46,4 +46,22 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
 
 ### Alert
 
-TODO
+1. Install board definitions for the Arduino Uno
+
+```
+arduino-cli core install arduino:avr
+```
+2.Install dependencies:
+
+If you don't already have this option set, you'll need to enable installing libraries from git repositories:  
+
+    ```
+    arduino-cli config set library.enable_unsafe_install true
+    ```
+ Then you can install them with:  
+```
+arduino-cli lib install --git-url https://github.com/adafruit/Adafruit_TiCoServo https://github.com/adafruit/Adafruit_NeoPixel
+```
+3. Compile and upload `embedded/physical-alerts` using the steps from earlier, with `arduino:avr` as the FQBN
+4. Run the file that doesn't exist yet to send signals to the arduino
+
