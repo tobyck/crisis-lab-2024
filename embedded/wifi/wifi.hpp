@@ -1,8 +1,9 @@
 /*
  * Author: Maxwell Robati
- * Version: 23/05/24
- * Purpose: Sends sensor data via WiFi card to relay server.
+ * Version: 9/06/24
+ * Purpose: Sends sensor data via WiFi card to MQTT broker.
  */
+
 #pragma once
 
 #include <ArduinoMqttClient.h>
