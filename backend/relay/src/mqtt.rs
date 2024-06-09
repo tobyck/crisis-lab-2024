@@ -15,8 +15,8 @@ use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
 use crate::{
-    config::{CACHE_CAPACITY, CHANNEL_CAPACITY, MQTT_PORT},
-    data::{process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
+    config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MQTT_PORT},
+    data::{height_from_pressure, process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
 };
 
 #[inline]
@@ -45,6 +45,15 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
     let cache_clone = cache.clone();
 
     tokio::task::spawn(async move {
+        const CALIBRATION_MSG_PREFIX: &str = "C";
+        const AIR: &str = "AIR";
+        const WATER: &str = "WATER";
+
+        const CALIBRATION_SECONDS: usize = 3;
+
+        let mut air_pressure: Option<f32> = None;
+        let mut resting_water_level: Option<f32> = None;
+
         loop {
             match event_loop.poll().await {
                 Ok(event) => {
@@ -57,7 +66,32 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             }
                         };
 
-                        let pressure: f32 = match message.parse() {
+                        let mut split_message = message.split(" ");
+                        if split_message.next().is_some_and(|string| string == CALIBRATION_MSG_PREFIX) {
+                            let average_recent_pressure = cache.read().await
+                                .last_n(FREQUENCY * CALIBRATION_SECONDS)
+                                .map(|data| data.get_pressure())
+                                .sum();
+
+                            match split_message.next() {
+                                Some(AIR) => air_pressure = Some(average_recent_pressure),
+                                Some(WATER) => if let Some(air_pressure_value) = air_pressure {
+                                    resting_water_level = Some(
+                                        height_from_pressure(average_recent_pressure, air_pressure_value)
+                                    )
+                                } else {
+                                    warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet")
+                                }
+                                _ => warn!("A calibration message was sent, but neither \"{}\" or \"{}\" was specified", AIR, WATER)
+                            }
+                        }
+
+                        // ensure that calibrations have been done before trying to process data
+                        if air_pressure.is_none() || resting_water_level.is_none() {
+                            continue;
+                        }
+
+                        let water_pressure: f32 = match message.parse() {
                             Ok(pressure) => pressure,
                             Err(error) => {
                                 error!("Cound not parse pressure as an f32: {}", error);
@@ -65,7 +99,13 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             }
                         };
 
-                        let data: DataPacket = process_data(pressure, &cache, &alerts).await;
+                        let data: DataPacket = process_data(
+                            water_pressure,
+                            air_pressure.unwrap(),
+                            resting_water_level.unwrap(),
+                            &cache,
+                            &alerts
+                        ).await;
 
                         // send data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {
