@@ -84,8 +84,8 @@ impl<T: Copy + Send> Cache<T> {
 #[derive(Debug, Copy, Clone, Serialize)]
 pub struct DataPacket {
     pressure: f32,
-    wave_height: f32,
-    waveform: f32,
+    wave_height: Option<f32>,
+    waveform: Option<f32>,
 
     // this says whether or not to trigger a new alert (not whether or not then
     // wave height is above the threshold)
@@ -96,6 +96,16 @@ pub struct DataPacket {
 }
 
 impl DataPacket {
+    pub fn with_only_pressure(pressure: f32) -> Self {
+        Self {
+            pressure,
+            wave_height: None,
+            waveform: None,
+            trigger_alert: false,
+            timestamp: Instant::now()
+        }
+    }
+
     // allow read access to the pressure via this method
     pub fn get_pressure(&self) -> f32 {
         self.pressure
@@ -192,8 +202,8 @@ pub async fn process_data(
 
     let data = DataPacket {
         pressure: water_pressure,
-        wave_height,
-        waveform,
+        wave_height: Some(wave_height),
+        waveform: Some(waveform),
         trigger_alert,
         timestamp: Instant::now()
     };

@@ -76,8 +76,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             let cache_lock = cache.read().await;
                             let recent_data = cache_lock.last_n(FREQUENCY * CALIBRATION_SECONDS);
 
-                            // if there was enough data
-                            if let Some(data) = recent_data {
+                            if let Some(data) = recent_data { // if there was enough data
                                 let average_recent_pressure = data
                                     .map(|data| data.get_pressure())
                                     .sum();
@@ -86,15 +85,16 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                                 match split_message.next() {
                                     Some(AIR) => {
                                         info!("Calibrating air pressure");
-                                        air_pressure = Some(average_recent_pressure)
+                                        air_pressure = Some(average_recent_pressure);
                                     },
                                     Some(WATER) => if let Some(air_pressure_value) = air_pressure {
                                         info!("Calibrating water level");
-                                        resting_water_level = Some(
-                                            height_from_pressure(average_recent_pressure, air_pressure_value)
-                                        )
+                                        resting_water_level = Some(height_from_pressure(
+                                            average_recent_pressure,
+                                            air_pressure_value
+                                        ));
                                     } else {
-                                        warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet")
+                                        warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
                                     },
                                     _ => warn!("A calibration message was sent, but neither \"{}\" or \"{}\" was specified", AIR, WATER)
                                 }
@@ -103,12 +103,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             }
                         }
 
-                        // ensure that calibrations have been done before trying to process data
-                        if air_pressure.is_none() || resting_water_level.is_none() {
-                            continue;
-                        }
-
-                        let water_pressure: f32 = match message.parse() {
+                        let pressure: f32 = match message.parse() {
                             Ok(pressure) => pressure,
                             Err(error) => {
                                 error!("Cound not parse pressure as an f32: {}", error);
@@ -116,13 +111,20 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             }
                         };
 
-                        let data: DataPacket = process_data(
-                            water_pressure,
-                            air_pressure.unwrap(),
-                            resting_water_level.unwrap(),
-                            &cache,
-                            &alerts
-                        ).await;
+                        let data: DataPacket =
+                            if air_pressure.is_some() && resting_water_level.is_some() {
+                                // if both calibrations have been done then process data
+                                process_data(
+                                    pressure,
+                                    air_pressure.unwrap(),
+                                    resting_water_level.unwrap(),
+                                    &cache,
+                                    &alerts
+                                ).await
+                            } else {
+                                // otherwise make a data packet which only has a pressure value
+                                DataPacket::with_only_pressure(pressure)
+                            };
 
                         // send processed data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {
