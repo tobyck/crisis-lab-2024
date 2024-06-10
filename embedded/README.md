@@ -19,7 +19,7 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
 
 ### Sensor + WiFi
 
-1. Install board definitions for the SparkFun RedBoard (an Arduino Uno) and the ESP8266:
+1. Install board definitions for the SparkFun RedBoard (an Arduino UNO) and the ESP8266:
 
     ```
     arduino-cli core install arduino:avr
@@ -42,8 +42,8 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
     arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/arduino-libraries/ArduinoMqttClient.git
     ```
 
-3. Change the Wifi SSID, and password; the MQTT username, and password; and the Server IP adress and port variables in `/embedded/wifi.ino
-4. Compile and upload `embedded/sensor` using the steps from earlier, with `SparkFun:avr:RedBoard` as the FQBN, and `embedded/wifi` with `esp8266:esp8266:generic`.
+3. Change the WiFi SSID and password; the MQTT username and password; and the Server IP address and port variables in `/embedded/wifi.ino`
+4. Compile and upload `embedded/sensor` using the steps from earlier, with `SparkFun:avr:RedBoard` as the FQBN, and `embedded/wifi` with `esp8266:esp8266:generic`
 
 ### Physical Alert System
 
@@ -63,14 +63,14 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
    
 2. Compile and upload `embedded/physical-alerts/alert-arduino` using the steps from earlier, with `arduino:avr` as the FQBN.
 
-3. Navigate to the `embedded/physical-alerts/alert-client` directory
+3. Navigate to the `embedded/physical-alerts/alert-client` directory.
 
-4. Install python dependencies
+4. Install python dependencies.
 
    ```
    pip install websockets
    ```
 
-5. Change `ser` to whichever port you are using to communicate with the arduino, and change the websocket IP adress and port, in `Communicator.py`
+5. Change `ser` to whichever port you are using to communicate with the Arduino, and change the WebSocket IP adress and port, in `Communicator.py`
 
-6. Run `./Communicator.py` using python, this odviously will not not work without a internet connection
+6. Run `./Communicator.py` using python, this will not work without an internet connection.
