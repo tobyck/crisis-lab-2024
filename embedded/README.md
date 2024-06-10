@@ -61,7 +61,7 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
     arduino-cli lib install --git-url https://github.com/adafruit/Adafruit_TiCoServo https://github.com/adafruit/Adafruit_NeoPixel
     ```
    
-2. Compile and upload `embedded/physical-alerts/alert-arduino` using the steps from earlier, with `arduino:avr` as the FQBN.
+2. Compile and upload `embedded/physical-alerts/alert-arduino` using the steps from earlier, with `arduino:avr:uno` as the FQBN.
 
 3. Navigate to the `embedded/physical-alerts/alert-client` directory.
 
