@@ -67,13 +67,13 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                         };
 
                         let mut split_message = message.split(" ");
+                        let mut cache_lock = cache.write().await;
 
                         // if the first part of the string signifies a calibration message
                         if split_message.next().is_some_and(|str| str == CALIBRATION_MSG_PREFIX) {
                             info!("Received calibration message");
 
                             // get recent data from the cache
-                            let cache_lock = cache.read().await;
                             let recent_data = cache_lock.last_n(FREQUENCY * CALIBRATION_SECONDS);
 
                             if let Some(data) = recent_data { // if there was enough data
@@ -101,6 +101,8 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             } else {
                                 warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
                             }
+
+                            continue;
                         }
 
                         let pressure: f32 = match message.parse() {
@@ -111,20 +113,25 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             }
                         };
 
-                        let data: DataPacket =
-                            if air_pressure.is_some() && resting_water_level.is_some() {
-                                // if both calibrations have been done then process data
-                                process_data(
-                                    pressure,
-                                    air_pressure.unwrap(),
-                                    resting_water_level.unwrap(),
-                                    &cache,
-                                    &alerts
-                                ).await
-                            } else {
-                                // otherwise make a data packet which only has a pressure value
-                                DataPacket::with_only_pressure(pressure)
-                            };
+                        // if both calibrations haven't been done then cache a data packet with
+                        // only the pressure
+                        if air_pressure.is_none() || resting_water_level.is_none() {
+                            cache_lock.write(DataPacket::with_only_pressure(pressure));
+                            continue;
+                        }
+                            
+                        let data = process_data(
+                            pressure,
+                            air_pressure.unwrap(),
+                            resting_water_level.unwrap(),
+                            &cache,
+                            &alerts
+                        ).await;
+
+                        // make sure at least someone is connected before trying to send data
+                        if broadcast_tx.receiver_count() > 0 {
+                            continue;
+                        }
 
                         // send processed data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {
