@@ -67,13 +67,13 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                         };
 
                         let mut split_message = message.split(" ");
-                        let mut cache_lock = cache.write().await;
 
                         // if the first part of the string signifies a calibration message
                         if split_message.next().is_some_and(|str| str == CALIBRATION_MSG_PREFIX) {
                             info!("Received calibration message");
 
                             // get recent data from the cache
+                            let cache_lock = cache.read().await;
                             let recent_data = cache_lock.last_n(FREQUENCY * CALIBRATION_SECONDS);
 
                             if let Some(data) = recent_data { // if there was enough data
@@ -116,7 +116,10 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                         // if both calibrations haven't been done then cache a data packet with
                         // only the pressure
                         if air_pressure.is_none() || resting_water_level.is_none() {
+                            let mut cache_lock = cache.write().await;
                             cache_lock.write(DataPacket::with_only_pressure(pressure));
+                            drop(cache_lock);
+
                             continue;
                         }
                             
@@ -127,11 +130,6 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             &cache,
                             &alerts
                         ).await;
-
-                        // make sure at least someone is connected before trying to send data
-                        if broadcast_tx.receiver_count() == 0 {
-                            continue;
-                        }
 
                         // send processed data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {
