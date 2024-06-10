@@ -10,7 +10,7 @@
 
 use std::{env, sync::Arc, time::Duration};
 
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
@@ -49,7 +49,9 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
         const AIR: &str = "AIR";
         const WATER: &str = "WATER";
 
+        // how much recent data to use for calibration
         const CALIBRATION_SECONDS: usize = 3;
+        const AMOUNT_OF_CALIBRATION_DATA: usize = FREQUENCY * CALIBRATION_SECONDS;
 
         let mut air_pressure: Option<f32> = None;
         let mut resting_water_level: Option<f32> = None;
@@ -66,33 +68,35 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             }
                         };
 
+                        debug!("Received message: \"{}\"", message);
+
                         let mut split_message = message.split(" ");
 
                         // if the first part of the string signifies a calibration message
                         if split_message.next().is_some_and(|str| str == CALIBRATION_MSG_PREFIX) {
-                            info!("Received calibration message");
+                            debug!("Received calibration message");
 
                             // get recent data from the cache
                             let cache_lock = cache.read().await;
-                            let recent_data = cache_lock.last_n(FREQUENCY * CALIBRATION_SECONDS);
+                            let recent_data = cache_lock.last_n(AMOUNT_OF_CALIBRATION_DATA);
 
                             if let Some(data) = recent_data { // if there was enough data
                                 let average_recent_pressure = data
                                     .map(|data| data.get_pressure())
-                                    .sum();
+                                    .sum::<f32>() / AMOUNT_OF_CALIBRATION_DATA as f32;
 
                                 // calibrate depending on what the next part of the message is
                                 match split_message.next() {
                                     Some(AIR) => {
-                                        info!("Calibrating air pressure");
                                         air_pressure = Some(average_recent_pressure);
+                                        info!("Calibrated air pressure to {}", average_recent_pressure);
                                     },
                                     Some(WATER) => if let Some(air_pressure_value) = air_pressure {
-                                        info!("Calibrating water level");
                                         resting_water_level = Some(height_from_pressure(
                                             average_recent_pressure,
                                             air_pressure_value
                                         ));
+                                        info!("Calibrated resting water level to {}", resting_water_level.unwrap());
                                     } else {
                                         warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
                                     },
@@ -108,7 +112,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                         let pressure: f32 = match message.parse() {
                             Ok(pressure) => pressure,
                             Err(error) => {
-                                error!("Cound not parse pressure as an f32: {}", error);
+                                warn!("Cound not parse pressure as an f32: {}", error);
                                 continue;
                             }
                         };
@@ -130,6 +134,10 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             &cache,
                             &alerts
                         ).await;
+
+                        if broadcast_tx.receiver_count() == 0 {
+                            continue;
+                        }
 
                         // send processed data to websocket handlers
                         if let Err(error) = broadcast_tx.send(data) {

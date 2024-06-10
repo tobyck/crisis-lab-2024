@@ -12,7 +12,7 @@ use std::{env, sync::Arc, time::Instant};
 use serde_json::json;
 use tokio::sync::RwLock;
 use serde::Serialize;
-use log::{error, info};
+use log::{debug, error, info};
 
 use crate::config::{ALERT_COOLDOWN, ALERT_ENDPOINT, ALERT_THRESHOLD};
 
@@ -117,7 +117,7 @@ pub type SharedCache = Arc<RwLock<Cache<DataPacket>>>;
 
 #[derive(Clone, Serialize)]
 pub struct Alert {
-    wave_height: f32,
+    height: f32,
 
     #[serde(with = "serde_millis")]
     timestamp: Instant
@@ -173,6 +173,9 @@ pub async fn process_data(
 ) -> DataPacket {
     let mut alerts_lock = alerts.write().await;
 
+    debug!("Processing pressure value: {}", water_pressure);
+    debug!("Wave height from floor: {}", height_from_pressure(water_pressure, air_pressure));
+
     let wave_height: f32 = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
     let waveform: f32 = 0.0; // TODO: actually calculate this
     
@@ -185,7 +188,7 @@ pub async fn process_data(
 
     if trigger_alert {
         let alert = Alert {
-            wave_height,
+            height: wave_height,
             timestamp: Instant::now()
         };
 
@@ -207,6 +210,8 @@ pub async fn process_data(
         trigger_alert,
         timestamp: Instant::now()
     };
+
+    debug!("Computed data packet: {:?}", data);
 
     cache.write().await.write(data);
 
