@@ -129,7 +129,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                         ).await;
 
                         // make sure at least someone is connected before trying to send data
-                        if broadcast_tx.receiver_count() > 0 {
+                        if broadcast_tx.receiver_count() == 0 {
                             continue;
                         }
 
