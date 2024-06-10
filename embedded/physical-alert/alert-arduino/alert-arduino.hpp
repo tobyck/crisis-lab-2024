@@ -33,6 +33,7 @@ unsigned long current = 0;
 
 long intervalTones = 200;
 long intervalServos = 15;
-long intervalLight = 1000;
+long intervalLight = 50;
+int isWhite = 0;
 
 boolean isTriggering = false;

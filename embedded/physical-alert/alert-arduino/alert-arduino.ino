@@ -83,10 +83,9 @@ void alertOn() {
 
 		if (currentTime - prevTimeLight > intervalLight) {
 			prevTimeLight = currentTime;
-			static bool isWhite = false;
 
 			for (int i = 0; i < pixels.numPixels(); i++) {
-				if (isWhite) {
+				if ((isWhite + i) % 8 < 4) {
 					pixels.setPixelColor(i, pixels.Color(255, 0, 0));
 				} else {
 					pixels.setPixelColor(i, pixels.Color(255, 255, 255));
@@ -94,7 +93,7 @@ void alertOn() {
 			}
 
 			pixels.show();
-			isWhite = !isWhite;
+			isWhite++;
 		}
 	} while (isTriggering == true);
 }
