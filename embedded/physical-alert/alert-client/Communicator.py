@@ -1,6 +1,6 @@
 import serial
 import time
-import websockets
+import websocket
 import json
 
 # Open Serial port
