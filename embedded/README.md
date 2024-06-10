@@ -65,9 +65,12 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
 
 3. Navigate to the `embedded/physical-alerts/alert-client` directory
 
-4. Install python dependancies
-```
-pip install websockets
-```
+4. Install python dependencies
+
+   ```
+   pip install websockets
+   ```
+
 5. Change `ser` to whichever port you are using to communicate with the arduino, and change the websocket IP adress and port, in `Communicator.py`
+
 6. Run `./Communicator.py` using python, this odviously will not not work without a internet connection
