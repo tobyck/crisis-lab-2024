@@ -9,7 +9,7 @@ type DataPacket = {
     height: number;
 }
 
-const hertz = 10;
+const hertz = 25;
 const bufferSize = 20;
 
 
@@ -46,8 +46,8 @@ function* randGenerator(avg: number, variation: number, bound: number): Generato
     }
 }
 
-let currentPressure = randGenerator(1020, 0.2, 1);
-let currentWaterLevel = randGenerator(1, 0.2, 1);
+let currentPressure = randGenerator(1020, 0.05, 1);
+let currentWaterLevel = randGenerator(1, 0.05, 1);
 
 let triggerAlert = false;
 
@@ -58,10 +58,7 @@ setInterval(() => {
         height: currentWaterLevel.next().value
     }
     prevData.pushpop(newPacket);
-    let toDeliver = JSON.stringify({
-        type: "data",
-        ...newPacket
-    })
+    let toDeliver = JSON.stringify(newPacket)
     for (let conn of conns) {
         conn.send(toDeliver);
     }
@@ -79,10 +76,7 @@ while (true) {
         };
         incidents.push(incident);
         for (let conn of conns) {
-            conn.send(JSON.stringify({
-                type: 'alert',
-                ...incident
-            }))
+            conn.send(JSON.stringify(incident))
         }
 
     }

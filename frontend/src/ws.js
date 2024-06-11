@@ -13,7 +13,7 @@ export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'ws://170.64.254.27:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
-        console.log(message);
+        //console.log(message);
 
         if (loaded.value == false) { // init packet
             loaded.value = true;
@@ -22,13 +22,15 @@ export async function initWebsocket() {
             if (packetData.length < 500) {
                 packetData.unshift(...Array(500 - packetData.length).fill(null));
             }
-        } else if (data.type == 'data') {
+        } else if (data.pressure) { // data packet
             packetData.shift();
             packetData.push(data);
             /*if (data.triggerAlert) {
                 logs.unshift(stringifyIncident(data));
             }*/
             // TODO: handle alerts
+        } else { // alert packet
+            logs.unshift(stringifyIncident(data));
         }
 
         /*
