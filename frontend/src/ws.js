@@ -7,7 +7,7 @@ export let logs = reactive([]);
 
 export const loaded = ref(false);
 
-let LOCAL = true;
+let LOCAL = false;
 
 export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'ws://170.64.254.27:8443');
