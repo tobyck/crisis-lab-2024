@@ -155,23 +155,24 @@ initWebsocket();
 
 const pressure = computed(() => ({
     values: packetData.filter(t => t != null)
+        .filter(({ height, timestamp }) => THEME.isMobile ? (timestamp * 25) % 2 < 1 : 1) // remove every other point on mobile
         .map(({ pressure, timestamp }) =>
         ({
             x: 20 - (Date.now() - timestamp) / 1000,
             y: pressure
-        })
-        ),
+        })),
+
     loaded: loaded.value
 }))
 
 const height = computed(() => ({
     values: packetData.filter(t => t != null)
+        .filter(({ height, timestamp }) => THEME.isMobile ? (timestamp * 25) % 3 < 1 : 1) // remove every other point on mobile
         .map(({ height, timestamp }) =>
         ({
             x: 20 - (Date.now() - timestamp) / 1000,
             y: height
-        })
-        ),
+        })),
     loaded: loaded.value
 }))
 </script>
