@@ -7,11 +7,13 @@ export let logs = reactive([]);
 
 export const loaded = ref(false);
 
+let LOCAL = true;
+
 export async function initWebsocket() {
-    let ws = new WebSocket('ws://170.64.254.27:8443');
+    let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'ws://170.64.254.27:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
-        //console.log(data);
+        console.log(message);
 
         if (loaded.value == false) { // init packet
             loaded.value = true;
@@ -20,12 +22,12 @@ export async function initWebsocket() {
             if (packetData.length < 500) {
                 packetData.unshift(...Array(500 - packetData.length).fill(null));
             }
-        } else {
+        } else if (data.type == 'data') {
             packetData.shift();
             packetData.push(data);
-            if (data.triggerAlert) {
+            /*if (data.triggerAlert) {
                 logs.unshift(stringifyIncident(data));
-            }
+            }*/
             // TODO: handle alerts
         }
 
@@ -48,5 +50,4 @@ let stringifyIncident = ({ timestamp, height }) => `${Intl.DateTimeFormat('en-GB
     .replace(',', '').replace(/ GMT+.*/, '')
     .replace(/(..\/..\/)..(..) (.*)/, '[$3 $1$2]')
     }
-    ${height.toFixed(2)
-    }cm tsunami detected`;
+    ${height.toFixed(2)}cm tsunami detected`;

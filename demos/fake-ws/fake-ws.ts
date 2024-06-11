@@ -4,16 +4,16 @@ import { RingBuffer } from './ring-buffer';
 import { question } from 'readline-sync';
 
 type DataPacket = {
-    timeStamp: number;
+    timestamp: number;
     pressure: number;
-    waterLevel: number;
+    height: number;
 }
 
 const hertz = 10;
 const bufferSize = 20;
 
 
-let ws = new r_ws.Server({ port: 8081 });
+let ws = new r_ws.Server({ port: 8443 });
 
 let conns: r_ws[] = [];
 
@@ -22,8 +22,8 @@ let prevData = new RingBuffer<DataPacket>(bufferSize * hertz);
 ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
     conn.send(JSON.stringify({
         type: 'init',
-        data: prevData.toArray(),
-        incidents: incidents
+        previous_data: prevData.toArray(),
+        previous_alerts: incidents
     }));
     console.log('new connection');
     conns.push(conn);
@@ -49,20 +49,23 @@ function* randGenerator(avg: number, variation: number, bound: number): Generato
 let currentPressure = randGenerator(1020, 0.2, 1);
 let currentWaterLevel = randGenerator(1, 0.2, 1);
 
+let triggerAlert = false;
+
 setInterval(() => {
     let newPacket: DataPacket = {
-        timeStamp: Date.now(),
+        timestamp: Date.now(),
         pressure: currentPressure.next().value,
-        waterLevel: currentWaterLevel.next().value
+        height: currentWaterLevel.next().value
     }
     prevData.pushpop(newPacket);
     let toDeliver = JSON.stringify({
         type: "data",
-        data: newPacket
+        ...newPacket
     })
     for (let conn of conns) {
         conn.send(toDeliver);
     }
+    if (triggerAlert) triggerAlert = false;
 }, 1000 / hertz)
 
 let incidents: Incident[] = [];
@@ -71,14 +74,14 @@ while (true) {
     let trigger = question('alert?');
     if (trigger.trim() === 'y') {
         let incident = {
-            timeStamp: Date.now(),
-            height: prevData.get(0).waterLevel
+            timestamp: Date.now(),
+            height: prevData.get(0).height
         };
         incidents.push(incident);
         for (let conn of conns) {
             conn.send(JSON.stringify({
                 type: 'alert',
-                data: incident
+                ...incident
             }))
         }
 
@@ -86,6 +89,6 @@ while (true) {
 }
 
 type Incident = {
-    timeStamp: number;
+    timestamp: number;
     height: number;
 }
