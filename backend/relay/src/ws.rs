@@ -46,8 +46,7 @@ pub async fn handle_connection(
                 data = broadcast_rx.recv() => {
                     match data {
                         Ok(data) => {
-                            // serialise as json and send to client
-                            websocket_tx.send(Message::text(serde_json::to_string(&data).unwrap()))
+                            websocket_tx.send(Message::text(data))
                                 .unwrap_or_else(|error| {
                                     error!("Failed to send data packet over websocket: {}", error);
                                 }).await;
