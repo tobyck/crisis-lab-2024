@@ -8,15 +8,14 @@
 * WebSocket handlers.
 * */
 
-use std::{env, sync::Arc, time::Duration};
+use std::{env, fs::File, io::Write, sync::Arc, time::Duration};
 
-use log::{debug, error, info, warn};
+use log::{debug, info, warn, error};
 use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
 use crate::{
-    config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MQTT_PORT},
-    data::{height_from_pressure, process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
+    alert::check_for_alert, config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MQTT_PORT, PRESSURE_LOG_FILE}, data::{height_from_pressure, process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
 };
 
 #[inline]
@@ -33,9 +32,9 @@ pub fn init_client(host: &str) -> (AsyncClient, EventLoop) {
 
 // this polls the event loop and if there's a message it will try to parse it as
 // a float and pass it to process_and_cache_data (see data.rs)
-pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, SharedAlertsVec) {
+pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, SharedAlertsVec) {
     // all of these things will be moved into the task below
-    let (broadcast_tx, _) = broadcast::channel::<DataPacket>(CHANNEL_CAPACITY);
+    let (broadcast_tx, _) = broadcast::channel::<String>(CHANNEL_CAPACITY);
     let alerts: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
     let cache: SharedCache = Arc::new(RwLock::new(Cache::new(CACHE_CAPACITY)));
 
@@ -45,6 +44,20 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
     let cache_clone = cache.clone();
 
     tokio::task::spawn(async move {
+        // create a log file for logging data to
+        let data_logs_enabled = env::var("LOG_DATA").is_ok();
+        let mut data_log_file: Option<File> = if data_logs_enabled {
+            match File::create(PRESSURE_LOG_FILE) {
+                Ok(file) => Some(file),
+                Err(error) => {
+                    error!("Could not create log file for pressure values: {}", error);
+                    None
+                }
+            }
+        } else {
+            None
+        };
+        
         const CALIBRATION_MSG_PREFIX: &str = "C";
         const AIR: &str = "AIR";
         const WATER: &str = "WATER";
@@ -131,17 +144,36 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<DataPacket>, SharedCache, Sh
                             pressure,
                             air_pressure.unwrap(),
                             resting_water_level.unwrap(),
-                            &cache,
-                            &alerts
+                            &cache
                         ).await;
 
+                        // write processed data to a file if enabled
+                        if data_logs_enabled {
+                            if let Some(ref mut file) = data_log_file {
+                                if let Err(error) = file.write(format!("{:?}\n", data).as_bytes()) {
+                                    warn!("Error writing data to log file: {}", error);
+                                }
+                            }
+                        }
+
+                        // don't bother sending anything if no one's connected
                         if broadcast_tx.receiver_count() == 0 {
                             continue;
                         }
 
-                        // send processed data to websocket handlers
-                        if let Err(error) = broadcast_tx.send(data) {
+                        // serialise processed data and send to websocket handlers
+                        if let Err(error) = broadcast_tx.send(serde_json::to_string(&data).unwrap()) {
                             warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
+                        }
+
+                        // if the a wave height was computed then check for and alert and send it
+                        // to the websocket handlers like above
+                        if let Some(current_wave_height) = data.get_height() {
+                            if let Some(alert) = check_for_alert(current_wave_height, &cache, &alerts).await {
+                                if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
+                                    warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
+                                }
+                            }
                         }
                     }
                 }

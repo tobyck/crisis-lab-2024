@@ -13,12 +13,12 @@ use futures::{SinkExt, StreamExt, TryFutureExt};
 use tokio::sync::broadcast::{Receiver, Sender};
 use warp::{filters::ws::{Message, WebSocket}, reject::Rejection, reply::Reply, Filter};
 
-use crate::data::{DataPacket, InitialDataPacket, SharedAlertsVec, SharedCache};
+use crate::data::{InitialDataPacket, SharedAlertsVec, SharedCache};
 
 #[allow(unused_variables)]
 pub async fn handle_connection(
     websocket: WebSocket,
-    mut broadcast_rx: Receiver<DataPacket>,
+    mut broadcast_rx: Receiver<String>,
     cache: SharedCache,
     alerts: SharedAlertsVec
 ) {
@@ -62,7 +62,7 @@ pub async fn handle_connection(
 
 // this returns the Warp route that will be served
 pub fn route(
-    broadcast_tx: Sender<DataPacket>,
+    broadcast_tx: Sender<String>,
     cache: SharedCache,
     alerts: SharedAlertsVec
 ) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {

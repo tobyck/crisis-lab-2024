@@ -23,5 +23,5 @@ pub const ALERT_THRESHOLD: f32 = 8.0;
 // seconds before another alert can be triggered
 pub const ALERT_COOLDOWN: Duration = Duration::from_secs(10);
 
-// endpoint to post alerts to do for social alerts
-pub const ALERT_ENDPOINT: &str = "http://localhost:8783/alert";
+// file to write pressure data to (if log level is set high enough)
+pub const PRESSURE_LOG_FILE: &str = "./data.log";

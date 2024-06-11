@@ -15,6 +15,7 @@ mod config;
 mod mqtt;
 mod ws;
 mod data;
+mod alert;
 
 #[tokio::main]
 async fn main() {

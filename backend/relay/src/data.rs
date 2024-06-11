@@ -7,14 +7,11 @@
 * to hold the processed data, and a cache for storing recent data.
 * */
 
-use std::{env, sync::Arc, time::Instant};
+use std::{sync::Arc, time::Instant};
 
-use serde_json::json;
 use tokio::sync::RwLock;
 use serde::Serialize;
-use log::{debug, error, info};
-
-use crate::config::{ALERT_COOLDOWN, ALERT_ENDPOINT, ALERT_THRESHOLD};
+use log::debug;
 
 #[derive(Debug)]
 pub struct Cache<T> {
@@ -55,6 +52,18 @@ impl<T: Copy + Send> Cache<T> {
             .collect()
     }
 
+    pub fn last(&self) -> Option<T> {
+        if self.content.len() > 0 {
+            if self.next_index == 0 {
+                self.content.last().copied()
+            } else {
+                Some(self.content[self.next_index - 1])
+            }
+        } else {
+            None
+        }
+    }
+
     // returns None if not enough data is in the cache
     pub fn last_n<'a>(&'a self, n: usize) -> Option<Box<dyn Iterator<Item = &'a T> + 'a>> {
         let length = self.content.len();
@@ -87,10 +96,6 @@ pub struct DataPacket {
     height: Option<f32>,
     waveform: Option<f32>,
 
-    // this says whether or not to trigger a new alert (not whether or not then
-    // wave height is above the threshold)
-    trigger_alert: bool,
-
     #[serde(with = "serde_millis")]
     timestamp: Instant
 }
@@ -101,15 +106,14 @@ impl DataPacket {
             pressure,
             height: None,
             waveform: None,
-            trigger_alert: false,
             timestamp: Instant::now()
         }
     }
 
-    // allow read access to the pressure via this method
-    pub fn get_pressure(&self) -> f32 {
-        self.pressure
-    }
+    // allow read access to some properties
+    pub fn get_pressure(&self) -> f32 { self.pressure }
+    pub fn get_height(&self) -> Option<f32> { self.height }
+    pub fn get_timestamp(&self) -> Instant { self.timestamp }
 }
 
 // cache of processed data wrapped in Arc and RwLock to make it thread-safe
@@ -117,10 +121,10 @@ pub type SharedCache = Arc<RwLock<Cache<DataPacket>>>;
 
 #[derive(Clone, Serialize)]
 pub struct Alert {
-    height: f32,
+    pub height: f32,
 
     #[serde(with = "serde_millis")]
-    timestamp: Instant
+    pub timestamp: Instant
 }
 
 pub type SharedAlertsVec = Arc<RwLock<Vec<Alert>>>;
@@ -130,26 +134,6 @@ pub type SharedAlertsVec = Arc<RwLock<Vec<Alert>>>;
 pub struct InitialDataPacket {
     pub previous_data: Vec<DataPacket>,
     pub previous_alerts: Vec<Alert>
-}
-
-async fn post_alert(height: f32) {
-    let password = env::var("ALERT_PASSWORD").expect("Error reading ALERT_PASSWORD environment variable");
-
-    let body = json!({
-        "height": height,
-        "password": password
-    });
-
-    // send the above json the social alerts system
-    let client = reqwest::Client::new();
-    let response = client.post(ALERT_ENDPOINT)
-        .json(&body)
-        .send()
-        .await;
-
-    if let Err(error) = response {
-        error!("Error trying to post alert to {}: {}", ALERT_ENDPOINT, error);
-    }
 }
 
 pub fn height_from_pressure(pressure: f32, air_pressure: f32) -> f32 {
@@ -168,46 +152,15 @@ pub async fn process_data(
     water_pressure: f32,
     air_pressure: f32,
     resting_water_level: f32,
-    cache: &SharedCache,
-    alerts: &SharedAlertsVec
+    cache: &SharedCache
 ) -> DataPacket {
-    let mut alerts_lock = alerts.write().await;
-
-    debug!("Processing pressure value: {}", water_pressure);
-    debug!("Wave height from floor: {}", height_from_pressure(water_pressure, air_pressure));
-
     let wave_height: f32 = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
     let waveform: f32 = 0.0; // TODO: actually calculate this
-    
-    let trigger_alert = wave_height >= ALERT_THRESHOLD && match alerts_lock.last() {
-        // only make another alert if the previous one was long enough ago
-        Some(alert) => alert.timestamp.elapsed() > ALERT_COOLDOWN,
-        // if there haven't been any alerts yet then we should certainly alert
-        None => true
-    };
-
-    if trigger_alert {
-        let alert = Alert {
-            height: wave_height,
-            timestamp: Instant::now()
-        };
-
-        alerts_lock.push(alert);
-
-        let alerts_var = env::var("ALERTS");
-
-        // only alert if ALERTS isn't set or it doesn't equal 0
-        if alerts_var.is_err() || alerts_var.is_ok_and(|x| x != "0".to_string()) {
-            info!("Posting alert to social alerts system");
-            post_alert(wave_height).await;
-        }
-    }
 
     let data = DataPacket {
         pressure: water_pressure,
         height: Some(wave_height),
         waveform: Some(waveform),
-        trigger_alert,
         timestamp: Instant::now()
     };
 
@@ -220,8 +173,21 @@ pub async fn process_data(
 
 // TODO: write tests for everything else
 #[cfg(test)]
-mod tests {
+mod cache_tests {
     use super::Cache;
+
+    #[test]
+    fn write() {
+        let mut cache: Cache<i32> = Cache::new(3);
+
+        cache.write(8);
+        assert_eq!(cache.content.len(), 1);
+        assert!(cache.content.eq(&vec![8]));
+
+        cache.write(1);
+        assert_eq!(cache.content.len(), 2);
+        assert!(cache.content.eq(&vec![8, 1]));
+    }
 
     fn cache_from_iter<T, I>(capacity: usize, items: I) -> Cache<T>
     where
@@ -248,6 +214,21 @@ mod tests {
     }
 
     #[test]
+    fn last() {
+        let cache = cache_from_iter(3, [1, 4, 9]);
+        let last = cache.last();
+        assert_eq!(last, Some(9));
+
+        let cache = cache_from_iter(3, [0, 1, 4, 9]);
+        let last = cache.last();
+        assert_eq!(last, Some(9));
+
+        let cache: Cache<i32> = Cache::new(0);
+        let last = cache.last();
+        assert_eq!(last, None);
+    }
+
+    #[test]
     fn last_n() {
         let cache = cache_from_iter(5, [1, 4, 8, 5, 6]);
         let last3 = cache.last_n(3);
@@ -263,5 +244,9 @@ mod tests {
         let last2 = cache.last_n(2);
         assert!(last2.is_some());
         assert!(last2.unwrap().eq([8, 5].iter()));
+
+        let cache: Cache<i32> = Cache::new(0);
+        let last2 = cache.last_n(2);
+        assert!(last2.is_none());
     }
 }
