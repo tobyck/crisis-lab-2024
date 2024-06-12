@@ -14,7 +14,7 @@ ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategorySc
 
 ChartJS.defaults.color = THEME.textColor;
 ChartJS.defaults.borderColor = '';
-ChartJS.defaults.font.family = "'DejaVu Sans Mono', 'Courier New', Courier, monospace";
+ChartJS.defaults.font.family = "'SF Pro', 'Courier New', Courier, monospace";
 
 const props = defineProps(['name', 'data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);

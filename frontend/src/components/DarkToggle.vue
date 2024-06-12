@@ -10,7 +10,9 @@
         </label>
     </span>
 </template>
+
 <style scoped>
+/* code stolen from w3schools who probably stole it from somewhere else */
 .switch {
     position: relative;
     display: inline-block;

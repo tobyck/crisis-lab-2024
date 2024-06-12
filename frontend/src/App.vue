@@ -1,11 +1,21 @@
+<!-- This is the main body of the app. It's a bunch of nested flexboxes, yes it's mildly cursed 
+    but it's far, far better than the alternative -->
 <template>
     <div class="body">
         <div class="header">
             <Header />
         </div>
         <div class="main">
+            <div class="alert-container" v-if="THEME.alertActive && THEME.isMobile">
+                <AlertDisplay />
+            </div>
             <div class="log-box">
-                <Logs />
+                <div class="alert-container" v-if="THEME.alertActive && !THEME.isMobile">
+                    <AlertDisplay />
+                </div>
+                <div class="log-container">
+                    <Logs />
+                </div>
             </div>
             <div class="chart-container">
                 <div class="chart-box">
@@ -41,6 +51,7 @@
             <Footer />
         </div>
     </div>
+    <Alert />
 </template>
 
 <style scoped>
@@ -76,6 +87,18 @@ div.footer {
 div.log-box {
     flex: 2 2;
     flex-basis: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 0.75vw;
+}
+
+div.log-container {
+    flex: 1 1;
+}
+
+div.alert-container {
+    flex: 0 0 70px;
 }
 
 div.chart-container {
@@ -96,6 +119,7 @@ div.chart-box {
     border-radius: 1vw;
 }
 
+/* stuff reorganises on mobile view */
 @media screen and (max-width: 900px) {
     div.live-view {
         visibility: hidden;
@@ -127,7 +151,7 @@ body {
 }
 
 div.body {
-    font-family: 'DejaVu Sans Mono', 'Courier New', Courier, monospace;
+    font-family: 'SF Pro', 'Courier New', Courier, monospace;
     background-color: v-bind('THEME.backgroundColor2');
     min-height: 100vh;
     max-height: 100vh;
@@ -136,7 +160,7 @@ div.body {
 }
 
 @font-face {
-    font-family: "DejaVu Sans Mono";
+    font-family: "SF Pro";
     src: url('SF-Pro.ttf');
 }
 </style>
@@ -146,6 +170,8 @@ import Header from './components/Header.vue';
 import Chart from './components/Chart.vue';
 import Footer from './components/Footer.vue';
 import Logs from './components/Logs.vue';
+import Alert from './components/Alert.vue';
+import AlertDisplay from './components/AlertDisplay.vue';
 import { THEME } from './theme';
 import { ref, computed } from 'vue';
 import { packetData, initWebsocket, loaded } from './ws.js';

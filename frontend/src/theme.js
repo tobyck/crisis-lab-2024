@@ -1,5 +1,6 @@
 import { reactive, computed } from 'vue';
 
+// yay dark mode autodetection
 let defaultMode = localStorage.getItem('dark')
     ? localStorage.getItem('dark') == 'true'
     : window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
@@ -26,6 +27,8 @@ const DARK = {
     graphColor2: '#7aa2f7'
 }
 
+// Basically this is a magic object that contains either light or dark mode colours depending on the current theme
+
 export const THEME = reactive({
     defaultMode,
     dark: defaultMode,
@@ -33,6 +36,7 @@ export const THEME = reactive({
         localStorage.setItem('dark', THEME.dark = !THEME.dark);
     },
     isMobile: computed(() => window.innerWidth < 900), // TODO: user agent
+    alertActive: false,
 });
 
 for (let key in LIGHT) {

@@ -7,7 +7,7 @@ export let logs = reactive([]);
 
 export const loaded = ref(false);
 
-let LOCAL = false;
+let LOCAL = true;
 
 export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'ws://170.64.254.27:8443');
@@ -31,6 +31,11 @@ export async function initWebsocket() {
             // TODO: handle alerts
         } else { // alert packet
             logs.unshift(stringifyIncident(data));
+
+            THEME.alertActive = true;
+            setTimeout(() => {
+                THEME.alertActive = false;
+            }, 20000);
         }
 
         /*
