@@ -27,5 +27,12 @@ def on_message(ws, message):
           print(ser.readline()) # Print the response from the Arduino (should be "notTriggered").
 
 # Start the WebSocket.
-ws = websocket.WebSocketApp("ws://170.64.254.27:8443", on_message=on_message)
-ws.run_forever()
+#ws = websocket.WebSocketApp("ws://170.64.254.27:8443", on_message=on_message)
+#ws.run_forever()
+
+while True:
+    sendTrigger(ser)
+    print(ser.readline())
+    ser.flush()
+    print("hello")
+    time.sleep(1)

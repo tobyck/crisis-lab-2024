@@ -1,6 +1,6 @@
 /*
- * Author: Alex Berry
- * Version: 9/06/2024
+ * Author:  Alex Berry
+ * Version: 11/06/2024
  * Purpose: Physical alert system.
  */
 
@@ -9,7 +9,6 @@
 /*
  * Init.
  */
-
 
 void setup() {
 	servo1.attach(9);
@@ -27,28 +26,32 @@ void setup() {
 
 void loop() {
 	current = millis();
-    // Serial.println("test");
+	// Serial.println("test");
 	if (Serial.available()) {
-    Serial.println("test");
+		
+		Serial.println("test");
 		data = Serial.readStringUntil('\r');
 		if (data.startsWith("T")) {
 			isTriggering = true;
-			alertOn();
-      Serial.println("high");//for debugging
+			alert();
+      			Serial.println("high");//for debugging
 			start = current;
 		}
-    
 	}
 
+	//Serial.println(current);
 
-  if (isTriggering == true && ((current - start) >= triggerTime)){
-    isTriggering = false;
-    Serial.println("low");//for debugging
-  }
-
+	if(isTriggering == true && ((current - start) >= triggerTime)) {
+		isTriggering = false;
+		Serial.println("low");//for debugging
+	}
 }
 
-void alertOn() {
+/*
+ * Alert function.
+ */
+
+void alert() {
 	do {
 		currentTime = millis();
 
@@ -67,7 +70,7 @@ void alertOn() {
 
 			tone(currentTonePin, currentToneFrequency, currentToneDuration);
 			prevTimeTones = currentTime;
-    }
+		}
 
 		if (currentTime - prevTimeServos > intervalServos) {
 			prevTimeServos = currentTime;
@@ -95,5 +98,5 @@ void alertOn() {
 			pixels.show();
 			isWhite++;
 		}
-	} while (isTriggering == true);
+	} while (isTriggering);
 }
