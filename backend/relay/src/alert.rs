@@ -1,7 +1,7 @@
 use std::env;
 
 use serde_json::json;
-use log::{error, info};
+use log::{debug, error, info};
 
 use crate::{config::{ALERT_COOLDOWN, ALERT_THRESHOLD}, data::{Alert, SharedAlertsVec, SharedCache}};
 
@@ -44,6 +44,8 @@ pub async fn check_for_alert(
     };
 
     if let Some(previous_wave_height) = previous_wave_height {
+        debug!("Found previous wave height to be {}", previous_wave_height);
+
         let mut alerts_lock = alerts.write().await;
 
         let cooldown_complete = match alerts_lock.last() {
@@ -59,6 +61,8 @@ pub async fn check_for_alert(
         if !should_trigger_alert {
             return None;
         }
+
+        debug!("Tsunami detected. Triggering alert");
 
         let alert = Alert {
             height: previous_wave_height,
@@ -76,6 +80,8 @@ pub async fn check_for_alert(
 
         return Some(alert);
     }
+
+    debug!("No previous data, not alerting");
 
     None
 }

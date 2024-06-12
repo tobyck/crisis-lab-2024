@@ -10,12 +10,13 @@
 
 use std::{env, fs::File, io::Write, sync::Arc, time::Duration};
 
-use log::{debug, info, warn, error};
+use log::{debug, error, info, log_enabled, warn};
 use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
+use serde_json::json;
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
 use crate::{
-    alert::check_for_alert, config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MQTT_PORT, PRESSURE_LOG_FILE}, data::{height_from_pressure, process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
+    alert::check_for_alert, config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MAX_SENSOR_DOWNTIME, MQTT_PORT, PRESSURE_LOG_FILE}, data::{height_from_pressure, process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
 };
 
 #[inline]
@@ -34,19 +35,18 @@ pub fn init_client(host: &str) -> (AsyncClient, EventLoop) {
 // a float and pass it to process_and_cache_data (see data.rs)
 pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, SharedAlertsVec) {
     // all of these things will be moved into the task below
-    let (broadcast_tx, _) = broadcast::channel::<String>(CHANNEL_CAPACITY);
-    let alerts: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
-    let cache: SharedCache = Arc::new(RwLock::new(Cache::new(CACHE_CAPACITY)));
+    let (broadcast_tx_original, _) = broadcast::channel::<String>(CHANNEL_CAPACITY);
+    let alerts_original: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
+    let cache_original: SharedCache = Arc::new(RwLock::new(Cache::new(CACHE_CAPACITY)));
 
-    // so we need to make clones to be returned by this function
-    let broadcast_tx_clone = broadcast_tx.clone();
-    let alerts_clone = alerts.clone();
-    let cache_clone = cache.clone();
+    // the originals will be returned and these will be moved to the task below
+    let broadcast_tx = broadcast_tx_original.clone();
+    let alerts = alerts_original.clone();
+    let cache = cache_original.clone();
 
     tokio::task::spawn(async move {
         // create a log file for logging data to
-        let data_logs_enabled = env::var("LOG_DATA").is_ok();
-        let mut data_log_file: Option<File> = if data_logs_enabled {
+        let mut data_log_file: Option<File> = if log_enabled!(log::Level::Trace) {
             match File::create(PRESSURE_LOG_FILE) {
                 Ok(file) => Some(file),
                 Err(error) => {
@@ -148,7 +148,7 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                         ).await;
 
                         // write processed data to a file if enabled
-                        if data_logs_enabled {
+                        if log_enabled!(log::Level::Trace) {
                             if let Some(ref mut file) = data_log_file {
                                 if let Err(error) = file.write(format!("{:?}\n", data).as_bytes()) {
                                     warn!("Error writing data to log file: {}", error);
@@ -169,7 +169,11 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                         // if the a wave height was computed then check for and alert and send it
                         // to the websocket handlers like above
                         if let Some(current_wave_height) = data.get_height() {
-                            if let Some(alert) = check_for_alert(current_wave_height, &cache, &alerts).await {
+                            if let Some(alert) = check_for_alert(
+                                current_wave_height,
+                                &cache,
+                                &alerts
+                            ).await {
                                 if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
                                     warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
                                 }
@@ -185,5 +189,25 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
         }
     });
 
-    (broadcast_tx_clone, cache_clone, alerts_clone)
+    let broadcast_tx = broadcast_tx_original.clone();
+    let cache = cache_original.clone();
+
+    tokio::task::spawn(async move {
+        loop {
+            if let Some(previous_data) = cache.read().await.last() { // get last data packet
+                // if the last message was long enough ago
+                if previous_data.get_timestamp().elapsed() > MAX_SENSOR_DOWNTIME {
+                    // notify that the sensor has been offline for longer than expected
+                    let message = serde_json::to_string(&json!({ "sensor_offline": true })).unwrap();
+                    if let Err(error) = broadcast_tx.send(message) {
+                        warn!("Could not notify WebSocket connections of sensor being offline: {}", error);
+                    }
+                }
+            }
+
+            tokio::time::sleep(Duration::from_millis(300)).await;
+        }
+    });
+
+    (broadcast_tx_original, cache_original, alerts_original)
 }

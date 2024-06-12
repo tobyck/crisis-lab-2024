@@ -8,7 +8,7 @@
 * been up when a new client connects.
 * */
 
-use log::{error, warn};
+use log::{debug, error, info, warn};
 use futures::{SinkExt, StreamExt, TryFutureExt};
 use tokio::sync::broadcast::{Receiver, Sender};
 use warp::{filters::ws::{Message, WebSocket}, reject::Rejection, reply::Reply, Filter};
@@ -24,7 +24,11 @@ pub async fn handle_connection(
 ) {
     let (mut websocket_tx, mut websocket_rx) = websocket.split();
 
+    info!("New client connected to WebSocket");
+
     tokio::task::spawn(async move {
+        debug!("Started new task for websocket");
+
         // send initial previous data and alerts upon connection
         websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
             previous_data: cache.read().await.to_vec(),
@@ -35,6 +39,8 @@ pub async fn handle_connection(
             }).await;
 
         loop {
+            debug!("Started loop in websocket task");
+
             tokio::select! {
                 // If the client sends an empty message, it's disconnected; end the loop
                 msg = websocket_rx.next() => {
@@ -44,9 +50,10 @@ pub async fn handle_connection(
                 }
                 // If we receive a message from the broadcast channel, send it to the client
                 data = broadcast_rx.recv() => {
+                    debug!("Got message on broadcast channel");
                     match data {
                         Ok(data) => {
-                            websocket_tx.send(Message::text(data))
+                            websocket_tx.send(Message::text(data.clone()))
                                 .unwrap_or_else(|error| {
                                     error!("Failed to send data packet over websocket: {}", error);
                                 }).await;
