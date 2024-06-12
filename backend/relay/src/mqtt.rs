@@ -89,7 +89,6 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                         if split_message.next().is_some_and(|str| str == CALIBRATION_MSG_PREFIX) {
                             debug!("Received calibration message");
 
-                            // get recent data from the cache
                             let cache_lock = cache.read().await;
                             let recent_data = cache_lock.last_n(AMOUNT_OF_CALIBRATION_DATA);
 
@@ -130,24 +129,22 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                             }
                         };
 
-                        // if both calibrations haven't been done then cache a data packet with
-                        // only the pressure
-                        if air_pressure.is_none() || resting_water_level.is_none() {
-                            let mut cache_lock = cache.write().await;
-                            cache_lock.write(DataPacket::with_only_pressure(pressure));
-                            drop(cache_lock);
+                        let data = if air_pressure.is_some() && resting_water_level.is_some() {
+                            // if calibration has been done then process data
+                            process_data(
+                                pressure,
+                                air_pressure.unwrap(),
+                                resting_water_level.unwrap()
+                            ).await
+                        } else {
+                            // otherwise create an unprocessed
+                            DataPacket::unprocessed(pressure)
+                        };
 
-                            continue;
-                        }
-                            
-                        let data = process_data(
-                            pressure,
-                            air_pressure.unwrap(),
-                            resting_water_level.unwrap(),
-                            &cache
-                        ).await;
+                        // cache data
+                        cache.write().await.write(data);
 
-                        // write processed data to a file if enabled
+                        // log to a file if the highest log level is enabled
                         if log_enabled!(log::Level::Trace) {
                             if let Some(ref mut file) = data_log_file {
                                 if let Err(error) = file.write(format!("{:?}\n", data).as_bytes()) {
@@ -156,34 +153,22 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                             }
                         }
 
-                        // don't bother sending anything if no one's connected
-                        if broadcast_tx.receiver_count() == 0 {
-                            continue;
-                        }
-
-                        // serialise processed data and send to websocket handlers
+                        // stringify data and send to websocket connection handlers which will
+                        // forward it to clients
                         if let Err(error) = broadcast_tx.send(serde_json::to_string(&data).unwrap()) {
                             warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
                         }
 
-                        // if the a wave height was computed then check for and alert and send it
-                        // to the websocket handlers like above
-                        if let Some(current_wave_height) = data.get_height() {
-                            if let Some(alert) = check_for_alert(
-                                current_wave_height,
-                                &cache,
-                                &alerts
-                            ).await {
-                                if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
-                                    warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
-                                }
-                            }
+                        if let Some(alert) = check_for_alert(&cache, &alerts).await {
+                            if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
+                                warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
+                            }   
                         }
                     }
                 }
                 Err(error) => {
-                    error!("Error: {:?}", error);
-                    tokio::time::sleep(Duration::from_secs(5)).await;
+                    error!("Error polling MQTT event loop: {:?}", error);
+                    tokio::time::sleep(Duration::from_secs(3)).await;
                 }
             }
         }

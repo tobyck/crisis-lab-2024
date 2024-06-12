@@ -44,6 +44,10 @@ impl<T: Copy + Send> Cache<T> {
         self.next_index %= self.capacity;
     }
 
+    pub fn len(&self) -> usize {
+        self.content.len()
+    }
+
     pub fn to_vec(&self) -> Vec<T> {
         self.content[self.next_index..]
             .iter()
@@ -58,6 +62,18 @@ impl<T: Copy + Send> Cache<T> {
                 self.content.last().copied()
             } else {
                 Some(self.content[self.next_index - 1])
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn at(&self, index: usize) -> Option<T> {
+        if index < self.content.len() {
+            if self.content.len() < self.capacity {
+                Some(self.content[index])
+            } else {
+                Some(self.content[(self.next_index + index) % self.content.len()])
             }
         } else {
             None
@@ -101,7 +117,7 @@ pub struct DataPacket {
 }
 
 impl DataPacket {
-    pub fn with_only_pressure(pressure: f32) -> Self {
+    pub fn unprocessed(pressure: f32) -> Self {
         Self {
             pressure,
             height: None,
@@ -152,7 +168,6 @@ pub async fn process_data(
     water_pressure: f32,
     air_pressure: f32,
     resting_water_level: f32,
-    cache: &SharedCache
 ) -> DataPacket {
     let wave_height: f32 = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
     let waveform: f32 = 0.0; // TODO: actually calculate this
@@ -166,12 +181,9 @@ pub async fn process_data(
 
     debug!("Computed data packet: {:?}", data);
 
-    cache.write().await.write(data);
-
     data
 }
 
-// TODO: write tests for everything else
 #[cfg(test)]
 mod cache_tests {
     use super::Cache;
@@ -248,5 +260,20 @@ mod cache_tests {
         let cache: Cache<i32> = Cache::new(0);
         let last2 = cache.last_n(2);
         assert!(last2.is_none());
+    }
+
+    #[test]
+    fn at() {
+        let cache = cache_from_iter(5, [5, 4, 7]);
+        assert_eq!(cache.at(0), Some(5));
+        assert_eq!(cache.at(1), Some(4));
+        assert_eq!(cache.at(2), Some(7));
+        assert_eq!(cache.at(3), None);
+
+        let cache = cache_from_iter(3, [0, 9, 2, 1]);
+        assert_eq!(cache.at(0), Some(9));
+        assert_eq!(cache.at(1), Some(2));
+        assert_eq!(cache.at(2), Some(1));
+        assert_eq!(cache.at(3), None);
     }
 }

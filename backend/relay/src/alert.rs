@@ -31,54 +31,57 @@ async fn social_alert(height: f32) {
     }
 }
 
+// this function assumes that the data packet containing the current wave height hasn't been cached
 pub async fn check_for_alert(
-    current_wave_height: f32,
     cache: &SharedCache,
     alerts: &SharedAlertsVec
 ) -> Option<Alert> {
-    let previous_data_packet = cache.read().await.last();
+    let cache_lock = cache.read().await;
+    
+    if cache_lock.len() < 2 {
+        return None;
+    }
 
-    let previous_wave_height: Option<f32> = match previous_data_packet {
-        Some(data_packet) => data_packet.get_height(),
-        None => None
-    };
+    if let Some(previous_data_packet) = cache_lock.at(cache_lock.len() - 2) {
+        if let Some(previous_wave_height) = previous_data_packet.get_height() {
+            let current_wave_height = cache_lock.at(cache_lock.len() - 1)
+                .unwrap() // we know that there was an item before so there must be one here
+                .get_height()
+                .expect("The most recent data packet had no previous data, yet the one before it did. This should not be possible");
 
-    if let Some(previous_wave_height) = previous_wave_height {
-        debug!("Found previous wave height to be {}", previous_wave_height);
+            let mut alerts_lock = alerts.write().await;
 
-        let mut alerts_lock = alerts.write().await;
+            let cooldown_complete = match alerts_lock.last() {
+                Some(alert) => alert.timestamp.elapsed() > ALERT_COOLDOWN,
+                None => true
+            };
 
-        let cooldown_complete = match alerts_lock.last() {
-            Some(alert) => alert.timestamp.elapsed() > ALERT_COOLDOWN,
-            None => true
-        };
+            let should_trigger_alert = 
+                previous_wave_height >= ALERT_THRESHOLD &&
+                current_wave_height < previous_wave_height &&
+                cooldown_complete;
 
-        let should_trigger_alert = 
-            previous_wave_height >= ALERT_THRESHOLD &&
-            current_wave_height < previous_wave_height &&
-            cooldown_complete;
+            if !should_trigger_alert {
+                return None;
+            }
 
-        if !should_trigger_alert {
-            return None;
+            info!("Tsunami detected. Triggering alert");
+
+            let alert = Alert {
+                height: previous_wave_height,
+                timestamp: previous_data_packet.get_timestamp()
+            };
+
+            // store the alert so it can be sent when a client first connects
+            alerts_lock.push(alert.clone());
+
+            // set the ALERTS environment variable to enable social media alerts
+            if env::var("ALERTS").is_ok() {
+                social_alert(previous_wave_height).await;
+            }
+
+            return Some(alert);
         }
-
-        debug!("Tsunami detected. Triggering alert");
-
-        let alert = Alert {
-            height: previous_wave_height,
-            // this .unwrap() is fine because of the checks above
-            timestamp: previous_data_packet.unwrap().get_timestamp()
-        };
-
-        // save the alert so clients can see when they reconnect
-        alerts_lock.push(alert.clone());
-
-        // set ALERTS to enable social media alerts
-        if env::var("ALERTS").is_ok() {
-            social_alert(previous_wave_height).await;
-        }
-
-        return Some(alert);
     }
 
     debug!("No previous data, not alerting");

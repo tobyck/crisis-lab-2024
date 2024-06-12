@@ -24,11 +24,9 @@ pub async fn handle_connection(
 ) {
     let (mut websocket_tx, mut websocket_rx) = websocket.split();
 
-    info!("New client connected to WebSocket");
+    info!("Client connected to WebSocket");
 
     tokio::task::spawn(async move {
-        debug!("Started new task for websocket");
-
         // send initial previous data and alerts upon connection
         websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
             previous_data: cache.read().await.to_vec(),
@@ -39,8 +37,6 @@ pub async fn handle_connection(
             }).await;
 
         loop {
-            debug!("Started loop in websocket task");
-
             tokio::select! {
                 // If the client sends an empty message, it's disconnected; end the loop
                 msg = websocket_rx.next() => {
@@ -63,6 +59,8 @@ pub async fn handle_connection(
                 }
             }
         }
+
+        info!("Client disconnected from WebSocket");
     });
 }
 
