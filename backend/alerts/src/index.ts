@@ -93,7 +93,11 @@ serve({
             conns.splice(conns.indexOf(ws));
             if (DEBUG) console.log('Connection closed');
         }
-    }
+    },
+    tls: {
+        cert: Bun.file("../../ssl/certificate.crt"),
+        key: Bun.file("../../ssl/private.key"),
+    },
 });
 
 setInterval(() => {
