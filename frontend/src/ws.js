@@ -10,7 +10,7 @@ export const loaded = ref(false);
 let LOCAL = false;
 
 export async function initWebsocket() {
-    let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'ws://170.64.254.27:8443');
+    let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'wss://dashboard.alex-berry.net:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
         //console.log(message);

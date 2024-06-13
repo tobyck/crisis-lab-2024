@@ -17,9 +17,9 @@ let safeCompare = (a: string, b: string) => {
 }
 
 const conns: ServerWebSocket<any>[] = [];
-
+// This won't handle http->https redirects, but it's fine since all it is is an API
 serve({
-    port: 443,
+    port: 8783,
     async fetch(req, server) {
         const url = new URL(req.url);
         if (url.pathname === "/subscribe") {
@@ -101,13 +101,13 @@ serve({
     },
 });
 
-serve({
+/*serve({
     port: 80,
     fetch(req) {
-	const path = new URL(req.url).pathname;
-        return Response.redirect('https://dashboard.alex-berry.net'+path,{status: 301})
+    const path = new URL(req.url).pathname;
+        return Response.redirect('https://dashboard.alex-berry.net'+path)
     }
-})
+})*/
 
 setInterval(() => {
     for (let conn of conns) {
