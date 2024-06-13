@@ -145,11 +145,21 @@ pub struct Alert {
 
 pub type SharedAlertsVec = Arc<RwLock<Vec<Alert>>>;
 
+// wrapping these two values in a struct to make them easier to pass around
+#[derive(Serialize, Clone)]
+pub struct Calibrations {
+    pub air_pressure: Option<f32>,
+    pub resting_water_level: Option<f32>
+}
+
+pub type SharedCalibrations = Arc<RwLock<Calibrations>>;
+
 // this is the data send when a client connects for the first time
 #[derive(Serialize)]
 pub struct InitialDataPacket {
     pub previous_data: Vec<DataPacket>,
-    pub previous_alerts: Vec<Alert>
+    pub previous_alerts: Vec<Alert>,
+    pub calibrations: Calibrations
 }
 
 pub fn height_from_pressure(pressure: f32, air_pressure: f32) -> f32 {

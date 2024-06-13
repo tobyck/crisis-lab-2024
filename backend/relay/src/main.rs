@@ -28,11 +28,11 @@ async fn main() {
 
     // start listening for messages in a seperate task and return some other initalised
     // objects that the websocket connection handlers will need
-    let (broadcast_tx, cache, alerts) = mqtt::listen(event_loop);
+    let (broadcast_tx, cache, alerts, calibrations) = mqtt::listen(event_loop);
 
     // serve the websocket route and pass in said objects, and use a handler to
     // reply when something goes wrong
-    warp::serve(ws::route(broadcast_tx, cache, alerts).recover(handle_rejection))
+    warp::serve(ws::route(broadcast_tx, cache, alerts, calibrations).recover(handle_rejection))
         .run(([0, 0, 0, 0], config::WS_PORT))
         .await;
 }

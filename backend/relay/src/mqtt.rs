@@ -16,7 +16,7 @@ use serde_json::json;
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
 use crate::{
-    alert::check_for_alert, config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MAX_SENSOR_DOWNTIME, MQTT_PORT, PRESSURE_LOG_FILE}, data::{height_from_pressure, process_data, Cache, DataPacket, SharedAlertsVec, SharedCache}
+    alert::check_for_alert, config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MAX_SENSOR_DOWNTIME, MQTT_PORT, PRESSURE_LOG_FILE}, data::{height_from_pressure, process_data, Cache, Calibrations, DataPacket, SharedAlertsVec, SharedCache, SharedCalibrations}
 };
 
 #[inline]
@@ -33,16 +33,26 @@ pub fn init_client(host: &str) -> (AsyncClient, EventLoop) {
 
 // this polls the event loop and if there's a message it will try to parse it as
 // a float and pass it to process_and_cache_data (see data.rs)
-pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, SharedAlertsVec) {
+pub fn listen(mut event_loop: EventLoop) -> (
+    Sender<String>,
+    SharedCache,
+    SharedAlertsVec,
+    SharedCalibrations
+) {
     // all of these things will be moved into the task below
     let (broadcast_tx_original, _) = broadcast::channel::<String>(CHANNEL_CAPACITY);
-    let alerts_original: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
     let cache_original: SharedCache = Arc::new(RwLock::new(Cache::new(CACHE_CAPACITY)));
+    let alerts_original: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
+    let calibrations_original = Arc::new(RwLock::new(Calibrations {
+        air_pressure: None,
+        resting_water_level: None
+    }));
 
     // the originals will be returned and these will be moved to the task below
     let broadcast_tx = broadcast_tx_original.clone();
     let alerts = alerts_original.clone();
     let cache = cache_original.clone();
+    let calibrations = calibrations_original.clone();
 
     tokio::task::spawn(async move {
         // create a log file for logging data to
@@ -66,9 +76,6 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
         const CALIBRATION_SECONDS: usize = 3;
         const AMOUNT_OF_CALIBRATION_DATA: usize = FREQUENCY * CALIBRATION_SECONDS;
 
-        let mut air_pressure: Option<f32> = None;
-        let mut resting_water_level: Option<f32> = None;
-
         loop {
             match event_loop.poll().await {
                 Ok(event) => {
@@ -82,6 +89,8 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                         };
 
                         debug!("Received message: \"{}\"", message);
+
+                        let mut calibrations_lock = calibrations.write().await;
 
                         let mut split_message = message.split(" ");
 
@@ -100,15 +109,15 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                                 // calibrate depending on what the next part of the message is
                                 match split_message.next() {
                                     Some(AIR) => {
-                                        air_pressure = Some(average_recent_pressure);
+                                        calibrations_lock.air_pressure = Some(average_recent_pressure);
                                         info!("Calibrated air pressure to {}", average_recent_pressure);
                                     },
-                                    Some(WATER) => if let Some(air_pressure_value) = air_pressure {
-                                        resting_water_level = Some(height_from_pressure(
+                                    Some(WATER) => if let Some(air_pressure_value) = calibrations_lock.air_pressure {
+                                        calibrations_lock.resting_water_level = Some(height_from_pressure(
                                             average_recent_pressure,
                                             air_pressure_value
                                         ));
-                                        info!("Calibrated resting water level to {}", resting_water_level.unwrap());
+                                        info!("Calibrated resting water level to {}", calibrations_lock.resting_water_level.unwrap());
                                     } else {
                                         warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
                                     },
@@ -129,17 +138,22 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
                             }
                         };
 
-                        let data = if air_pressure.is_some() && resting_water_level.is_some() {
+                        let data = if 
+                            calibrations_lock.air_pressure.is_some() &&
+                            calibrations_lock.resting_water_level.is_some()
+                        {
                             // if calibration has been done then process data
                             process_data(
                                 pressure,
-                                air_pressure.unwrap(),
-                                resting_water_level.unwrap()
+                                calibrations_lock.air_pressure.unwrap(),
+                                calibrations_lock.resting_water_level.unwrap()
                             ).await
                         } else {
                             // otherwise create an unprocessed
                             DataPacket::unprocessed(pressure)
                         };
+
+                        drop(calibrations_lock);
 
                         // cache data
                         cache.write().await.write(data);
@@ -194,5 +208,5 @@ pub fn listen(mut event_loop: EventLoop) -> (Sender<String>, SharedCache, Shared
         }
     });
 
-    (broadcast_tx_original, cache_original, alerts_original)
+    (broadcast_tx_original, cache_original, alerts_original, calibrations_original)
 }
