@@ -2,6 +2,7 @@
 **/.DS_Store
 **/.env
 result
+ssl
 
 # Had to add this to fix rust_analyzer in vscode
 Cargo.toml
