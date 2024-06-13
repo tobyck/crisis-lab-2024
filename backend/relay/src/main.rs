@@ -6,7 +6,7 @@
 * functions from other modules to start everything up.
 * */
 
-use std::convert::Infallible;
+use std::{convert::Infallible, env};
 
 use rumqttc::QoS;
 use warp::{reject::Rejection, reply::{self, Reply}, Filter, http::StatusCode};
@@ -15,6 +15,7 @@ mod config;
 mod mqtt;
 mod ws;
 mod data;
+mod alert;
 
 #[tokio::main]
 async fn main() {
@@ -27,12 +28,22 @@ async fn main() {
 
     // start listening for messages in a seperate task and return some other initalised
     // objects that the websocket connection handlers will need
-    let (broadcast_tx, cache, alerts) = mqtt::listen(event_loop);
+    let (broadcast_tx, cache, alerts, calibrations) = mqtt::listen(event_loop);
 
-    // serve the websocket route and pass in said objects, and use a handler to
-    // reply when something goes wrong
-    warp::serve(ws::route(broadcast_tx, cache, alerts).recover(handle_rejection))
-        .run(([0, 0, 0, 0], config::WS_PORT))
+    let websocket_port = env::var("WS_PORT")
+        .expect("Must specify WebSocket port in WS_PORT environment variable")
+        .parse::<u16>()
+        .expect("Could not parse WS_PORT as a u16");
+
+    let cert_path = env::var("CERT_PATH").expect("Must set CERT_PATH");
+    let key_path = env::var("KEY_PATH").expect("Must set KEY_PATH");
+
+    // serve the websocket and use a handler to reply when something goes wrong
+    warp::serve(ws::route(broadcast_tx, cache, alerts, calibrations).recover(handle_rejection))
+        .tls()
+        .cert_path(cert_path)
+        .key_path(key_path)
+        .run(([0, 0, 0, 0], websocket_port))
         .await;
 }
 
