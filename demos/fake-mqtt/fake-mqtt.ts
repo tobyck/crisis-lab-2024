@@ -30,7 +30,7 @@ setInterval(() => {
             alertIndex = 0;
         }
     }
-    child.exec(`mosquitto_pub -h localhost -t data -u sensor -P $PASSWORD -m ` + val.toFixed(2))
+    child.exec(`mosquitto_pub -h 170.64.254.27 -t data -u sensor -P $PASSWORD -m ` + val.toFixed(2))
     console.log('sending data', val.toFixed(2));
 }, 40)
 
@@ -39,8 +39,8 @@ while (true) {
     if (trigger.trim() === 'y') {
         alertActive = true;
     } else if (trigger.trim() == 'a') {
-        child.exec(`mosquitto_pub -h localhost -t data -u sensor -P $PASSWORD -m "C AIR"`)
+        child.exec(`mosquitto_pub -h 170.64.254.27 -t data -u sensor -P $PASSWORD -m "C AIR"`)
     } else if (trigger.trim() == 'w') {
-        child.exec(`mosquitto_pub -h localhost -t data -u sensor -P $PASSWORD -m "C WATER"`)
+        child.exec(`mosquitto_pub -h 170.64.254.27 -t data -u sensor -P $PASSWORD -m "C WATER"`)
     }
 }
