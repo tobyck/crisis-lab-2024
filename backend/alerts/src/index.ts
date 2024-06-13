@@ -94,6 +94,7 @@ serve({
             if (DEBUG) console.log('Connection closed');
         }
     },
+    // WHATEVER YOU DO DON'T COMMIT THE PRIVATE KEY
     tls: {
         cert: Bun.file("../../ssl/certificate.crt"),
         key: Bun.file("../../ssl/private.key"),
