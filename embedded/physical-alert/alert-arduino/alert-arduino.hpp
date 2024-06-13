@@ -28,8 +28,8 @@ String data = "";
 unsigned long prevTimeTones = millis();
 unsigned long prevTimeServos;
 unsigned long prevTimeLight;
-unsigned long start = 0;
-unsigned long current = 0;
+unsigned long startTime = 0;
+unsigned long globalTime = 0;
 
 long intervalTones = 200;
 long intervalServos = 15;

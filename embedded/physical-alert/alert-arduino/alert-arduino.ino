@@ -11,11 +11,16 @@
  */
 
 void setup() {
+	// Servos are attached to pins 8 and 9
 	servo1.attach(9);
 	servo2.attach(8);
+
+	// Set up Arduino pins
 	pinMode(5, OUTPUT);
 	pinMode(6, OUTPUT);
 	pinMode(7, OUTPUT);
+
+	// Begin Serial and LED
 	pixels.begin();
 	Serial.begin(9600);
 }
@@ -25,25 +30,26 @@ void setup() {
  */
 
 void loop() {
-	current = millis();
-	// Serial.println("test");
+	// Program Global time
+	globalTime = millis();
+
 	if (Serial.available()) {
-		
-		Serial.println("test");
-		data = Serial.readStringUntil('\r');
+		data = Serial.readStringUntil('\r');	// Read from python script until carriage return
+		// If a trigger was sent
 		if (data.startsWith("T")) {
 			isTriggering = true;
 			alert();
-      			Serial.println("high");//for debugging
-			start = current;
+
+      			Serial.println("High");		// For debugging
+
+			startTime = globalTime;		// Trigger start time
 		}
 	}
 
-	//Serial.println(current);
-
-	if(isTriggering == true && ((current - start) >= triggerTime)) {
+	// If alert has been running for more than 10 seconds
+	if(isTriggering == true && ((globalTime - startTime) >= triggerTime)) {
 		isTriggering = false;
-		Serial.println("low");//for debugging
+		Serial.println("Low");	// For debugging
 	}
 }
 
@@ -52,9 +58,16 @@ void loop() {
  */
 
 void alert() {
-	do {
+	// While triggering
+	while(isTriggering) {
+		// Can use globalTime?
+		Serial.print("Global: ");
+		Serial.println(globalTime);
 		currentTime = millis();
+		Serial.print("Current: ");
+		Serial.println(currentTime);
 
+		// Speakers
 		if (currentTime - prevTimeTones > intervalTones) {
 			noTone(currentTonePin);
 
@@ -72,6 +85,7 @@ void alert() {
 			prevTimeTones = currentTime;
 		}
 
+		// Servos
 		if (currentTime - prevTimeServos > intervalServos) {
 			prevTimeServos = currentTime;
 			pos += increment;
@@ -84,6 +98,7 @@ void alert() {
 			servo2.write(180 - pos);
 		}
 
+		// Lights
 		if (currentTime - prevTimeLight > intervalLight) {
 			prevTimeLight = currentTime;
 
@@ -98,5 +113,5 @@ void alert() {
 			pixels.show();
 			isWhite++;
 		}
-	} while (isTriggering);
+	}; 
 }
