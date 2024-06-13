@@ -59,6 +59,8 @@ impl<T: Copy + Send> Cache<T> {
     pub fn last(&self) -> Option<T> {
         if self.content.len() > 0 {
             if self.next_index == 0 {
+                // if the next index is 0 then we're about to wrap around but we haven't yet, so
+                // the last item in the cache is the last item in the vec
                 self.content.last().copied()
             } else {
                 Some(self.content[self.next_index - 1])
@@ -69,15 +71,11 @@ impl<T: Copy + Send> Cache<T> {
     }
 
     pub fn at(&self, index: usize) -> Option<T> {
-        if index < self.content.len() {
-            if self.content.len() < self.capacity {
-                Some(self.content[index])
-            } else {
-                Some(self.content[(self.next_index + index) % self.content.len()])
-            }
-        } else {
-            None
+        if index > self.content.len() - 1 {
+            return None;
         }
+
+        Some(self.content[(self.next_index + index) % self.content.len()])
     }
 
     // returns None if not enough data is in the cache
@@ -226,6 +224,15 @@ mod cache_tests {
     }
 
     #[test]
+    fn len() {
+        let cache = cache_from_iter(4, [1, 2]);
+        assert_eq!(cache.len(), 2);
+
+        let cache = cache_from_iter(3, [1, 2, 3, 4]);
+        assert_eq!(cache.len(), 3);
+    }
+
+    #[test]
     fn to_vec() {
         let cache = cache_from_iter(3, [1, 2, 3]);
         assert_eq!(cache.to_vec(), vec![1, 2, 3]);
@@ -251,6 +258,21 @@ mod cache_tests {
     }
 
     #[test]
+    fn at() {
+        let cache = cache_from_iter(5, [5, 4, 7]);
+        assert_eq!(cache.at(0), Some(5));
+        assert_eq!(cache.at(1), Some(4));
+        assert_eq!(cache.at(2), Some(7));
+        assert_eq!(cache.at(3), None);
+
+        let cache = cache_from_iter(3, [0, 9, 2, 1]);
+        assert_eq!(cache.at(0), Some(9));
+        assert_eq!(cache.at(1), Some(2));
+        assert_eq!(cache.at(2), Some(1));
+        assert_eq!(cache.at(3), None);
+    }
+
+    #[test]
     fn last_n() {
         let cache = cache_from_iter(5, [1, 4, 8, 5, 6]);
         let last3 = cache.last_n(3);
@@ -270,20 +292,5 @@ mod cache_tests {
         let cache: Cache<i32> = Cache::new(0);
         let last2 = cache.last_n(2);
         assert!(last2.is_none());
-    }
-
-    #[test]
-    fn at() {
-        let cache = cache_from_iter(5, [5, 4, 7]);
-        assert_eq!(cache.at(0), Some(5));
-        assert_eq!(cache.at(1), Some(4));
-        assert_eq!(cache.at(2), Some(7));
-        assert_eq!(cache.at(3), None);
-
-        let cache = cache_from_iter(3, [0, 9, 2, 1]);
-        assert_eq!(cache.at(0), Some(9));
-        assert_eq!(cache.at(1), Some(2));
-        assert_eq!(cache.at(2), Some(1));
-        assert_eq!(cache.at(3), None);
     }
 }

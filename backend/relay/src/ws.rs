@@ -15,17 +15,16 @@ use warp::{filters::ws::{Message, WebSocket}, reject::Rejection, reply::Reply, F
 
 use crate::data::{InitialDataPacket, SharedAlertsVec, SharedCache, SharedCalibrations};
 
-#[allow(unused_variables)]
 pub async fn handle_connection(
     websocket: WebSocket,
-    mut broadcast_rx: Receiver<String>,
+    mut broadcast_rx: Receiver<String>, // this is where the handler will receive messages
     cache: SharedCache,
     alerts: SharedAlertsVec,
     calibrations: SharedCalibrations
 ) {
-    let (mut websocket_tx, mut websocket_rx) = websocket.split();
-
     info!("Client connected to WebSocket");
+
+    let (mut websocket_tx, mut websocket_rx) = websocket.split();
 
     tokio::task::spawn(async move {
         // send initial previous data and alerts upon connection
@@ -40,13 +39,13 @@ pub async fn handle_connection(
 
         loop {
             tokio::select! {
-                // If the client sends an empty message, it's disconnected; end the loop
+                // if the client sends an empty message then it's disconnected; end the loop
                 msg = websocket_rx.next() => {
                     if msg.is_none() {
                         break;
                     }
                 }
-                // If we receive a message from the broadcast channel, send it to the client
+                // if we receive a message from the broadcast channel, send it to the client
                 data = broadcast_rx.recv() => {
                     debug!("Got message on broadcast channel");
                     match data {

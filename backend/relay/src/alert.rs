@@ -42,6 +42,7 @@ pub async fn check_for_alert(
         return None;
     }
 
+    // we use -2 here because the very last data packet is the current one
     if let Some(previous_data_packet) = cache_lock.at(cache_lock.len() - 2) {
         if let Some(previous_wave_height) = previous_data_packet.get_height() {
             let current_wave_height = cache_lock.at(cache_lock.len() - 1)
@@ -75,8 +76,8 @@ pub async fn check_for_alert(
             // store the alert so it can be sent when a client first connects
             alerts_lock.push(alert.clone());
 
-            // set the ALERTS environment variable to enable social media alerts
-            if env::var("ALERTS").is_ok() {
+            // set the SOCIAL_ALERTS environment variable to enable social media alerts
+            if env::var("SOCIAL_ALERTS").is_ok() {
                 social_alert(previous_wave_height).await;
             }
 

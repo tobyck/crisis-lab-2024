@@ -3,9 +3,6 @@ use std::time::Duration;
 // port that the mqtt broker is running on
 pub const MQTT_PORT: u16 = 1883;
 
-// port that the websocket will be open on
-pub const WS_PORT: u16 = 8443;
-
 // how many times per second that data is being sent from the server
 pub const FREQUENCY: usize = 25;
 
@@ -18,6 +15,7 @@ pub const CHANNEL_CAPACITY: usize = FREQUENCY * 10;
 pub const CACHE_CAPACITY: usize = FREQUENCY * 20;
 
 // how many cm tall a wave needs to be to trigger an alert
+// TODO: make this easier to change
 pub const ALERT_THRESHOLD: f32 = 8.0;
 
 // seconds before another alert can be triggered

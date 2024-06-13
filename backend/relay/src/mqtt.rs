@@ -16,7 +16,14 @@ use serde_json::json;
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
 
 use crate::{
-    alert::check_for_alert, config::{CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY, MAX_SENSOR_DOWNTIME, MQTT_PORT, PRESSURE_LOG_FILE}, data::{height_from_pressure, process_data, Cache, Calibrations, DataPacket, SharedAlertsVec, SharedCache, SharedCalibrations}
+    alert::check_for_alert, config::{
+        CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY,
+        MAX_SENSOR_DOWNTIME, MQTT_PORT, PRESSURE_LOG_FILE
+    },
+    data::{
+        height_from_pressure, process_data, Cache, Calibrations,
+        DataPacket, SharedAlertsVec, SharedCache, SharedCalibrations
+    }
 };
 
 #[inline]
@@ -39,7 +46,6 @@ pub fn listen(mut event_loop: EventLoop) -> (
     SharedAlertsVec,
     SharedCalibrations
 ) {
-    // all of these things will be moved into the task below
     let (broadcast_tx_original, _) = broadcast::channel::<String>(CHANNEL_CAPACITY);
     let cache_original: SharedCache = Arc::new(RwLock::new(Cache::new(CACHE_CAPACITY)));
     let alerts_original: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
@@ -55,7 +61,7 @@ pub fn listen(mut event_loop: EventLoop) -> (
     let calibrations = calibrations_original.clone();
 
     tokio::task::spawn(async move {
-        // create a log file for logging data to
+        // create a log file for logging data to if the highest level of logging is enabled
         let mut data_log_file: Option<File> = if log_enabled!(log::Level::Trace) {
             match File::create(PRESSURE_LOG_FILE) {
                 Ok(file) => Some(file),
@@ -68,6 +74,7 @@ pub fn listen(mut event_loop: EventLoop) -> (
             None
         };
         
+        // the messages for calibration are "C AIR" and "C WATER"
         const CALIBRATION_MSG_PREFIX: &str = "C";
         const AIR: &str = "AIR";
         const WATER: &str = "WATER";
@@ -117,6 +124,7 @@ pub fn listen(mut event_loop: EventLoop) -> (
                                             average_recent_pressure,
                                             air_pressure_value
                                         ));
+
                                         info!("Calibrated resting water level to {}", calibrations_lock.resting_water_level.unwrap());
                                     } else {
                                         warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
@@ -149,7 +157,7 @@ pub fn listen(mut event_loop: EventLoop) -> (
                                 calibrations_lock.resting_water_level.unwrap()
                             ).await
                         } else {
-                            // otherwise create an unprocessed
+                            // otherwise create an unprocessed data packet
                             DataPacket::unprocessed(pressure)
                         };
 
@@ -158,8 +166,8 @@ pub fn listen(mut event_loop: EventLoop) -> (
                         // cache data
                         cache.write().await.write(data);
 
-                        // log to a file if the highest log level is enabled
                         if log_enabled!(log::Level::Trace) {
+                            // log data to a file
                             if let Some(ref mut file) = data_log_file {
                                 if let Err(error) = file.write(format!("{:?}\n", data).as_bytes()) {
                                     warn!("Error writing data to log file: {}", error);
@@ -167,8 +175,7 @@ pub fn listen(mut event_loop: EventLoop) -> (
                             }
                         }
 
-                        // stringify data and send to websocket connection handlers which will
-                        // forward it to clients
+                        // stringify data and send to websocket connection handlers which will forward it to clients
                         if let Err(error) = broadcast_tx.send(serde_json::to_string(&data).unwrap()) {
                             warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
                         }
@@ -191,6 +198,7 @@ pub fn listen(mut event_loop: EventLoop) -> (
     let broadcast_tx = broadcast_tx_original.clone();
     let cache = cache_original.clone();
 
+    // spawn a task which periodically checks if the sensor is online
     tokio::task::spawn(async move {
         loop {
             if let Some(previous_data) = cache.read().await.last() { // get last data packet
@@ -208,5 +216,6 @@ pub fn listen(mut event_loop: EventLoop) -> (
         }
     });
 
+    // return data to be passed to websocket connection handlers
     (broadcast_tx_original, cache_original, alerts_original, calibrations_original)
 }
