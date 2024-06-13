@@ -19,7 +19,7 @@ let safeCompare = (a: string, b: string) => {
 const conns: ServerWebSocket<any>[] = [];
 
 serve({
-    port: 8783,
+    port: 443,
     async fetch(req, server) {
         const url = new URL(req.url);
         if (url.pathname === "/subscribe") {
@@ -99,6 +99,14 @@ serve({
         key: Bun.file("../../ssl/private.key"),
     },
 });
+
+serve({
+    port: 80,
+    fetch(req) {
+	const path = new URL(req.url).pathname;
+        return Response.redirect('https://dashboard.alex-berry.net'+path,{status: 301})
+    }
+})
 
 setInterval(() => {
     for (let conn of conns) {
