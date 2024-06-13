@@ -78,7 +78,6 @@ input:checked+.slider:before {
     -ms-transform: translateX(12px);
     transform: translateX(12px);
     content: "☾";
-    /* I apologize for the hair space, but it's necessary */
 }
 
 /* Rounded sliders */

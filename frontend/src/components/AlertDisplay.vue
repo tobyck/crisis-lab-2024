@@ -1,4 +1,5 @@
 <!-- this pops up if an alert occurs -->
+<!-- for complicated reasons we have two of these - one for mobile, one otherwise -->
 <template>
     <div class="box">
         <div class="exc">⚠️</div>
@@ -29,7 +30,6 @@
     font-size: 20px;
     display: inline-block;
     color: v-bind('THEME.textColor');
-    /*width: calc(100% - 50px);*/
 }
 </style>
 

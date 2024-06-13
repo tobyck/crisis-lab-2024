@@ -13,7 +13,6 @@ export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'wss://dashboard.alex-berry.net:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
-        //console.log(message);
 
         if (loaded.value == false) { // init packet
             loaded.value = true;
@@ -25,27 +24,14 @@ export async function initWebsocket() {
         } else if (data.pressure) { // data packet
             packetData.shift();
             packetData.push(data);
-            /*if (data.triggerAlert) {
-                logs.unshift(stringifyIncident(data));
-            }*/
-            // TODO: handle alerts
         } else { // alert packet
             logs.unshift(stringifyIncident(data));
 
             THEME.alertActive = true;
             setTimeout(() => {
                 THEME.alertActive = false;
-            }, 20000);
+            }, 10000);
         }
-
-        /*
-            console.log('ALERT!!!!! WEE WOO WEE WOO')
-            THEME.alertActive = true;
-            incidents.push(data.data);
-            setTimeout(() => {
-                THEME.alertActive = false;
-            }, 20000);
-        */
     })
 }
 

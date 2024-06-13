@@ -34,7 +34,6 @@ div {
     background-color: v-bind('THEME.backgroundColor2');
     padding: 0.5vw;
     z-index: 100;
-    /*text-align: center;*/
 }
 
 .links {

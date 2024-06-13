@@ -178,27 +178,29 @@ import { packetData, initWebsocket, loaded } from './ws.js';
 
 initWebsocket();
 
+const filteredData = computed(() => packetData.filter(t => t != null)
+    .filter(
+        ({ timestamp }) => THEME.isMobile ? (timestamp * 25) % 3 < 1 : 1
+    ) // remove every other point on mobile
+    .map(({ pressure, height, timestamp }) => ({
+        pressure, height, timestamp: 20 - (Date.now() - timestamp) / 1000
+    }))
+);
+
 
 const pressure = computed(() => ({
-    values: packetData.filter(t => t != null)
-        .filter(({ height, timestamp }) => THEME.isMobile ? (timestamp * 25) % 2 < 1 : 1) // remove every other point on mobile
-        .map(({ pressure, timestamp }) =>
-        ({
-            x: 20 - (Date.now() - timestamp) / 1000,
-            y: pressure
-        })),
-
+    values: filteredData.value.map(({ pressure, timestamp }) => ({
+        x: timestamp,
+        y: pressure
+    })),
     loaded: loaded.value
 }))
 
 const height = computed(() => ({
-    values: packetData.filter(t => t != null)
-        .filter(({ height, timestamp }) => THEME.isMobile ? (timestamp * 25) % 3 < 1 : 1) // remove every other point on mobile
-        .map(({ height, timestamp }) =>
-        ({
-            x: 20 - (Date.now() - timestamp) / 1000,
-            y: height
-        })),
+    values: filteredData.value.map(({ height, timestamp }) => ({
+        x: timestamp,
+        y: height
+    })),
     loaded: loaded.value
 }))
 </script>

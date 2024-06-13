@@ -1,3 +1,4 @@
+<!--just a little blinky light-->
 <template>
     <span class="container">
         {{ props.name }}

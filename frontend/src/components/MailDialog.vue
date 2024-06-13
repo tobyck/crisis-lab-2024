@@ -23,7 +23,6 @@
     justify-content: center;
     align-items: center;
     color: v-bind('THEME.textColor');
-    /*font-size: ;*/
 }
 
 .dialog {
@@ -83,7 +82,7 @@ let subscribeEmail = (email) => {
         error.value = 'Invalid email address';
         return;
     } else {
-        fetch('http://170.64.254.27:8783/subscribe?email=' + encodeURI(email)).then(res => {
+        fetch('https://dashboard.alex-berry.net:8783/subscribe?email=' + encodeURI(email)).then(res => {
             if (res.status === 200) {
                 error.value = 'Subscribed!';
             } else {

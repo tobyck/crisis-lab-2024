@@ -1,7 +1,5 @@
 <template>
-    <!--<div>-->
     <Line v-if="dataSource.loaded" ref="chart" :id="name" :options="chartOptions" :data="chartData" />
-    <!--</div>-->
 </template>
 
 <script setup>
@@ -21,7 +19,6 @@ console.log(props.dataSource, props.dataSource.loaded);
 
 
 const chartData = computed(() => ({
-    //labels: props.dataSource.timestamps,
     datasets: [
         {
             label: 'Data One',

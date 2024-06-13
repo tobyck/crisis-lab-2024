@@ -16,7 +16,6 @@
     justify-content: center;
     align-items: center;
     color: v-bind('THEME.textColor');
-    /*font-size: ;*/
     animation: blink 1s infinite;
     user-select: none;
     pointer-events: none;
