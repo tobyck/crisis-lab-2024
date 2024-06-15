@@ -16,6 +16,12 @@ let safeCompare = (a: string, b: string) => {
     return result === 0;
 }
 
+let cors = (res: Response) => {
+    res.headers.set('Access-Control-Allow-Origin', '*');
+    res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    return res;
+}
+
 const conns: ServerWebSocket<any>[] = [];
 // This won't handle http->https redirects, but it's fine since all it is is an API
 serve({
@@ -28,9 +34,9 @@ serve({
             if (DEBUG) console.log('Subscribing', email);
             if (email !== null && EMAILREGEX.test(email as string)) {
                 addEmail(email);
-                return new Response("Subscribed!");
+                return cors(new Response("Subscribed!"));
             } else {
-                return new Response("Invalid email", { status: 400 });
+                return cors(new Response("Invalid email", { status: 400 }));
             }
         }
         if (url.pathname === "/unsubscribe") {
@@ -39,12 +45,12 @@ serve({
             if (DEBUG) console.log('Unsubscribing', uuid);
             if (uuid !== null) {
                 removeEmail(uuid);
-                return new Response("Unsubscribed!");
+                return cors(new Response("Unsubscribed!"));
             } else {
-                return new Response("Invalid UUID", { status: 400 });
+                return cors(new Response("Invalid UUID", { status: 400 }));
             }
         }
-        if (url.pathname === "/blog") return new Response("Blog!");
+        if (url.pathname === "/blog") return cors(new Response("Blog!"));
         if (url.pathname === "/alert") {
             if (req.method == "GET") {
                 return new Response("Tried to send alert via GET", { status: 400 });
