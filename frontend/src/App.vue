@@ -6,11 +6,11 @@
             <Header />
         </div>
         <div class="main">
-            <div class="alert-container" v-if="THEME.alertActive && THEME.isMobile">
+            <div class="alert-container" v-if="THEME.isMobile">
                 <AlertDisplay />
             </div>
             <div class="log-box">
-                <div class="alert-container" v-if="THEME.alertActive && !THEME.isMobile">
+                <div class="alert-container" v-if="!THEME.isMobile">
                     <AlertDisplay />
                 </div>
                 <div class="log-container">
@@ -36,7 +36,7 @@
                         color: THEME.graphColor2
                     }" :data-source="pressure" />
                 </div>
-                <div class="live-view chart-box">
+                <!--<div class="live-view chart-box">
                     <Chart name="live-view" :options="{
                         y: 'Wave height (cm)',
                         title: 'Live View',
@@ -44,7 +44,7 @@
                         maxY: 1022,
                         color: THEME.graphColor2
                     }" :data-source="height" />
-                </div>
+                </div>-->
             </div>
         </div>
         <div class="footer">
@@ -174,7 +174,7 @@ import Alert from './components/Alert.vue';
 import AlertDisplay from './components/AlertDisplay.vue';
 import { THEME } from './theme';
 import { ref, computed } from 'vue';
-import { packetData, initWebsocket, loaded } from './ws.js';
+import { packetData, initWebsocket, loaded, calibrations } from './ws.js';
 
 initWebsocket();
 
@@ -201,6 +201,7 @@ const height = computed(() => ({
         x: timestamp,
         y: height
     })),
-    loaded: loaded.value
+    loaded: loaded.value,
+    baseline: calibrations?.resting_water_level
 }))
 </script>

@@ -2,7 +2,7 @@
 <template>
     <span class="container">
         {{ props.name }}
-        <span v-if="status" class="light-on">
+        <span v-if="status.q.value" class="light-on">
             online
         </span>
         <span v-else class="light-off">

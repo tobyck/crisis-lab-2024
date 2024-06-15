@@ -18,21 +18,36 @@ const props = defineProps(['name', 'data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
 
 
-const chartData = computed(() => ({
-    datasets: [
-        {
-            label: 'Data One',
-            backgroundColor: '#f87979',
-            pointBackgroundColor: 'white',
-            borderColor: props.options.color,
-            borderWidth: THEME.isMobile ? 1.5 : 3,
+const chartData = computed(() => {
+    let res = {
+        datasets: [
+            {
+                label: 'Data One',
+                backgroundColor: '#f87979',
+                pointBackgroundColor: 'white',
+                borderColor: props.options.color,
+                borderWidth: THEME.isMobile ? 1.5 : 3,
+                radius: 0,
+                pointBorderColor: '#249EBF',
+                //Data to be represented on y-axis
+                data: props.dataSource.values,
+            },
+        ]
+    }
+    // TODO: Threshold, once that's added to the backend
+    if (props.dataSource.baseline) {
+        res.datasets.push({
+            label: 'Threshold',
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+            borderColor: '#ff0000',
+            borderWidth: 1,
+            borderDash: [5, 5],
             radius: 0,
-            pointBorderColor: '#249EBF',
-            //Data to be represented on y-axis
-            data: props.dataSource.values,
-        }
-    ]
-}))
+            data: [{ x: 0, y: props.dataSource.baseline }, { x: 20, y: props.dataSource.baseline }],
+        })
+    }
+    return res;
+});
 
 // because vue is stupid this is necessary
 let c = computed(() => props.dataSource.values);
