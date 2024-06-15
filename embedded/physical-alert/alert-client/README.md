@@ -1,2 +1,1 @@
-pip install pyserial
-pip install websocket-client
+export NODE_TLS_REJECT_UNAUTHORIZED="0"

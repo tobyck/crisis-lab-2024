@@ -34,22 +34,13 @@ void loop() {
 	globalTime = millis();
 
 	if (Serial.available()) {
-		data = Serial.readStringUntil('\r');	// Read from python script until carriage return
+		data = Serial.readStringUntil('\r');	// Read from WebSocket Client until carriage return
 		// If a trigger was sent
 		if (data.startsWith("T")) {
+      			Serial.println("High");		// For debugging
 			isTriggering = true;
 			alert();
-
-      			Serial.println("High");		// For debugging
-
-			startTime = globalTime;		// Trigger start time
 		}
-	}
-
-	// If alert has been running for more than 10 seconds
-	if(isTriggering == true && ((globalTime - startTime) >= triggerTime)) {
-		isTriggering = false;
-		Serial.println("Low");	// For debugging
 	}
 }
 
@@ -60,12 +51,16 @@ void loop() {
 void alert() {
 	// While triggering
 	while(isTriggering) {
-		// Can use globalTime?
-		Serial.print("Global: ");
-		Serial.println(globalTime);
+		// If alert has been running for more than 10 seconds, stop.
+		// globalTime stops updating since we are in a while loop, so globalTime = startTime.
+		if(isTriggering == true && ((currentTime - globalTime) >= triggerTime)) {
+			isTriggering = false;
+			Serial.println("Low");	// For debugging
+		}
+
 		currentTime = millis();
-		Serial.print("Current: ");
-		Serial.println(currentTime);
+		//Serial.print("Current: ");
+		//Serial.println(currentTime);
 
 		// Speakers
 		if (currentTime - prevTimeTones > intervalTones) {
