@@ -45,7 +45,7 @@ export async function sendEmail(message: string) {
             to: email as string,
             subject: 'FAKE TSUNAMI DETECTED',
             text: message,
-            html: message + `<br><a href="https://localhost:8783?uuid=${uid}">Unsubscribe</a>`
+            html: message + `<br><a href="https://dashboard.alex-berry.net:8783/unsubscribe?uuid=${uid}">Unsubscribe</a>`
         };
         sendMail(options);
     }
