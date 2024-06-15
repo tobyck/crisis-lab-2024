@@ -1,0 +1,21 @@
+{
+    "name": "crisislab-2024-alerts",
+    "module": "index.ts",
+    "type": "module",
+    "devDependencies": {
+        "@types/bun": "latest",
+        "@types/uuid": "^9.0.8",
+        "@types/nodemailer": "^6.4.15"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "dotenv": "^16.4.5",
+        "instagram-private-api": "^1.46.1",
+        "nodemailer": "^6.9.13",
+        "request-promise": "^4.2.6",
+        "uuid": "^9.0.1",
+        "bun": "^1.0.0"
+    }
+}

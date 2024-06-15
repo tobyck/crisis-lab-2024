@@ -3,29 +3,44 @@ import { THEME } from './theme.js';
 
 export let packetData = reactive([]);
 
-export let incidents = reactive([]);
+export let logs = reactive([]);
 
 export const loaded = ref(false);
 
-export async function initWebsocket () {
-    let ws = new WebSocket('ws://localhost:8081');
+let LOCAL = false;
+
+export async function initWebsocket() {
+    let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'wss://dashboard.alex-berry.net:8443');
     ws.addEventListener('message', message => {
         const data = JSON.parse(message.data);
-        if (data.type == 'data') { // new packet
-            packetData.shift();
-            packetData.push(data.data);
-        } else if (data.type == 'init') { // initial array
+
+        if (loaded.value == false) { // init packet
             loaded.value = true;
-            packetData.push(...data.data);
-            incidents.push(...data.incidents);
-            console.log(data);
-        } else if (data.type == 'alert') {
-            console.log('ALERT!!!!! WEE WOO WEE WOO')
+            packetData.push(...data.previous_data);
+            logs.push(...data.previous_alerts.map(stringifyIncident).reverse());
+            if (packetData.length < 500) {
+                packetData.unshift(...Array(500 - packetData.length).fill(null));
+            }
+        } else if (data.pressure) { // data packet
+            packetData.shift();
+            packetData.push(data);
+        } else { // alert packet
+            logs.unshift(stringifyIncident(data));
+
             THEME.alertActive = true;
-            incidents.push(data.data);
             setTimeout(() => {
                 THEME.alertActive = false;
-            }, 20000);
+            }, 10000);
         }
     })
 }
+
+let stringifyIncident = ({ timestamp, height }) => `${Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'short',
+    timeStyle: 'long',
+    timeZone: 'Pacific/Auckland',
+}).format(new Date(timestamp))
+    .replace(',', '').replace(/ GMT+.*/, '')
+    .replace(/(..\/..\/)..(..) (.*)/, '[$3 $1$2]')
+    }
+    ${height.toFixed(2)}cm tsunami detected`;

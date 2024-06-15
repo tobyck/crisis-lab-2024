@@ -1,70 +1,87 @@
 <template>
     <div class="box">
-        <p class="incidents">Logs
-            <StatusLight :status="true" name="Relay" />
-            <StatusLight :status="false" name="Sensor" />
-            <StatusLight :status="true" name="Alerts" />
-        </p>
-        <div v-for="incident in [...incidents].reverse()">
-            <p>Tsunami of height {{
-                incident.height.toFixed(2)
-            }} cm 
-            <span class='alert' v-if="THEME.alertActive && incident == incidents.at(-1)">occuring</span>
-            <span v-else>detected</span>
-            at {{ 
-                Intl.DateTimeFormat('en-GB', {
-                    dateStyle: 'short',
-                    timeStyle: 'long',
-                    timeZone: 'Pacific/Auckland',
-                }).format(new Date(incident.timeStamp)).replace(',','').replace(/ GMT+.*/,'')
-            }}
-            <div v-if="THEME.alertActive && Date.now() - incident.timeStamp < 20 * 1000" class="circle"></div>
-            </p>
+        <div class="header">
+            <div class="incidents">Logs</div>
+            <div class="status">
+                <StatusLight :status="serverOnline" name="Relay" />
+                <StatusLight :status="false" name="Sensor" />
+                <StatusLight :status="alertOnline" name="Alerts" />
+            </div>
+        </div>
+        <div class="rest">
+            <span v-for="log in logs">
+                <span>{{ log }}</span>
+                <br />
+            </span>
+            <div class="undetected" v-if="logs.length == 0">No tsunami have been detected yet</div>
         </div>
     </div>
 </template>
 
 <style scoped>
 div.box {
-    border-radius: 1vh;
-    border: 2px solid v-bind('THEME.borderColor');
-    width: 40vw;
+    height: 100%;
+    width: 100%;
     color: v-bind('THEME.textColor');
-    min-height: 20vw;
-    max-height: 20vw;
     box-sizing: border-box;
     overflow-y: scroll;
+    background-color: v-bind('THEME.backgroundColor');
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    border-radius: 1vw;
+    row-gap: 0.5vw;
+    padding: 0.75vw;
 }
 
-@media screen and (max-width: 800px) {
-    div.box {
-        min-height: 40vw;
-        max-height: 40vw;
-    }
+.header {
+    height: 50px;
+    flex: 0 0 50px;
 }
 
-@media screen and (max-width: 1000px) {
-    div.box {
-        width: min(90%, 600px);
-        margin-left: max(5%, calc((100% - 600px) / 2));
-    }
+.rest {
+    flex: 1;
+    flex-basis: 0;
+    display: v-bind('logs.length == 0 ? "flex" : "block"');
+    align-items: v-bind('logs.length == 0 ? "center" : "flex-start"');
+    overflow-y: scroll;
+    padding-left: 0.8vw;
+    padding-top: 0.8vw;
+    padding-bottom: 0.8vw;
+    border-radius: 0.5vw;
+    background-color: v-bind('THEME.backgroundColor3');
 }
 
-@media screen and (max-height: 1000px) {
-    div.box {
-        height: min(40%, 600px);
-    }
+.status,
+.rest {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.status {
+    text-align: center;
+}
+
+.rest>div {
+    width: 100%;
 }
 
 
 
-
-p.incidents {
+div.incidents {
     font-size: 20px;
     text-align: center;
-    margin-top: 7px;
+    padding-top: 5px;
     position: sticky;
 }
+
+.undetected {
+    font-size: 14px;
+    text-align: center;
+    font-style: italic;
+    width: 100%;
+}
+
+
 
 div.box p {
     margin-left: 10px;
@@ -84,7 +101,27 @@ span.alert {
 </style>
 
 <script setup>
-import { incidents } from '../ws.js';
+import { logs, packetData, loaded } from '../ws.js';
 import { THEME } from '@/theme.js';
 import StatusLight from './StatusLight.vue';
+import { computed, ref } from 'vue';
+
+let currentTime = ref(Date.now());
+setInterval(() => {
+    currentTime.value = Date.now();
+}, 40);
+
+// this is a custom websocket for checking if alerts is online, pings once a second
+let ws = new WebSocket('wss://dashboard.alex-berry.net:8783/ws');
+
+let lastAlertMessage = ref(0);
+
+ws.onmessage = () => {
+    lastAlertMessage.value = Date.now();
+};
+
+let alertOnline = computed(() => currentTime.value - lastAlertMessage.value < 2000);
+
+
+const serverOnline = computed(() => loaded.value && currentTime.value - packetData.at(-1)?.timestamp < 2000);
 </script>

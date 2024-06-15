@@ -1,73 +1,147 @@
+<!-- This is the main body of the app. It's a bunch of nested flexboxes, yes it's mildly cursed 
+    but it's far, far better than the alternative -->
 <template>
     <div class="body">
-        <Header />
-        <div class="flex">
-            <Chart 
-                name="height"
-                :options="{
-                    y: 'Water level (cm)',
-                    title: 'Water Level',
-                    minY: 0,
-                    maxY: 3,
-                    color: THEME.graphColor1
-                }"
-                :data-source="height"
-            />
-            <Chart 
-                name="pressure"
-                :options="{
-                    y: 'Pressure (Pa)',
-                    title: 'Sensor Pressure',
-                    minY: 1018,
-                    maxY: 1022,
-                    color: THEME.graphColor2
-                }"
-                :data-source="pressure"
-            />
-            <Logs />
-            <div class="liveView">
-            <Chart 
-                name="live-view"
-                :options="{
-                    y: 'Wave height (cm)',
-                    title: 'Live View',
-                    minY: 1018,
-                    maxY: 1022,
-                    color: THEME.graphColor2
-                }"
-                :data-source="pressure"
-            />
+        <div class="header">
+            <Header />
+        </div>
+        <div class="main">
+            <div class="alert-container" v-if="THEME.alertActive && THEME.isMobile">
+                <AlertDisplay />
+            </div>
+            <div class="log-box">
+                <div class="alert-container" v-if="THEME.alertActive && !THEME.isMobile">
+                    <AlertDisplay />
+                </div>
+                <div class="log-container">
+                    <Logs />
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-box">
+                    <Chart name="height" :options="{
+                        y: 'Water level (cm)',
+                        title: 'Water Level',
+                        minY: 0,
+                        maxY: 3,
+                        color: THEME.graphColor
+                    }" :data-source="height" />
+                </div>
+                <div class="chart-box">
+                    <Chart name="pressure" :options="{
+                        y: 'Pressure (Pa)',
+                        title: 'Sensor Pressure',
+                        minY: 1018,
+                        maxY: 1022,
+                        color: THEME.graphColor2
+                    }" :data-source="pressure" />
+                </div>
+                <div class="live-view chart-box">
+                    <Chart name="live-view" :options="{
+                        y: 'Wave height (cm)',
+                        title: 'Live View',
+                        minY: 1018,
+                        maxY: 1022,
+                        color: THEME.graphColor2
+                    }" :data-source="height" />
+                </div>
             </div>
         </div>
-        <Footer />
+        <div class="footer">
+            <Footer />
+        </div>
     </div>
+    <Alert />
 </template>
 
 <style scoped>
-div.flex {
+div.main {
     justify-content: center;
-    align-items: center;
-    height: 80vh;
+    align-items: stretch;
     display: flex;
-    flex-wrap: wrap;
-    row-gap: 3vw;
-    column-gap: 3vw;
+    flex-flow: row;
+    row-gap: 0;
+    column-gap: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    column-gap: 1vw;
+    margin-left: 1vw;
+    margin-right: 1vw;
 }
 
-/* keeping this typo for posterity */
-dev.paddingBottom {
-
-    padding: 100px;
+div.body {
+    display: flex;
+    flex-flow: column;
+    row-gap: 1vw;
 }
-/* exept that that code is actually needed so heres it agian without the typo */
 
-@media screen and (max-width: 800px) {
-    div.liveView {
+div.header {
+    height: 50px;
+}
+
+
+div.footer {
+    height: 20px;
+}
+
+div.log-box {
+    flex: 2 2;
+    flex-basis: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    row-gap: 0.75vw;
+}
+
+div.log-container {
+    flex: 1 1;
+}
+
+div.alert-container {
+    flex: 0 0 70px;
+}
+
+div.chart-container {
+    display: flex;
+    flex-flow: column wrap;
+    flex: 3 3;
+    justify-content: center;
+    align-items: stretch;
+    row-gap: 1vw;
+    flex-basis: 0;
+}
+
+div.chart-box {
+    flex: 1 1;
+    background-color: v-bind('THEME.backgroundColor');
+    /*margin: 0.5vw 1vw 0.5vw 0.5vw;*/
+    padding: 0vw 0.5vw 0.5vw 0.5vw;
+    border-radius: 1vw;
+}
+
+/* stuff reorganises on mobile view */
+@media screen and (max-width: 900px) {
+    div.live-view {
+        visibility: hidden;
         display: none;
     }
+
+    div.main {
+        flex-flow: column;
+        row-gap: 10px;
+    }
+
+    div.chart-container {
+        flex: 2 2;
+        flex-basis: 0;
+    }
+
+    div.log-box {
+        flex: 1 1;
+        flex-basis: 0;
+        order: 2;
+    }
 }
-
-
 </style>
 
 
@@ -75,12 +149,19 @@ dev.paddingBottom {
 body {
     margin: 0;
 }
+
 div.body {
-    font-family: "Inter var experimental", "Inter var", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-    background-color: v-bind('THEME.backgroundColor');
+    font-family: 'SF Pro', 'Courier New', Courier, monospace;
+    background-color: v-bind('THEME.backgroundColor2');
     min-height: 100vh;
+    max-height: 100vh;
     clear: both;
     user-select: none;
+}
+
+@font-face {
+    font-family: "SF Pro";
+    src: url('SF-Pro.ttf');
 }
 </style>
 
@@ -89,32 +170,37 @@ import Header from './components/Header.vue';
 import Chart from './components/Chart.vue';
 import Footer from './components/Footer.vue';
 import Logs from './components/Logs.vue';
+import Alert from './components/Alert.vue';
+import AlertDisplay from './components/AlertDisplay.vue';
 import { THEME } from './theme';
 import { ref, computed } from 'vue';
 import { packetData, initWebsocket, loaded } from './ws.js';
 
 initWebsocket();
 
+const filteredData = computed(() => packetData.filter(t => t != null)
+    .filter(
+        ({ timestamp }) => THEME.isMobile ? (timestamp * 25) % 3 < 1 : 1
+    ) // remove every other point on mobile
+    .map(({ pressure, height, timestamp }) => ({
+        pressure, height, timestamp: 20 - (Date.now() - timestamp) / 1000
+    }))
+);
+
 
 const pressure = computed(() => ({
-    values: packetData.filter(t => t != null)
-        .map(({pressure, timeStamp}) => 
-        ({
-            x: 20 - (Date.now() - timeStamp) / 1000, 
-            y: pressure
-        })
-    ),
+    values: filteredData.value.map(({ pressure, timestamp }) => ({
+        x: timestamp,
+        y: pressure
+    })),
     loaded: loaded.value
 }))
 
 const height = computed(() => ({
-    values: packetData.filter(t => t != null)
-        .map(({waterLevel, timeStamp}) => 
-        ({
-            x: 20 - (Date.now() - timeStamp) / 1000, 
-            y: waterLevel
-        })
-    ),
+    values: filteredData.value.map(({ height, timestamp }) => ({
+        x: timestamp,
+        y: height
+    })),
     loaded: loaded.value
 }))
 </script>
