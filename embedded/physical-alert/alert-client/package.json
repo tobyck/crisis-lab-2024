@@ -9,6 +9,7 @@
   "author": "Maxwell Robati",
   "license": "ISC",
   "dependencies": {
+    "readline-sync": "^1.4.10",
     "serial": "^0.0.9",
     "serialport": "^12.0.0",
     "ws": "^8.17.0"
