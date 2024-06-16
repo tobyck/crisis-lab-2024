@@ -32,7 +32,6 @@ socket.onmessage = e => {
 	// Tells us if a trigger has been sent
 	triggered = (JSONdata.pressure == undefined && JSONdata.height != undefined);
 	if(triggered) {
-		console.log("Serial port is open? " + serialport.isOpen);
 		console.log("Triggered");
 		// Output via Serial to Arduino
 		serialport.write("T\r");

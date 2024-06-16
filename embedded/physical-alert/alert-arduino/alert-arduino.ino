@@ -1,6 +1,6 @@
 /*
- * Author:  Alex Berry
- * Version: 11/06/2024
+ * Author:  Alex Berry and Maxwell Robati
+ * Version: 16/06/2024
  * Purpose: Physical alert system.
  */
 
@@ -11,14 +11,17 @@
  */
 
 void setup() {
-	// Servos are attached to pins 8 and 9
+	// Servos are attached to pins 9 and 10
 	servo1.attach(9);
-	servo2.attach(8);
+	servo2.attach(10);
+
+	// LED is pin 6
+	// Speakers are pin 3 and 4
 
 	// Set up Arduino pins
-	pinMode(5, OUTPUT);
-	pinMode(6, OUTPUT);
-	pinMode(7, OUTPUT);
+	// pinMode(6, OUTPUT);	// LED
+
+	pinMode(12, OUTPUT);	// SPEAKER
 
 	// Begin Serial and LED
 	pixels.begin();
@@ -37,8 +40,9 @@ void loop() {
 		data = Serial.readStringUntil('\r');	// Read from WebSocket Client until carriage return
 		// If a trigger was sent
 		if (data.startsWith("T")) {
-      			Serial.println("High");		// For debugging
 			isTriggering = true;
+      			Serial.println("High");		// For debugging
+
 			alert();
 		}
 	}
@@ -49,20 +53,28 @@ void loop() {
  */
 
 void alert() {
-	// While triggering
+
 	while(isTriggering) {
 		// If alert has been running for more than 10 seconds, stop.
-		// globalTime stops updating since we are in a while loop, so globalTime = startTime.
-		if(isTriggering == true && ((currentTime - globalTime) >= triggerTime)) {
+
+		if(((currentTime - globalTime) >= triggerTime)) {
+			digitalWrite(12, LOW);
+			
+			for(int i = 0; i < pixels.numPixels(); i++) {
+				pixels.setPixelColor(i, pixels.Color(0, 0, 0));
+			}
+			pixels.show();
+
 			isTriggering = false;
 			Serial.println("Low");	// For debugging
 		}
 
+
 		currentTime = millis();
-		//Serial.print("Current: ");
+
 		//Serial.println(currentTime);
 
-		// Speakers
+
 		if (currentTime - prevTimeTones > intervalTones) {
 			noTone(currentTonePin);
 
@@ -76,6 +88,7 @@ void alert() {
 				currentToneDuration = 200;
 			}
 
+			digitalWrite(12, HIGH);
 			tone(currentTonePin, currentToneFrequency, currentToneDuration);
 			prevTimeTones = currentTime;
 		}
