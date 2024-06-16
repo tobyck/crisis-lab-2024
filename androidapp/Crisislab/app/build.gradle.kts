@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id ("kotlin-kapt")
 }
 
 android {
@@ -56,8 +57,11 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.appcompat)
+    implementation ("com.squareup.okhttp3:okhttp:4.2.1")
     val ktorVersion = "2.3.11"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("org.java-websocket:Java-WebSocket:1.4.0")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")

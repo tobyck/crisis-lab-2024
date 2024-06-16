@@ -190,6 +190,18 @@
                 android:layout_height="match_parent" />
         </ScrollView>
 
+        <Button
+            android:id="@+id/connect"
+            style="@android:style/Widget.Holo.Light.Button"
+            android:layout_width="333dp"
+            android:layout_height="85dp"
+            android:layout_centerInParent="true"
+            android:text="Connect to PieSocket"
+            android:textSize="17sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="437dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

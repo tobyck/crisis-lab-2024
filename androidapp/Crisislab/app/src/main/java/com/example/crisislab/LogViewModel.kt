@@ -27,4 +27,14 @@ class LogViewModel: ViewModel()
         logItems.postValue(list)
     }
 
+    companion object {
+        var logItems = MutableLiveData<MutableList<LogItem>?>()
+
+        fun addLogItem(newLog: LogItem) {
+            val list = logItems.value
+            list!!.add(newLog)
+            logItems.postValue(list)
+        }
+    }
+
 }

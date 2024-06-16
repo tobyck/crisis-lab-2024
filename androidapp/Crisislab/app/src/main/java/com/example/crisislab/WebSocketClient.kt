@@ -1,36 +1,29 @@
 package com.example.crisislab
 
-import android.util.Log
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.websocket.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import io.ktor.websocket.*
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
+import java.net.URI
 
-class WebSocketClient(private val url: String) {
 
-    private val client = HttpClient {
-        install(WebSockets)
+// initialize websocket client
+class LogWebSocketClient(serverUri: URI, private val messageListener: (String) -> Unit) : WebSocketClient(serverUri) {
+
+    override fun onOpen(handshakedata: ServerHandshake?) {
+        // When WebSocket connection opened
     }
 
-    fun connect(listener: MainActivity) {
-        GlobalScope.launch {
-            client.wss(url) {
-                listener.onConnected()
-                try {
-                    for (frame in incoming) {
-                        if (frame is Frame.Text) {
-                            listener.onMessage(frame.readText())
-                        }
-                    }
-                } catch (e: Exception) {
-                    listener.onDisconnected()
-                }
-            }
-        }
+    override fun onClose(code: Int, reason: String?, remote: Boolean) {
+        // When WebSocket connection closed
     }
 
-    fun disconnect() {
-        client.close()
+    override fun onMessage(message: String?) {
+        // When Receive a message we handle it at MainActivity
+        messageListener.invoke(message ?: "")
     }
+
+    override fun onError(ex: Exception?) {
+        // When An error occurred
+    }
+
+
 }
