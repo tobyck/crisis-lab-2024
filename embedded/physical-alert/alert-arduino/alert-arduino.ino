@@ -16,12 +16,7 @@ void setup() {
 	servo2.attach(10);
 
 	// LED is pin 6
-	// Speakers are pin 3 and 4
-
-	// Set up Arduino pins
-	// pinMode(6, OUTPUT);	// LED
-
-	pinMode(12, OUTPUT);	// SPEAKER
+	// Speakers are pins 3 and 4
 
 	// Begin Serial and LED
 	pixels.begin();
@@ -33,16 +28,16 @@ void setup() {
  */
 
 void loop() {
-	// Program Global time
+	// Program's Global time
 	globalTime = millis();
 
 	if (Serial.available()) {
 		data = Serial.readStringUntil('\r');	// Read from WebSocket Client until carriage return
 		// If a trigger was sent
+		Serial.println(data);
 		if (data.startsWith("T")) {
 			isTriggering = true;
       			Serial.println("High");		// For debugging
-
 			alert();
 		}
 	}
@@ -53,28 +48,24 @@ void loop() {
  */
 
 void alert() {
-
 	while(isTriggering) {
-		// If alert has been running for more than 10 seconds, stop.
-
+		// If alert has been running for more than 10 seconds, stop running.
 		if(((currentTime - globalTime) >= triggerTime)) {
-			digitalWrite(12, LOW);
-			
+			// Turn all LEDs off
 			for(int i = 0; i < pixels.numPixels(); i++) {
 				pixels.setPixelColor(i, pixels.Color(0, 0, 0));
 			}
 			pixels.show();
 
+			// Stop looping
 			isTriggering = false;
 			Serial.println("Low");	// For debugging
+			return;
 		}
-
 
 		currentTime = millis();
 
-		//Serial.println(currentTime);
-
-
+		// Speakers
 		if (currentTime - prevTimeTones > intervalTones) {
 			noTone(currentTonePin);
 
@@ -88,7 +79,6 @@ void alert() {
 				currentToneDuration = 200;
 			}
 
-			digitalWrite(12, HIGH);
 			tone(currentTonePin, currentToneFrequency, currentToneDuration);
 			prevTimeTones = currentTime;
 		}
