@@ -86,16 +86,18 @@ div.box p {
     margin-left: 10px;
 }
 
-div.circle {
-    width: 14px;
-    height: 14px;
-    background-color: v-bind('THEME.borderColor');
-    border-radius: 50%;
-    display: inline-block;
-}
+@media screen and (min-width: 3000px) {
+    div.incidents {
+        font-size: 40px;
+    }
 
-span.alert {
-    color: v-bind('THEME.borderColor');
+    div.rest {
+        font-size: 30px;
+    }
+
+    div.undetected {
+        font-size: 20px;
+    }
 }
 </style>
 

@@ -13,10 +13,12 @@ ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategorySc
 ChartJS.defaults.color = THEME.textColor;
 ChartJS.defaults.borderColor = '';
 ChartJS.defaults.font.family = "'SF Pro', 'Courier New', Courier, monospace";
+ChartJS.defaults.font.size = window.innerWidth > 3000 ? 20 : 10;
 
 const props = defineProps(['name', 'data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
 
+const borderWidth = computed(() => window.innerWidth > 3000 ? 6 : THEME.isMobile ? 1.5 : 3);
 
 const chartData = computed(() => {
     let res = {
@@ -26,7 +28,7 @@ const chartData = computed(() => {
                 backgroundColor: '#f87979',
                 pointBackgroundColor: 'white',
                 borderColor: props.options.color,
-                borderWidth: THEME.isMobile ? 1.5 : 3,
+                borderWidth: borderWidth.value,
                 radius: 0,
                 pointBorderColor: '#249EBF',
                 //Data to be represented on y-axis
@@ -40,7 +42,7 @@ const chartData = computed(() => {
             label: 'Threshold',
             backgroundColor: 'rgba(0, 0, 0, 0)',
             borderColor: '#ff0000',
-            borderWidth: 1,
+            borderWidth: borderWidth.value,
             borderDash: [5, 5],
             radius: 0,
             data: [{ x: 0, y: props.dataSource.baseline }, { x: 20, y: props.dataSource.baseline }],
@@ -125,7 +127,7 @@ const chartOptions = computed(() => ({
             text: props.options.title,
             display: true,
             font: {
-                size: 20,
+                size: window.innerWidth > 3000 ? 40 : 20,
                 weight: '',
             },
             color: THEME.textColor,

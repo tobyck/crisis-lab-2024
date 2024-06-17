@@ -29,7 +29,7 @@
                 </div>
                 <div class="chart-box">
                     <Chart name="pressure" :options="{
-                        y: 'Pressure (Pa)',
+                        y: 'Pressure (hPa)',
                         title: 'Sensor Pressure',
                         minY: 1018,
                         maxY: 1022,
@@ -51,7 +51,7 @@
             <Footer />
         </div>
     </div>
-    <Alert />
+    <AlertBackground />
 </template>
 
 <style scoped>
@@ -163,6 +163,21 @@ div.body {
     font-family: "SF Pro";
     src: url('SF-Pro.ttf');
 }
+
+/* massive screen / TV */
+@media screen and (min-width: 3000px) {
+    div.header {
+        height: 100px !important;
+    }
+
+    div.footer {
+        height: 40px !important;
+    }
+
+    body {
+        font-size: 40px !important;
+    }
+}
 </style>
 
 <script setup>
@@ -170,7 +185,7 @@ import Header from './components/Header.vue';
 import Chart from './components/Chart.vue';
 import Footer from './components/Footer.vue';
 import Logs from './components/Logs.vue';
-import Alert from './components/Alert.vue';
+import AlertBackground from './components/AlertBackground.vue';
 import AlertDisplay from './components/AlertDisplay.vue';
 import { THEME } from './theme';
 import { ref, computed } from 'vue';

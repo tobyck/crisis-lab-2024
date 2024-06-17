@@ -31,4 +31,10 @@ span.container {
     margin-right: 20px;
     font-weight: 700;
 }
+
+@media screen and (min-width: 3000px) {
+    span.container {
+        font-size: 20px;
+    }
+}
 </style>
