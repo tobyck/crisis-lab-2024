@@ -1,5 +1,6 @@
 package com.example.crisislab
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import java.time.LocalTime
@@ -14,6 +15,7 @@ class LogViewModel: ViewModel()
     }
 
     fun addLogItem(newLog: LogItem){
+        Log.d("awdou", "what the fuck");
         val list = logItems.value
         list!!.add(newLog)
         logItems.postValue(list)
@@ -28,9 +30,10 @@ class LogViewModel: ViewModel()
     }
 
     companion object {
-        var logItems = MutableLiveData<MutableList<LogItem>?>()
+        var logItems = MutableLiveData<MutableList<LogItem>?>();
 
         fun addLogItem(newLog: LogItem) {
+            Log.d("awdou", "what the fuck");
             val list = logItems.value
             list!!.add(newLog)
             logItems.postValue(list)

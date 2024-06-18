@@ -1,12 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    kotlin("plugin.serialization") version "1.7.0"
     id ("kotlin-kapt")
 }
 
 android {
     namespace = "com.example.crisislab"
     compileSdk = 34
+
 
 
     defaultConfig {
@@ -57,6 +59,7 @@ android {
 
 dependencies {
 
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
     implementation(libs.androidx.appcompat)
     implementation ("com.squareup.okhttp3:okhttp:4.2.1")
     val ktorVersion = "2.3.11"

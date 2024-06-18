@@ -5,40 +5,59 @@ import android.widget.Toast
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import org.json.JSONObject
-import java.util.ArrayList
-import java.util.HashMap
+
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 import com.example.crisislab.databinding.ActivityMainBinding
 import com.example.crisislab.LogViewModel
+import org.json.JSONObject
+import java.sql.Timestamp
 
+//@Serializable
+//data class DataPacket(
+//    val pressure: Int,
+//    val height: Int,
+//    val waveform: String,
+//    val timestamp: String
+//)
 
 class WebSocketListener : WebSocketListener() {
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        webSocket.send("Hello World!")
-        Log.e("burak","baglandi")
+        Log.d("test", "Connected")
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
-        output("Received : $text")
+        //Log.d("test", "Received : $text")
         val packetList = ArrayList<HashMap<String, String?>>()
         val jObj = JSONObject(text)
-        val jsonArry = jObj.getJSONArray("users")
-        for (i in 0 until jsonArry.length()) {
+        if (jObj.names()[0] == "previous_data") {
+            // TODO: Handle previous data
+            return;
+        }
+        //val jsonArry = jObj.getJSONArray(text)
+        //Log.d("ugaw", jObj.toString());
+        for (i in 0 until jObj.length()) {
             val packet = HashMap<String, String?>()
-            val obj = jsonArry.getJSONObject(i)
-            packet["height"] = obj.getString("height")
-            packet["time"] = obj.getString("time")
-            packet["trigger_alert"] = obj.getString("trigger_alert")
-            if(packet["trigger_alert"] == "true") {
-                val newLog = packet["height"]?.let { LogItem(it, packet["time"]) }
+            //Log.d("auw", jObj.toString());
+            //val obj = jObj.getJSONObject(i)
+            Log.d("awdku", jObj.toString());
+            packet["pressure"] = jObj.optString("pressure")
+            packet["height"] = jObj.optString("height")
+            packet["timestamp"] = jObj.optString("timestamp")
+            //packet["previous_data"]  = jObj.optJSONArray("previous_data")?.toString()
+            if (packet["pressure"] == "" && packet["height"] != "") {
+                Log.d("meow", "ajd");
+                val newLog = packet["height"]?.let { LogItem(it, packet["timestamp"]) }
                 if (newLog != null) {
+                    Log.d("hi", "not null")
                     LogViewModel.addLogItem(newLog)
+                    Log.d("hi", "after not null")
+                    return;
                 }
             }
             packetList.add(packet)
         }
     }
-
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         webSocket.close(NORMAL_CLOSURE_STATUS, null)
@@ -47,7 +66,7 @@ class WebSocketListener : WebSocketListener() {
 
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        output("Error : " + t.message+"fsda")
+        Log.e("WebSocket", "Error : " + t.message)
     }
 
     fun output(text: String?) {
