@@ -13,6 +13,8 @@ use tokio::sync::RwLock;
 use serde::Serialize;
 use log::debug;
 
+use crate::config::SENSOR_HEIGHT_FROM_FLOOR;
+
 #[derive(Debug)]
 pub struct Cache<T> {
     content: Vec<T>,
@@ -108,7 +110,6 @@ impl<T: Copy + Send> Cache<T> {
 pub struct DataPacket {
     pressure: f32,
     height: Option<f32>,
-    waveform: Option<f32>,
 
     #[serde(with = "serde_millis")]
     timestamp: Instant
@@ -119,7 +120,6 @@ impl DataPacket {
         Self {
             pressure,
             height: None,
-            waveform: None,
             timestamp: Instant::now()
         }
     }
@@ -169,7 +169,7 @@ pub fn height_from_pressure(pressure: f32, air_pressure: f32) -> f32 {
     // The formula is height (m) = change in pressure (Pa) / change in density (kg/m^3) / acceleration
     // due to gravity (m/s^2). But our input is in hPa, so multiply by 100 to get Pa, and output is in
     // metres, so we multiply by 100 again to get cm.
-    ((pressure - air_pressure) * 100.0) / (WATER_DENSITY - AIR_DENSITY) / GRAVITY * 100.0
+    ((pressure - air_pressure) * 100.0) / (WATER_DENSITY - AIR_DENSITY) / GRAVITY * 100.0 - SENSOR_HEIGHT_FROM_FLOOR
 }
 
 pub async fn process_data(
@@ -177,13 +177,11 @@ pub async fn process_data(
     air_pressure: f32,
     resting_water_level: f32,
 ) -> DataPacket {
-    let wave_height: f32 = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
-    let waveform: f32 = 0.0; // TODO: actually calculate this
+    let wave_height = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
 
     let data = DataPacket {
         pressure: water_pressure,
         height: Some(wave_height),
-        waveform: Some(waveform),
         timestamp: Instant::now()
     };
 

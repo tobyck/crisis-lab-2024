@@ -14,12 +14,12 @@ pub const CHANNEL_CAPACITY: usize = FREQUENCY * 10;
 // capacity of the cache of recent data that's sent to client when they first connect
 pub const CACHE_CAPACITY: usize = FREQUENCY * 20;
 
-// how many cm tall a wave needs to be to trigger an alert
-// TODO: make this easier to change
-pub const ALERT_THRESHOLD: f32 = 8.0;
-
 // seconds before another alert can be triggered
 pub const ALERT_COOLDOWN: Duration = Duration::from_secs(10);
+
+// the sensor has a metal weight attached to the bottom, so this value will be subtracted from
+// computed heights to account for that (in cm)
+pub const SENSOR_HEIGHT_FROM_FLOOR: f32 = 1.0; // TODO: Get an accurate measurement for this
 
 pub const MAX_SENSOR_DOWNTIME: Duration = Duration::from_secs(1);
 

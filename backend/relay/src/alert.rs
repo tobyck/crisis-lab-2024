@@ -3,7 +3,7 @@ use std::env;
 use serde_json::json;
 use log::{debug, error, info};
 
-use crate::{config::{ALERT_COOLDOWN, ALERT_THRESHOLD}, data::{Alert, SharedAlertsVec, SharedCache}};
+use crate::{config::ALERT_COOLDOWN, data::{Alert, SharedAlertsVec, SharedCache}};
 
 async fn social_alert(height: f32) {
     let password = env::var("ALERT_PASSWORD")
@@ -33,6 +33,7 @@ async fn social_alert(height: f32) {
 
 // this function assumes that the data packet containing the current wave height hasn't been cached
 pub async fn check_for_alert(
+    alert_threshold_cm: f32,
     cache: &SharedCache,
     alerts: &SharedAlertsVec
 ) -> Option<Alert> {
@@ -58,7 +59,7 @@ pub async fn check_for_alert(
             };
 
             let should_trigger_alert = 
-                previous_wave_height >= ALERT_THRESHOLD &&
+                previous_wave_height >= alert_threshold_cm &&
                 current_wave_height < previous_wave_height &&
                 cooldown_complete;
 

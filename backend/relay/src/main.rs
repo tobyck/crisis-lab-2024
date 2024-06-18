@@ -24,7 +24,7 @@ async fn main() {
 
     // initialise the client and subscribe to the topic that the senor will be publishing to
     let (client, event_loop) = mqtt::init_client("localhost");
-    client.subscribe("data", QoS::AtMostOnce).await.unwrap();
+    client.subscribe("data", QoS::ExactlyOnce).await.unwrap();
 
     // start listening for messages in a seperate task and return some other initalised
     // objects that the websocket connection handlers will need

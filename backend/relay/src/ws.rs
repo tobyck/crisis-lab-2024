@@ -15,6 +15,7 @@ use warp::{filters::ws::{Message, WebSocket}, reject::Rejection, reply::Reply, F
 
 use crate::data::{InitialDataPacket, SharedAlertsVec, SharedCache, SharedCalibrations};
 
+#[allow(unreachable_code)] // the last info! call will be reached when the client disconnects
 pub async fn handle_connection(
     websocket: WebSocket,
     mut broadcast_rx: Receiver<String>, // this is where the handler will receive messages
@@ -24,9 +25,9 @@ pub async fn handle_connection(
 ) {
     info!("Client connected to WebSocket");
 
-    let (mut websocket_tx, mut websocket_rx) = websocket.split();
-
     tokio::task::spawn(async move {
+        let (mut websocket_tx, mut websocket_rx) = websocket.split();
+
         // send initial previous data and alerts upon connection
         websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
             previous_data: cache.read().await.to_vec(),
