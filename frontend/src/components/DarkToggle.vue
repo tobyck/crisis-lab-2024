@@ -10,7 +10,9 @@
         </label>
     </span>
 </template>
+
 <style scoped>
+/* code stolen from w3schools who probably stole it from somewhere else */
 .switch {
     position: relative;
     display: inline-block;
@@ -21,7 +23,7 @@
 
 .box {
     float: right;
-    padding-right: 10px;
+    padding-right: calc(10px + 1vw);
     color: v-bind('THEME.textColor');
     line-height: 18px;
 }
@@ -76,7 +78,6 @@ input:checked+.slider:before {
     -ms-transform: translateX(12px);
     transform: translateX(12px);
     content: "☾";
-    /* I apologize for the hair space, but it's necessary */
 }
 
 /* Rounded sliders */

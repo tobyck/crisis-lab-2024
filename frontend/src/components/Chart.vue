@@ -1,12 +1,10 @@
 <template>
-    <!--<div>-->
     <Line v-if="dataSource.loaded" ref="chart" :id="name" :options="chartOptions" :data="chartData" />
-    <!--</div>-->
 </template>
 
 <script setup>
 import { Line } from 'vue-chartjs'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { THEME } from '@/theme';
 import { Chart as ChartJS, Title, Tooltip, Legend, LineController, LinearScale, CategoryScale, LineElement, PointElement } from 'chart.js'
 
@@ -14,14 +12,13 @@ ChartJS.register(Title, Tooltip, Legend, LineController, LinearScale, CategorySc
 
 ChartJS.defaults.color = THEME.textColor;
 ChartJS.defaults.borderColor = '';
-ChartJS.defaults.font.family = "'DejaVu Sans Mono', 'Courier New', Courier, monospace";
+ChartJS.defaults.font.family = "'SF Pro', 'Courier New', Courier, monospace";
 
 const props = defineProps(['name', 'data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
 
 
 const chartData = computed(() => ({
-    //labels: props.dataSource.timestamps,
     datasets: [
         {
             label: 'Data One',
@@ -36,6 +33,24 @@ const chartData = computed(() => ({
         }
     ]
 }))
+
+// because vue is stupid this is necessary
+let c = computed(() => props.dataSource.values);
+
+let minY = ref(null), maxY = ref(null);
+
+watch(c, (val) => {
+    if (minY.value == null) { // uninitialized
+        minY.value = Math.min(...val.map(v => v.y));
+        maxY.value = Math.max(...val.map(v => v.y));
+    } else {
+        let mostRecent = (val.at(-1) ?? val.findLastIndex(x => x)).y;
+        // I would use Math.min/max but it triggers a rescale constantly
+        if (mostRecent < minY.value) minY.value = mostRecent;
+        if (mostRecent > maxY.value) maxY.value = mostRecent;
+    }
+});
+
 const chartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
@@ -56,15 +71,16 @@ const chartOptions = computed(() => ({
                 color: THEME.textColor,
             },
             grid: {
-                color: '',
+                color: THEME.backgroundColor2,
             },
             border: {
                 color: THEME.textColor,
             }
         },
         y: {
-            min: props.options.minY,
-            max: props.options.maxY,
+            // this is a mess
+            min: Math.floor((minY.value - (maxY.value - minY.value) * 0.15) * 10) / 10,
+            max: Math.ceil((maxY.value + (maxY.value - minY.value) * 0.15) * 10) / 10,
             title: {
                 text: props.options.y,
                 display: true,
@@ -74,7 +90,7 @@ const chartOptions = computed(() => ({
                 color: THEME.textColor,
             },
             grid: {
-                color: '',
+                color: THEME.backgroundColor2,
             },
             border: {
                 color: THEME.textColor,
