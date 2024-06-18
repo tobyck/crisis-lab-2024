@@ -56,7 +56,6 @@
 
 .slider:before {
     position: absolute;
-    content: "";
     height: 12px;
     width: 12px;
     left: 2px;
@@ -91,6 +90,31 @@ input:checked+.slider:before {
 
 label {
     margin-top: 2px;
+}
+
+@media screen and (min-width: 3000px) {
+    .slider:before {
+        position: absolute;
+        height: 24px;
+        width: 24px;
+        left: 4px;
+        bottom: 4px;
+        line-height: 23.4px;
+        font-size: 20px;
+    }
+
+    .switch {
+        width: 60px;
+        height: 36px;
+    }
+
+    input:checked+.slider:before {
+        -webkit-transform: translateX(24px);
+        -ms-transform: translateX(24px);
+        transform: translateX(24px);
+        content: "☾";
+    }
+
 }
 </style>
 

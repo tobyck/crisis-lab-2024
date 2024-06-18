@@ -3,9 +3,10 @@
         <div class="header">
             <div class="incidents">Logs</div>
             <div class="status">
-                <StatusLight :status="serverOnline" name="Relay" />
-                <StatusLight :status="false" name="Sensor" />
-                <StatusLight :status="alertOnline" name="Alerts" />
+                <!-- don't question it -->
+                <StatusLight :status="{ q: online.server }" name="Relay" />
+                <StatusLight :status="{ q: online.sensor }" name="Sensor" />
+                <StatusLight :status="{ q: online.alert }" name="Alerts" />
             </div>
         </div>
         <div class="rest">
@@ -65,8 +66,6 @@ div.box {
     width: 100%;
 }
 
-
-
 div.incidents {
     font-size: 20px;
     text-align: center;
@@ -87,41 +86,23 @@ div.box p {
     margin-left: 10px;
 }
 
-div.circle {
-    width: 14px;
-    height: 14px;
-    background-color: v-bind('THEME.borderColor');
-    border-radius: 50%;
-    display: inline-block;
-}
+@media screen and (min-width: 3000px) {
+    div.incidents {
+        font-size: 40px;
+    }
 
-span.alert {
-    color: v-bind('THEME.borderColor');
+    div.rest {
+        font-size: 30px;
+    }
+
+    div.undetected {
+        font-size: 20px;
+    }
 }
 </style>
 
 <script setup>
-import { logs, packetData, loaded } from '../ws.js';
+import { logs, online } from '../ws.js';
 import { THEME } from '@/theme.js';
 import StatusLight from './StatusLight.vue';
-import { computed, ref } from 'vue';
-
-let currentTime = ref(Date.now());
-setInterval(() => {
-    currentTime.value = Date.now();
-}, 40);
-
-// this is a custom websocket for checking if alerts is online, pings once a second
-let ws = new WebSocket('wss://dashboard.alex-berry.net:8783/ws');
-
-let lastAlertMessage = ref(0);
-
-ws.onmessage = () => {
-    lastAlertMessage.value = Date.now();
-};
-
-let alertOnline = computed(() => currentTime.value - lastAlertMessage.value < 2000);
-
-
-const serverOnline = computed(() => loaded.value && currentTime.value - packetData.at(-1)?.timestamp < 2000);
 </script>
