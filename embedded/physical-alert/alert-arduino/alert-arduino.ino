@@ -11,9 +11,8 @@
  */
 
 void setup() {
-	// Servos are attached to pins 9 and 10
+	// Servos is attached to pin 9
 	servo1.attach(9);
-	servo2.attach(10);
 
 	// LED is pin 6
 	// Speakers are pins 3 and 4
@@ -93,7 +92,6 @@ void alert() {
 			}
 
 			servo1.write(pos);
-			servo2.write(180 - pos);
 		}
 
 		// Lights

@@ -10,7 +10,6 @@
 #include <Adafruit_TiCoServo.h>
 
 Adafruit_TiCoServo servo1;
-Adafruit_TiCoServo servo2;
 Adafruit_NeoPixel pixels(24, 6, NEO_GRB + NEO_KHZ800);
 
 float pos = 0;
