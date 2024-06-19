@@ -21,7 +21,5 @@ pub const ALERT_COOLDOWN: Duration = Duration::from_secs(10);
 // computed heights to account for that (in cm)
 pub const SENSOR_HEIGHT_FROM_FLOOR: f32 = 1.0; // TODO: Get an accurate measurement for this
 
+// maximmum time of no messages from sensor before the sensor's status becomes "offline"
 pub const MAX_SENSOR_DOWNTIME: Duration = Duration::from_secs(1);
-
-// file to write pressure data to (if log level is set high enough)
-pub const PRESSURE_LOG_FILE: &str = "./data.log";

@@ -8,9 +8,9 @@
 * WebSocket handlers.
 * */
 
-use std::{env, fs::File, io::Write, sync::Arc, time::Duration};
+use std::{env, sync::Arc, time::{Duration, Instant}};
 
-use log::{debug, error, info, log_enabled, warn};
+use log::{debug, info, warn, error};
 use rumqttc::{AsyncClient, Event, EventLoop, MqttOptions, Packet};
 use serde_json::json;
 use tokio::sync::{broadcast::{self, Sender}, RwLock};
@@ -18,7 +18,7 @@ use tokio::sync::{broadcast::{self, Sender}, RwLock};
 use crate::{
     alert::check_for_alert, config::{
         CACHE_CAPACITY, CHANNEL_CAPACITY, FREQUENCY,
-        MAX_SENSOR_DOWNTIME, MQTT_PORT, PRESSURE_LOG_FILE
+        MAX_SENSOR_DOWNTIME, MQTT_PORT
     },
     data::{
         height_from_pressure, process_data, Cache, Calibrations,
@@ -66,19 +66,6 @@ pub fn listen(mut event_loop: EventLoop) -> (
         .expect("Could parse ALERT_THRESHOLD_CM as an f32");
 
     tokio::task::spawn(async move {
-        // create a log file for logging data to if the highest level of logging is enabled
-        let mut data_log_file: Option<File> = if log_enabled!(log::Level::Trace) {
-            match File::create(PRESSURE_LOG_FILE) {
-                Ok(file) => Some(file),
-                Err(error) => {
-                    error!("Could not create log file for pressure values: {}", error);
-                    None
-                }
-            }
-        } else {
-            None
-        };
-        
         // the messages for calibration are "C AIR" and "C WATER"
         const CALIBRATION_MSG_PREFIX: &str = "C";
         const AIR: &str = "AIR";
@@ -90,6 +77,14 @@ pub fn listen(mut event_loop: EventLoop) -> (
         // how much recent data to use for calibration
         const CALIBRATION_SECONDS: usize = 3;
         const AMOUNT_OF_CALIBRATION_DATA: usize = FREQUENCY * CALIBRATION_SECONDS;
+
+        // this holds the time that the first calibration was done. this is used to ensure that
+        // when the second calibration is done the data is different to that used for the first
+        let mut air_calibration_timestamp: Option<Instant> = None;
+
+        // this is a very small dummy cache which is written to to try and make the delay
+        // measurements more accurate
+        let mut dummy_cache: Cache<DataPacket> = Cache::new(1);
 
         loop {
             match event_loop.poll().await {
@@ -116,25 +111,37 @@ pub fn listen(mut event_loop: EventLoop) -> (
 
                                     let cache_lock = cache.read().await;
                                     let recent_data = cache_lock.last_n(AMOUNT_OF_CALIBRATION_DATA);
+                                    let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
 
-                                    if let Some(data) = recent_data { // if there was enough data
-                                        let average_recent_pressure = data
+                                    if let Some(recent_data) = recent_data { // if there was enough data
+                                        let average_recent_pressure = recent_data
                                             .map(|data| data.get_pressure())
                                             .sum::<f32>() / AMOUNT_OF_CALIBRATION_DATA as f32;
 
                                         // calibrate depending on what the next part of the message is
                                         match split_message.next() {
                                             Some(AIR) => {
+                                                air_calibration_timestamp = Some(Instant::now());
                                                 calibrations_lock.air_pressure = Some(average_recent_pressure);
                                                 info!("Calibrated air pressure to {}", average_recent_pressure);
                                             },
                                             Some(WATER) => if let Some(air_pressure_value) = calibrations_lock.air_pressure {
-                                                calibrations_lock.resting_water_level = Some(height_from_pressure(
-                                                    average_recent_pressure,
-                                                    air_pressure_value
-                                                ));
+                                                // this checks that the data being used for water calibration does't 
+                                                // overlap with the data that was used for the air pressure calibration
+                                                if first_of_recent_data.is_some_and(
+                                                    // air calibration must be done first, so air_calibration_timestamp
+                                                    // must be Some at this point and .unwrap() is ok
+                                                    |data_packet| data_packet.get_timestamp() > air_calibration_timestamp.unwrap()
+                                                ) {
+                                                    calibrations_lock.resting_water_level = Some(height_from_pressure(
+                                                        average_recent_pressure,
+                                                        air_pressure_value
+                                                    ));
 
-                                                info!("Calibrated resting water level to {}", calibrations_lock.resting_water_level.unwrap());
+                                                    info!("Calibrated resting water level to {}", calibrations_lock.resting_water_level.unwrap());
+                                                } else {
+                                                    warn!("Not enough data for resting water level calibration");
+                                                }
                                             } else {
                                                 warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
                                             },
@@ -149,7 +156,8 @@ pub fn listen(mut event_loop: EventLoop) -> (
 
                                     if let Some(timestamp) = split_message.next() {
                                         // do some dummy computation
-                                        let _ = process_data(1020.0, 1000.0, 10.0);
+                                        let dummy_packet = process_data(1020.0, 1000.0, 10.0).await;
+                                        dummy_cache.write(dummy_packet);
                                         
                                         match timestamp.parse::<u64>() {
                                             Ok(timestamp) => {
@@ -196,15 +204,6 @@ pub fn listen(mut event_loop: EventLoop) -> (
                                     drop(calibrations_lock);
 
                                     cache.write().await.write(data);
-
-                                    if log_enabled!(log::Level::Trace) {
-                                        // log data to a file
-                                        if let Some(ref mut file) = data_log_file {
-                                            if let Err(error) = file.write(format!("{:?}\n", data).as_bytes()) {
-                                                warn!("Error writing data to log file: {}", error);
-                                            }
-                                        }
-                                    }
 
                                     // stringify data and send to websocket connection handlers which will forward it to clients
                                     if let Err(error) = broadcast_tx.send(serde_json::to_string(&data).unwrap()) {

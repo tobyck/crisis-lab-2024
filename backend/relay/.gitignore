@@ -1,3 +1,4 @@
 target
-tls
 *.log
+perf.*
+*.svg
