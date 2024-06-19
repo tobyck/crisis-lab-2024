@@ -12,16 +12,10 @@ import com.example.crisislab.databinding.ActivityMainBinding
 import com.example.crisislab.LogViewModel
 import org.json.JSONObject
 import java.sql.Timestamp
+import kotlin.math.round
 
-//@Serializable
-//data class DataPacket(
-//    val pressure: Int,
-//    val height: Int,
-//    val waveform: String,
-//    val timestamp: String
-//)
-
-class WebSocketListener : WebSocketListener() {
+class WebSocketListener(logViewModel: LogViewModel) : WebSocketListener() {
+    var logViewModel: LogViewModel = logViewModel;
     override fun onOpen(webSocket: WebSocket, response: Response) {
         Log.d("test", "Connected")
     }
@@ -34,21 +28,16 @@ class WebSocketListener : WebSocketListener() {
             // TODO: Handle previous data
             return;
         }
-        //val jsonArry = jObj.getJSONArray(text)
-        //Log.d("ugaw", jObj.toString());
         for (i in 0 until jObj.length()) {
             val packet = HashMap<String, String?>()
-            //Log.d("auw", jObj.toString());
-            //val obj = jObj.getJSONObject(i)
-            //Log.d("awdku", jObj.toString());
             packet["pressure"] = jObj.optString("pressure")
             packet["height"] = jObj.optString("height")
             packet["timestamp"] = jObj.optString("timestamp")
             //packet["previous_data"]  = jObj.optJSONArray("previous_data")?.toString()
             if (packet["pressure"] == "" && packet["height"] != "") {
-                val newLog = packet["height"]?.let { LogItem(it, packet["timestamp"]) }
+                val newLog = packet["height"]?.let { LogItem(round((it.toFloat()*10)/10).toString()+" cm", packet["timestamp"]) }
                 if (newLog != null) {
-                    LogViewModel.addLogItem(newLog)
+                    logViewModel.addLogItem(newLog)
                     return;
                 }
             }

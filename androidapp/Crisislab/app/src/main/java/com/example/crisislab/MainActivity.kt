@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val client: OkHttpClient =  OkHttpClient()
+        logViewModel = ViewModelProvider(this).get(LogViewModel::class.java)
 
         binding.connect.setOnClickListener {
             Log.d("PieSocket","Connecting");
@@ -32,10 +33,9 @@ class MainActivity : ComponentActivity() {
                 .Builder()
                 .url("ws://dashboard.alex-berry.net:8080")
                 .build()
-            val listener = WebSocketListener()
+            val listener = WebSocketListener(logViewModel);
             val ws: WebSocket = client.newWebSocket(request, listener)
         }
-        logViewModel = ViewModelProvider(this).get(LogViewModel::class.java)
         setRecylerView()
     }
 
