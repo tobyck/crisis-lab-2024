@@ -31,7 +31,6 @@ const chartData = computed(() => {
                 borderWidth: borderWidth.value,
                 radius: 0,
                 pointBorderColor: '#249EBF',
-                //Data to be represented on y-axis
                 data: props.dataSource.values,
             },
         ]
@@ -51,13 +50,14 @@ const chartData = computed(() => {
     return res;
 });
 
-// because vue is stupid this is necessary
+// The y-axis is bounded by the lowest and highest values in the data. Because vue and passing computed values are weird,
+// we have to create another computed value and watch it
 let c = computed(() => props.dataSource.values);
 
 let minY = ref(null), maxY = ref(null);
 
 watch(c, (val) => {
-    if (minY.value == null) { // uninitialized
+    if (minY.value == null) {
         minY.value = Math.min(...val.map(v => v.y));
         maxY.value = Math.max(...val.map(v => v.y));
     } else {

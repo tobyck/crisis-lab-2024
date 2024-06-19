@@ -35,7 +35,7 @@ export const THEME = reactive({
     toggleDark: () => {
         localStorage.setItem('dark', THEME.dark = !THEME.dark);
     },
-    isMobile: computed(() => window.innerWidth < 900), // TODO: user agent
+    isMobile: computed(() => window.innerWidth < 900), // TODO: stronger check
     alertActive: false,
 });
 

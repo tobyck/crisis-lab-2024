@@ -9,9 +9,7 @@ export const loaded = ref(false);
 
 export let calibrations = {};
 
-let LOCAL = false;
-
-let lastSensorMessage = ref(0), lastRelayMessage = ref(0);
+let LOCAL = true;
 
 export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'wss://dashboard.alex-berry.net:8443');
@@ -58,6 +56,7 @@ let stringifyIncident = ({ timestamp, height }) => `${Intl.DateTimeFormat('en-GB
     }
     ${height.toFixed(2)}cm tsunami detected`;
 
+// basically updating the online status every 40ms, because reactivity's weird
 let currentTime = ref(Date.now());
 setInterval(() => {
     currentTime.value = Date.now();
@@ -66,7 +65,7 @@ setInterval(() => {
 // this is a custom websocket for checking if alerts is online, pings once a second
 let ws = new WebSocket('wss://dashboard.alex-berry.net:8783/ws');
 
-let lastAlertMessage = ref(0);
+let lastAlertMessage = ref(0), lastSensorMessage = ref(0), lastRelayMessage = ref(0);;
 
 ws.onmessage = () => {
     lastAlertMessage.value = Date.now();
