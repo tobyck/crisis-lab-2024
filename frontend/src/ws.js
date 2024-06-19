@@ -9,7 +9,7 @@ export const loaded = ref(false);
 
 export let calibrations = {};
 
-let LOCAL = true;
+let LOCAL = false;
 
 export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'wss://dashboard.alex-berry.net:8443');
