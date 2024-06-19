@@ -34,14 +34,16 @@ export async function initWebsocket() {
 
             lastSensorMessage.value = Date.now();
         } else if (data.sensor_offline) {
-
-        } else { // alert packet
+            // don't need to do anything, just update the last message time
+        } else if (data.height) { // alert packet
             logs.unshift(stringifyIncident(data));
 
             THEME.alertActive = true;
             setTimeout(() => {
                 THEME.alertActive = false;
             }, 10000);
+        } else if (data.test_timestamp) { // for testing purposes, probably does nothing
+            console.info('Timestamp', Date.now() - data.test_timestamp, 'ms')
         }
     })
 }
