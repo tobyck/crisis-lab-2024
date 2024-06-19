@@ -1,4 +1,4 @@
-const { Events } = require('discord.js');
+import { Events } from "discord.js";
 
 export const postDiscord = async(client, message) => {
     client.once(Events.ClientReady, readyClient => {
