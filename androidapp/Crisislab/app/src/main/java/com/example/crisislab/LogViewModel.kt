@@ -18,7 +18,7 @@ class LogViewModel: ViewModel()
         Log.d("awdou", "what the fuck");
         val list = logItems.value
         list!!.add(newLog)
-        logItems.postValue(list)
+        logItems!!.postValue(list)
     }
 
     fun updateLogItem(id: UUID, height: String, time: String){
@@ -26,17 +26,25 @@ class LogViewModel: ViewModel()
         val log = list!!.find { it.id == id }!!
         log.height = height
         log.time = time
-        logItems.postValue(list)
+        logItems!!.postValue(list)
     }
 
     companion object {
-        var logItems = MutableLiveData<MutableList<LogItem>?>();
+        var logItems = MutableLiveData<MutableList<LogItem>>(ArrayList());
 
         fun addLogItem(newLog: LogItem) {
-            Log.d("awdou", "what the fuck");
+            val list = logItems.value;
+            list?.add(newLog);
+            logItems!!.postValue(list)
+            Log.d("newLogVal", logItems.value!!.elementAt(0).height);
+        }
+
+        fun updateLogItem(id: UUID, height: String, time: String){
             val list = logItems.value
-            list!!.add(newLog)
-            logItems.postValue(list)
+            val log = list!!.find { it.id == id }!!
+            log.height = height
+            log.time = time
+            logItems!!.postValue(list)
         }
     }
 

@@ -40,18 +40,15 @@ class WebSocketListener : WebSocketListener() {
             val packet = HashMap<String, String?>()
             //Log.d("auw", jObj.toString());
             //val obj = jObj.getJSONObject(i)
-            Log.d("awdku", jObj.toString());
+            //Log.d("awdku", jObj.toString());
             packet["pressure"] = jObj.optString("pressure")
             packet["height"] = jObj.optString("height")
             packet["timestamp"] = jObj.optString("timestamp")
             //packet["previous_data"]  = jObj.optJSONArray("previous_data")?.toString()
             if (packet["pressure"] == "" && packet["height"] != "") {
-                Log.d("meow", "ajd");
                 val newLog = packet["height"]?.let { LogItem(it, packet["timestamp"]) }
                 if (newLog != null) {
-                    Log.d("hi", "not null")
                     LogViewModel.addLogItem(newLog)
-                    Log.d("hi", "after not null")
                     return;
                 }
             }
