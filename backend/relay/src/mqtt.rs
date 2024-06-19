@@ -2,7 +2,7 @@
 * Author: Toby Connor-Kebbell
 * Date: May 2024
 *
-* This file handles everything MQTT related -- intialising the client with the
+* This file handles everything MQTT related -- initialising the client with the
 * appropriate options, polling the event loop for messages, passing the message
 * to the function in data.rs to process the data, and sending it to the
 * WebSocket handlers.
@@ -82,14 +82,12 @@ pub fn listen(mut event_loop: EventLoop) -> (
         // when the second calibration is done the data is different to that used for the first
         let mut air_calibration_timestamp: Option<Instant> = None;
 
-        // this is a very small dummy cache which is written to to try and make the delay
-        // measurements more accurate
-        let mut dummy_cache: Cache<DataPacket> = Cache::new(1);
-
         loop {
             match event_loop.poll().await {
                 Ok(event) => {
-                    if let Event::Incoming(Packet::Publish(packet)) = event { // if the event was a message
+                    // mqtt sends many different types of packets, so this guard makes sure that
+                    // we're getting an actual message from the sensor
+                    if let Event::Incoming(Packet::Publish(packet)) = event {
                         let message: String = match String::from_utf8(packet.payload.to_vec()) {
                             Ok(string) => string,
                             Err(error) => {
@@ -104,121 +102,122 @@ pub fn listen(mut event_loop: EventLoop) -> (
                         let mut split_message = message.split(" ");
                         let first_word = split_message.next();
 
-                        if let Some(first_word) = first_word {
-                            match first_word {
-                                CALIBRATION_MSG_PREFIX => {
-                                    debug!("Received calibration message");
+                        if first_word.is_none() {
+                            warn!("Got empty message. Doing nothing");
+                        }
 
-                                    let cache_lock = cache.read().await;
-                                    let recent_data = cache_lock.last_n(AMOUNT_OF_CALIBRATION_DATA);
-                                    let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
+                        match first_word.unwrap() {
+                            CALIBRATION_MSG_PREFIX => {
+                                debug!("Received calibration message");
 
-                                    if let Some(recent_data) = recent_data { // if there was enough data
-                                        let average_recent_pressure = recent_data
-                                            .map(|data| data.get_pressure())
-                                            .sum::<f32>() / AMOUNT_OF_CALIBRATION_DATA as f32;
+                                let cache_lock = cache.read().await;
+                                let recent_data = cache_lock.last_n(AMOUNT_OF_CALIBRATION_DATA);
+                                let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
 
-                                        // calibrate depending on what the next part of the message is
-                                        match split_message.next() {
-                                            Some(AIR) => {
-                                                air_calibration_timestamp = Some(Instant::now());
-                                                calibrations_lock.air_pressure = Some(average_recent_pressure);
-                                                info!("Calibrated air pressure to {}", average_recent_pressure);
-                                            },
-                                            Some(WATER) => if let Some(air_pressure_value) = calibrations_lock.air_pressure {
-                                                // this checks that the data being used for water calibration does't 
-                                                // overlap with the data that was used for the air pressure calibration
-                                                if first_of_recent_data.is_some_and(
-                                                    // air calibration must be done first, so air_calibration_timestamp
-                                                    // must be Some at this point and .unwrap() is ok
-                                                    |data_packet| data_packet.get_timestamp() > air_calibration_timestamp.unwrap()
-                                                ) {
-                                                    calibrations_lock.resting_water_level = Some(height_from_pressure(
-                                                        average_recent_pressure,
-                                                        air_pressure_value
-                                                    ));
+                                if recent_data.is_none() {
+                                    warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
+                                }
 
-                                                    info!("Calibrated resting water level to {}", calibrations_lock.resting_water_level.unwrap());
-                                                } else {
-                                                    warn!("Not enough data for resting water level calibration");
-                                                }
-                                            } else {
-                                                warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
-                                            },
-                                            _ => warn!("A calibration message was sent, but neither \"{}\" or \"{}\" was specified", AIR, WATER)
+                                let average_recent_pressure = recent_data
+                                    .unwrap()
+                                    .map(|data| data.get_pressure())
+                                    .sum::<f32>() / AMOUNT_OF_CALIBRATION_DATA as f32;
+
+                                // calibrate depending on what the next part of the message is
+                                match split_message.next() {
+                                    Some(AIR) => {
+                                        air_calibration_timestamp = Some(Instant::now());
+                                        calibrations_lock.air_pressure = Some(average_recent_pressure);
+                                        info!("Calibrated air pressure to {}", average_recent_pressure);
+                                    },
+                                    Some(WATER) => if let Some(air_pressure_value) = calibrations_lock.air_pressure {
+                                        // this checks that the data being used for water calibration doesn't 
+                                        // overlap with the data that was used for the air pressure calibration
+                                        if first_of_recent_data.is_some_and(
+                                            // air calibration must be done first, so air_calibration_timestamp
+                                            // must be Some at this point and .unwrap() is ok
+                                            |data_packet| data_packet.get_timestamp() > air_calibration_timestamp.unwrap()
+                                        ) {
+                                            calibrations_lock.resting_water_level = Some(height_from_pressure(
+                                                average_recent_pressure,
+                                                air_pressure_value
+                                            ));
+
+                                            info!("Calibrated resting water level to {}", calibrations_lock.resting_water_level.unwrap());
+                                        } else {
+                                            warn!("Not enough data for resting water level calibration");
                                         }
                                     } else {
-                                        warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
+                                        warn!("Tried to calibrate resting water level but air pressure hasn't been calibrated yet");
+                                    },
+                                    _ => warn!("A calibration message was sent, but neither \"{}\" or \"{}\" was specified", AIR, WATER)
+                                }
+                            },
+                            TIMESTAMP_MSG_PREFIX => {
+                                info!("Got timestamp message");
+
+                                if let Some(timestamp) = split_message.next() {
+                                    match timestamp.parse::<u64>() {
+                                        Ok(timestamp) => {
+                                            // we decided not to put any dummy data processing here
+                                            // because the time it takes is negligible
+
+                                            let message = json!({
+                                                "test_timestamp": timestamp
+                                            }).to_string();
+
+                                            // send the timestamp to the frontend which can work out
+                                            // how much time has passed since the initial message was sent
+                                            if let Err(error) = broadcast_tx.send(message) {
+                                                warn!("Could not broadcast timestamp to WebSocket connection handlers: {}", error);
+                                            }
+                                        },
+                                        Err(error) => warn!("Error parsing timestamp: {}", error)
                                     }
-                                },
-                                TIMESTAMP_MSG_PREFIX => {
-                                    info!("Got timestamp message");
-
-                                    if let Some(timestamp) = split_message.next() {
-                                        // do some dummy computation
-                                        let dummy_packet = process_data(1020.0, 1000.0, 10.0).await;
-                                        dummy_cache.write(dummy_packet);
-                                        
-                                        match timestamp.parse::<u64>() {
-                                            Ok(timestamp) => {
-                                                let message = json!({
-                                                    "test_timestamp": timestamp
-                                                }).to_string();
-
-                                                // send the timestamp to the frontend which can work out
-                                                // how much time has passed since the initial message was sent
-                                                if let Err(error) = broadcast_tx.send(message) {
-                                                    warn!("Could not broadcast timestamp to WebSocket connection handlers: {}", error);
-                                                }
-                                            },
-                                            Err(error) => warn!("Error parsing timestamp: {}", error)
-                                        }
+                                }
+                            },
+                            // if the message wasn't anything special then treat it as a
+                            // pressure value
+                            _ => {
+                                let pressure: f32 = match message.parse() {
+                                    Ok(pressure) => pressure,
+                                    Err(error) => {
+                                        warn!("Cound not parse pressure as an f32: {}", error);
+                                        continue;
                                     }
-                                },
-                                // if the message wasn't anything special then treat it as a
-                                // pressure value
-                                _ => {
-                                    let pressure: f32 = match message.parse() {
-                                        Ok(pressure) => pressure,
-                                        Err(error) => {
-                                            warn!("Cound not parse pressure as an f32: {}", error);
-                                            continue;
-                                        }
-                                    };
+                                };
 
-                                    let data = if
-                                        calibrations_lock.air_pressure.is_some() &&
-                                        calibrations_lock.resting_water_level.is_some()
-                                    {
-                                        // if calibration has been done then process data
-                                        process_data(
-                                            pressure,
-                                            calibrations_lock.air_pressure.unwrap(),
-                                            calibrations_lock.resting_water_level.unwrap()
-                                        ).await
-                                    } else {
-                                        // otherwise create an unprocessed data packet
-                                        DataPacket::unprocessed(pressure)
-                                    };
+                                let calibrations_complete = calibrations_lock.air_pressure.is_some() && calibrations_lock.resting_water_level.is_some();
 
-                                    drop(calibrations_lock);
+                                let data = if calibrations_complete {
+                                    process_data(
+                                        pressure,
+                                        calibrations_lock.air_pressure.unwrap(),
+                                        calibrations_lock.resting_water_level.unwrap()
+                                    ).await
+                                } else {
+                                    DataPacket::unprocessed(pressure)
+                                };
 
-                                    cache.write().await.write(data);
+                                // if we don't drop this write lock now, then the code in the
+                                // websocket connection handlers (which will be invoked very soon
+                                // by messages on the broadcast channel) won't be able to obtain
+                                // read locks on the calibrations and the RwLock will be deadlocked
+                                drop(calibrations_lock);
 
-                                    // stringify data and send to websocket connection handlers which will forward it to clients
-                                    if let Err(error) = broadcast_tx.send(serde_json::to_string(&data).unwrap()) {
-                                        warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
-                                    }
+                                cache.write().await.write(data);
 
-                                    if let Some(alert) = check_for_alert(alert_threshold_cm, &cache, &alerts).await {
-                                        if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
-                                            warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
-                                        }
+                                // stringify data and send to websocket connection handlers which will forward it to clients
+                                if let Err(error) = broadcast_tx.send(serde_json::to_string(&data).unwrap()) {
+                                    warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
+                                }
+
+                                if let Some(alert) = check_for_alert(alert_threshold_cm, &cache, &alerts).await {
+                                    if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
+                                        warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
                                     }
                                 }
                             }
-                        } else {
-                            debug!("Got empty message. Doing nothing");
                         }
                     }
                 }
@@ -236,9 +235,9 @@ pub fn listen(mut event_loop: EventLoop) -> (
     // spawn a task which periodically checks if the sensor is online
     tokio::task::spawn(async move {
         loop {
-            if let Some(previous_data) = cache.read().await.last() { // get last data packet
+            if let Some(previous_data_packet) = cache.read().await.last() {
                 // if the last message was long enough ago
-                if previous_data.get_timestamp().elapsed() > MAX_SENSOR_DOWNTIME {
+                if previous_data_packet.get_timestamp().elapsed() > MAX_SENSOR_DOWNTIME {
                     // notify that the sensor has been offline for longer than expected
                     let message = serde_json::to_string(&json!({ "sensor_offline": true })).unwrap();
                     if let Err(error) = broadcast_tx.send(message) {

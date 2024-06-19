@@ -3,8 +3,8 @@
 * Date: May 2024
 *
 * This file is responsible for receiving data packets on the broadcast channel
-* and realying it to clients over WebSockets. It also sends previous data from
-* the cache and all the previous alerts that have occured since the server has
+* and relying it to clients over WebSockets. It also sends previous data from
+* the cache and all the previous alerts that have occurred since the server has
 * been up when a new client connects.
 * */
 
@@ -15,7 +15,6 @@ use warp::{filters::ws::{Message, WebSocket}, reject::Rejection, reply::Reply, F
 
 use crate::data::{InitialDataPacket, SharedAlertsVec, SharedCache, SharedCalibrations};
 
-#[allow(unreachable_code)] // the last info! call will be reached when the client disconnects
 pub async fn handle_connection(
     websocket: WebSocket,
     mut broadcast_rx: Receiver<String>, // this is where the handler will receive messages
@@ -43,9 +42,10 @@ pub async fn handle_connection(
                 // if the client sends an empty message then it's disconnected; end the loop
                 msg = websocket_rx.next() => {
                     if msg.is_none() {
+                        info!("Client disconnected from WebSocket");
                         break;
                     }
-                }
+                },
                 // if we receive a message from the broadcast channel, send it to the client
                 data = broadcast_rx.recv() => {
                     debug!("Got message on broadcast channel");
@@ -61,8 +61,6 @@ pub async fn handle_connection(
                 }
             }
         }
-
-        info!("Client disconnected from WebSocket");
     });
 }
 
