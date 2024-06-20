@@ -13,6 +13,8 @@ use tokio::sync::RwLock;
 use serde::Serialize;
 use log::debug;
 
+use crate::config::SENSOR_HEIGHT_FROM_FLOOR;
+
 #[derive(Debug)]
 pub struct Cache<T> {
     content: Vec<T>,
@@ -36,7 +38,7 @@ impl<T: Copy + Send> Cache<T> {
         if self.content.len() < self.capacity {
             self.content.push(value);
         } else {
-            // otherwise we can overwrite whatever's there already
+            // otherwise we can overwrite whatever is there already
             self.content[self.next_index] = value;
         }
 
@@ -49,6 +51,10 @@ impl<T: Copy + Send> Cache<T> {
     }
 
     pub fn to_vec(&self) -> Vec<T> {
+        // because the ring buffer can start at any point in the vec, to convert it to a vec in the
+        // right order it needs to have two pieces stitched together. this joins from the start of
+        // the buffer to then end of the vec, and the beginning of the vec to right before the
+        // start.
         self.content[self.next_index..]
             .iter()
             .chain(self.content[..self.next_index].iter())
@@ -78,7 +84,6 @@ impl<T: Copy + Send> Cache<T> {
         Some(self.content[(self.next_index + index) % self.content.len()])
     }
 
-    // returns None if not enough data is in the cache
     pub fn last_n<'a>(&'a self, n: usize) -> Option<Box<dyn Iterator<Item = &'a T> + 'a>> {
         let length = self.content.len();
 
@@ -108,18 +113,17 @@ impl<T: Copy + Send> Cache<T> {
 pub struct DataPacket {
     pressure: f32,
     height: Option<f32>,
-    waveform: Option<f32>,
 
-    #[serde(with = "serde_millis")]
+    #[serde(with = "serde_millis")] // this is needed for the Instant to serialise with Serde
     timestamp: Instant
 }
 
 impl DataPacket {
+    // returns a data packet with no computed height, only raw pressure
     pub fn unprocessed(pressure: f32) -> Self {
         Self {
             pressure,
             height: None,
-            waveform: None,
             timestamp: Instant::now()
         }
     }
@@ -152,7 +156,7 @@ pub struct Calibrations {
 
 pub type SharedCalibrations = Arc<RwLock<Calibrations>>;
 
-// this is the data send when a client connects for the first time
+// this is the data sent when a client connects for the first time
 #[derive(Serialize)]
 pub struct InitialDataPacket {
     pub previous_data: Vec<DataPacket>,
@@ -169,7 +173,7 @@ pub fn height_from_pressure(pressure: f32, air_pressure: f32) -> f32 {
     // The formula is height (m) = change in pressure (Pa) / change in density (kg/m^3) / acceleration
     // due to gravity (m/s^2). But our input is in hPa, so multiply by 100 to get Pa, and output is in
     // metres, so we multiply by 100 again to get cm.
-    ((pressure - air_pressure) * 100.0) / (WATER_DENSITY - AIR_DENSITY) / GRAVITY * 100.0
+    ((pressure - air_pressure) * 100.0) / (WATER_DENSITY - AIR_DENSITY) / GRAVITY * 100.0 + SENSOR_HEIGHT_FROM_FLOOR
 }
 
 pub async fn process_data(
@@ -177,13 +181,11 @@ pub async fn process_data(
     air_pressure: f32,
     resting_water_level: f32,
 ) -> DataPacket {
-    let wave_height: f32 = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
-    let waveform: f32 = 0.0; // TODO: actually calculate this
+    let wave_height = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
 
     let data = DataPacket {
         pressure: water_pressure,
         height: Some(wave_height),
-        waveform: Some(waveform),
         timestamp: Instant::now()
     };
 

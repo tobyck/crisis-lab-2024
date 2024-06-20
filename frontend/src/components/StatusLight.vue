@@ -2,7 +2,7 @@
 <template>
     <span class="container">
         {{ props.name }}
-        <span v-if="status" class="light-on">
+        <span v-if="status.q.value" class="light-on">
             online
         </span>
         <span v-else class="light-off">
@@ -30,5 +30,11 @@ span.container {
     font-size: 10px;
     margin-right: 20px;
     font-weight: 700;
+}
+
+@media screen and (min-width: 3000px) {
+    span.container {
+        font-size: 20px;
+    }
 }
 </style>

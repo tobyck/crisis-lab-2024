@@ -74,3 +74,4 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
 5. Change `ser` to whichever port you are using to communicate with the Arduino, and change the WebSocket IP adress and port, in `Communicator.py`
 
 6. Run `./Communicator.py` using python, this will not work without an internet connection.
+

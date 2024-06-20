@@ -6,11 +6,11 @@
             <Header />
         </div>
         <div class="main">
-            <div class="alert-container" v-if="THEME.alertActive && THEME.isMobile">
+            <div class="alert-container" v-if="THEME.isMobile">
                 <AlertDisplay />
             </div>
             <div class="log-box">
-                <div class="alert-container" v-if="THEME.alertActive && !THEME.isMobile">
+                <div class="alert-container" v-if="!THEME.isMobile">
                     <AlertDisplay />
                 </div>
                 <div class="log-container">
@@ -29,21 +29,12 @@
                 </div>
                 <div class="chart-box">
                     <Chart name="pressure" :options="{
-                        y: 'Pressure (Pa)',
+                        y: 'Pressure (hPa)',
                         title: 'Sensor Pressure',
                         minY: 1018,
                         maxY: 1022,
                         color: THEME.graphColor2
                     }" :data-source="pressure" />
-                </div>
-                <div class="live-view chart-box">
-                    <Chart name="live-view" :options="{
-                        y: 'Wave height (cm)',
-                        title: 'Live View',
-                        minY: 1018,
-                        maxY: 1022,
-                        color: THEME.graphColor2
-                    }" :data-source="height" />
                 </div>
             </div>
         </div>
@@ -51,7 +42,7 @@
             <Footer />
         </div>
     </div>
-    <Alert />
+    <AlertBackground />
 </template>
 
 <style scoped>
@@ -85,8 +76,7 @@ div.footer {
 }
 
 div.log-box {
-    flex: 2 2;
-    flex-basis: 0;
+    flex: 2 2 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -94,7 +84,10 @@ div.log-box {
 }
 
 div.log-container {
-    flex: 1 1;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
 }
 
 div.alert-container {
@@ -112,9 +105,8 @@ div.chart-container {
 }
 
 div.chart-box {
-    flex: 1 1;
+    flex: 1 1 0;
     background-color: v-bind('THEME.backgroundColor');
-    /*margin: 0.5vw 1vw 0.5vw 0.5vw;*/
     padding: 0vw 0.5vw 0.5vw 0.5vw;
     border-radius: 1vw;
 }
@@ -132,13 +124,11 @@ div.chart-box {
     }
 
     div.chart-container {
-        flex: 2 2;
-        flex-basis: 0;
+        flex: 2 2 0;
     }
 
     div.log-box {
-        flex: 1 1;
-        flex-basis: 0;
+        flex: 1 1 0;
         order: 2;
     }
 }
@@ -159,9 +149,32 @@ div.body {
     user-select: none;
 }
 
+
 @font-face {
     font-family: "SF Pro";
-    src: url('SF-Pro.ttf');
+    font-weight: 400;
+    src: url('small-sf-pro.woff2');
+}
+
+@font-face {
+    font-family: "SF Pro";
+    font-weight: 700;
+    src: url('small-sf-bold.otf');
+}
+
+/* massive screen / TV */
+@media screen and (min-width: 3000px) {
+    div.header {
+        height: 100px !important;
+    }
+
+    div.footer {
+        height: 40px !important;
+    }
+
+    body {
+        font-size: 40px !important;
+    }
 }
 </style>
 
@@ -170,18 +183,18 @@ import Header from './components/Header.vue';
 import Chart from './components/Chart.vue';
 import Footer from './components/Footer.vue';
 import Logs from './components/Logs.vue';
-import Alert from './components/Alert.vue';
+import AlertBackground from './components/AlertBackground.vue';
 import AlertDisplay from './components/AlertDisplay.vue';
 import { THEME } from './theme';
 import { ref, computed } from 'vue';
-import { packetData, initWebsocket, loaded } from './ws.js';
+import { packetData, initWebsocket, loaded, calibrations } from './ws.js';
 
 initWebsocket();
 
 const filteredData = computed(() => packetData.filter(t => t != null)
-    .filter(
+    .filter( // remove 2/3 of points on mobile
         ({ timestamp }) => THEME.isMobile ? (timestamp * 25) % 3 < 1 : 1
-    ) // remove every other point on mobile
+    )
     .map(({ pressure, height, timestamp }) => ({
         pressure, height, timestamp: 20 - (Date.now() - timestamp) / 1000
     }))
@@ -201,6 +214,7 @@ const height = computed(() => ({
         x: timestamp,
         y: height
     })),
-    loaded: loaded.value
+    loaded: loaded.value,
+    baseline: calibrations?.resting_water_level
 }))
 </script>

@@ -3,8 +3,8 @@
 * Date: May 2024
 *
 * This file is responsible for receiving data packets on the broadcast channel
-* and realying it to clients over WebSockets. It also sends previous data from
-* the cache and all the previous alerts that have occured since the server has
+* and relying it to clients over WebSockets. It also sends previous data from
+* the cache and all the previous alerts that have occurred since the server has
 * been up when a new client connects.
 * */
 
@@ -24,9 +24,9 @@ pub async fn handle_connection(
 ) {
     info!("Client connected to WebSocket");
 
-    let (mut websocket_tx, mut websocket_rx) = websocket.split();
-
     tokio::task::spawn(async move {
+        let (mut websocket_tx, mut websocket_rx) = websocket.split();
+
         // send initial previous data and alerts upon connection
         websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
             previous_data: cache.read().await.to_vec(),
@@ -42,9 +42,10 @@ pub async fn handle_connection(
                 // if the client sends an empty message then it's disconnected; end the loop
                 msg = websocket_rx.next() => {
                     if msg.is_none() {
+                        info!("Client disconnected from WebSocket");
                         break;
                     }
-                }
+                },
                 // if we receive a message from the broadcast channel, send it to the client
                 data = broadcast_rx.recv() => {
                     debug!("Got message on broadcast channel");
@@ -60,8 +61,6 @@ pub async fn handle_connection(
                 }
             }
         }
-
-        info!("Client disconnected from WebSocket");
     });
 }
 

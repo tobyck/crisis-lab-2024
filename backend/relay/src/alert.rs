@@ -3,7 +3,7 @@ use std::env;
 use serde_json::json;
 use log::{debug, error, info};
 
-use crate::{config::{ALERT_COOLDOWN, ALERT_THRESHOLD}, data::{Alert, SharedAlertsVec, SharedCache}};
+use crate::{config::ALERT_COOLDOWN, data::{Alert, SharedAlertsVec, SharedCache}};
 
 async fn social_alert(height: f32) {
     let password = env::var("ALERT_PASSWORD")
@@ -14,30 +14,32 @@ async fn social_alert(height: f32) {
         "password": password
     });
 
-    let alert_endpoint = env::var("ALERT_ENDPOINT")
+    let social_alerts_endpoint = env::var("ALERT_ENDPOINT")
         .expect("Error reading ALERT_ENDPOINT environment variable");
 
     info!("Posting alert to social alerts system");
 
-    // send the above json the social alerts system
     let client = reqwest::Client::new();
-    let response = client.post(&alert_endpoint)
+    let response = client.post(&social_alerts_endpoint)
         .json(&body)
         .send()
         .await;
 
     if let Err(error) = response {
-        error!("Error trying to post alert to {}: {}", &alert_endpoint, error);
+        error!("Error trying to post alert to {}: {}", &social_alerts_endpoint, error);
     }
 }
 
 // this function assumes that the data packet containing the current wave height hasn't been cached
 pub async fn check_for_alert(
+    alert_threshold_cm: f32,
     cache: &SharedCache,
     alerts: &SharedAlertsVec
 ) -> Option<Alert> {
     let cache_lock = cache.read().await;
     
+    // we need at least 2 data packets for this function to work because we need to check if the
+    // wave has reached its maximum height
     if cache_lock.len() < 2 {
         return None;
     }
@@ -57,10 +59,9 @@ pub async fn check_for_alert(
                 None => true
             };
 
-            let should_trigger_alert = 
-                previous_wave_height >= ALERT_THRESHOLD &&
-                current_wave_height < previous_wave_height &&
-                cooldown_complete;
+            let above_threshold = previous_wave_height >= alert_threshold_cm;
+            let wave_has_peaked = current_wave_height < previous_wave_height;
+            let should_trigger_alert = above_threshold && wave_has_peaked && cooldown_complete;
 
             if !should_trigger_alert {
                 return None;

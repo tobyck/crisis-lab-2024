@@ -17,10 +17,16 @@ header>span.textNormal {
 }
 
 header {
-    font-size: 40px;
     text-align: center;
     width: 100vw;
     padding-top: 0.5vw;
+}
+
+/* massive screen / TV */
+@media screen and (min-width: 3000px) {
+    header>span.textNormal {
+        font-size: 90px !important;
+    }
 }
 
 @media screen and (max-width: 550px) {
