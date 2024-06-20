@@ -29,7 +29,7 @@ async fn main() {
 
     // start listening for messages in a separate task and return some other initialised
     // objects that the websocket connection handlers will need
-    let (broadcast_tx, cache, alerts, calibrations) = mqtt::listen(event_loop);
+    let (broadcast_tx, cache, alerts, calibrations) = mqtt::start_listening(event_loop);
 
     let server_addr = [0, 0, 0, 0];
     let ws_port = get_env_port("WS_PORT");

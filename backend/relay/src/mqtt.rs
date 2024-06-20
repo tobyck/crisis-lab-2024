@@ -40,7 +40,7 @@ pub fn init_client(host: &str) -> (AsyncClient, EventLoop) {
 
 // this polls the event loop and if there's a message it will try to parse it as
 // a float and pass it to process_and_cache_data (see data.rs)
-pub fn listen(mut event_loop: EventLoop) -> (
+pub fn start_listening(mut event_loop: EventLoop) -> (
     Sender<String>,
     SharedCache,
     SharedAlertsVec,
@@ -112,11 +112,12 @@ pub fn listen(mut event_loop: EventLoop) -> (
 
                                 let cache_lock = cache.read().await;
                                 let recent_data = cache_lock.last_n(AMOUNT_OF_CALIBRATION_DATA);
-                                let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
 
                                 if recent_data.is_none() {
                                     warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
                                 }
+
+                                let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
 
                                 let average_recent_pressure = recent_data
                                     .unwrap()
