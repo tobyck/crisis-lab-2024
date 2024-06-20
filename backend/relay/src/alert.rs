@@ -39,7 +39,7 @@ pub async fn check_for_alert(
     let cache_lock = cache.read().await;
     
     // we need at least 2 data packets for this function to work because we need to check if the
-    // wave has reached it's maximum height
+    // wave has reached its maximum height
     if cache_lock.len() < 2 {
         return None;
     }
