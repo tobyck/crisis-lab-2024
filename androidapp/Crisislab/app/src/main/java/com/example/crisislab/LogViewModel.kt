@@ -6,8 +6,7 @@ import androidx.lifecycle.ViewModel
 import java.time.LocalTime
 import java.util.UUID
 
-class LogViewModel: ViewModel()
-{
+class LogViewModel: ViewModel() {
     var logItems = MutableLiveData<MutableList<LogItem>>(ArrayList());
 
     fun addLogItem(newLog: LogItem){
@@ -42,5 +41,4 @@ class LogViewModel: ViewModel()
 //            logItems!!.postValue(list)
 //        }
 //    }
-
 }

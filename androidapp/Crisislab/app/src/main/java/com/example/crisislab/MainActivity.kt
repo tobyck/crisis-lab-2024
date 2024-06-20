@@ -1,9 +1,11 @@
 package com.example.crisislab
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.crisislab.databinding.ActivityMainBinding
@@ -16,8 +18,10 @@ import java.util.HashMap
 
 class MainActivity : ComponentActivity() {
     lateinit var logViewModel: LogViewModel
+    var notificationHandler = NotificationHandler();
     private lateinit var binding:ActivityMainBinding
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -37,6 +41,7 @@ class MainActivity : ComponentActivity() {
             val ws: WebSocket = client.newWebSocket(request, listener)
         }
         setRecylerView()
+        notificationHandler.sendNotification("Title", "message");
     }
 
     private fun setRecylerView() {

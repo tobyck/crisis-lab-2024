@@ -16,6 +16,7 @@ import kotlin.math.round
 
 class WebSocketListener(logViewModel: LogViewModel) : WebSocketListener() {
     var logViewModel: LogViewModel = logViewModel;
+
     override fun onOpen(webSocket: WebSocket, response: Response) {
         Log.d("test", "Connected")
     }
@@ -35,7 +36,8 @@ class WebSocketListener(logViewModel: LogViewModel) : WebSocketListener() {
             packet["timestamp"] = jObj.optString("timestamp")
             //packet["previous_data"]  = jObj.optJSONArray("previous_data")?.toString()
             if (packet["pressure"] == "" && packet["height"] != "") {
-                val newLog = packet["height"]?.let { LogItem(round((it.toFloat()*10)/10).toString()+" cm", packet["timestamp"]) }
+                Log.d("unrounded", packet["height"].toString())
+                val newLog = packet["height"]?.let { LogItem((round((it.toFloat()*10))/10).toString()+" cm", packet["timestamp"]) }
                 if (newLog != null) {
                     logViewModel.addLogItem(newLog)
                     return;
@@ -49,7 +51,6 @@ class WebSocketListener(logViewModel: LogViewModel) : WebSocketListener() {
         webSocket.close(NORMAL_CLOSURE_STATUS, null)
         output("Closing : $code / $reason")
     }
-
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         Log.e("WebSocket", "Error : " + t.message)

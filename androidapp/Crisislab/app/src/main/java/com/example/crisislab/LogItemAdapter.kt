@@ -22,5 +22,4 @@ class LogItemAdapter(
     override fun onBindViewHolder(holder: LogItemViewHolder, position: Int) {
         holder.bindLogItem(logItems[position])
     }
-
 }

@@ -11,18 +11,13 @@ class LogItemViewHolder(
     private val context: Context,
     private val binding: LogItemCellBinding
 ): RecyclerView.ViewHolder(binding.root) {
-
     @RequiresApi(Build.VERSION_CODES.O)
-    private val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+    private val timeFormat = DateTimeFormatter.ofPattern("HH:mm") // TODO: use this
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindLogItem(logItem: LogItem) {
         binding.height.text = logItem.height
 
-        if (logItem.time != null) {
-            binding.time.text = logItem.time
-        } else {
-            binding.time.text = ""
-        }
+        binding.time.text = logItem.time ?: "";
     }
-
 }
