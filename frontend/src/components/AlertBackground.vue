@@ -16,12 +16,12 @@
     justify-content: center;
     align-items: center;
     color: v-bind('THEME.textColor');
-    animation: blink 1s infinite;
+    animation: flash_red 1s infinite;
     user-select: none;
     pointer-events: none;
 }
 
-@keyframes blink {
+@keyframes flash_red {
     from {
         opacity: v-bind('THEME.dark ? .1 : .2')
     }

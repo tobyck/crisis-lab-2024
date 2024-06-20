@@ -3,7 +3,7 @@
         <div class="header">
             <div class="incidents">Logs</div>
             <div class="status">
-                <!-- don't question it -->
+                <!-- The q thing is due to weirdness with vue unwrapping computed values even when it really shouldn't -->
                 <StatusLight :status="{ q: online.server }" name="Relay" />
                 <StatusLight :status="{ q: online.sensor }" name="Sensor" />
                 <StatusLight :status="{ q: online.alert }" name="Alerts" />
@@ -21,8 +21,6 @@
 
 <style scoped>
 div.box {
-    height: 100%;
-    width: 100%;
     color: v-bind('THEME.textColor');
     box-sizing: border-box;
     overflow-y: scroll;
@@ -33,6 +31,7 @@ div.box {
     border-radius: 1vw;
     row-gap: 0.5vw;
     padding: 0.75vw;
+    flex: 1 1 0;
 }
 
 .header {
@@ -97,6 +96,12 @@ div.box p {
 
     div.undetected {
         font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 550px) {
+    div.rest {
+        font-size: 12px;
     }
 }
 </style>

@@ -64,6 +64,16 @@ a {
         border-width: 6px;
     }
 }
+
+@media screen and (max-width: 550px) {
+    .rest {
+        font-size: 15px;
+    }
+
+    .smaller {
+        font-size: 12px;
+    }
+}
 </style>
 
 <script setup>

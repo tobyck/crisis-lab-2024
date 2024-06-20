@@ -36,15 +36,6 @@
                         color: THEME.graphColor2
                     }" :data-source="pressure" />
                 </div>
-                <!--<div class="live-view chart-box">
-                    <Chart name="live-view" :options="{
-                        y: 'Wave height (cm)',
-                        title: 'Live View',
-                        minY: 1018,
-                        maxY: 1022,
-                        color: THEME.graphColor2
-                    }" :data-source="height" />
-                </div>-->
             </div>
         </div>
         <div class="footer">
@@ -85,8 +76,7 @@ div.footer {
 }
 
 div.log-box {
-    flex: 2 2;
-    flex-basis: 0;
+    flex: 2 2 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -94,7 +84,10 @@ div.log-box {
 }
 
 div.log-container {
-    flex: 1 1;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
 }
 
 div.alert-container {
@@ -112,9 +105,8 @@ div.chart-container {
 }
 
 div.chart-box {
-    flex: 1 1;
+    flex: 1 1 0;
     background-color: v-bind('THEME.backgroundColor');
-    /*margin: 0.5vw 1vw 0.5vw 0.5vw;*/
     padding: 0vw 0.5vw 0.5vw 0.5vw;
     border-radius: 1vw;
 }
@@ -132,13 +124,11 @@ div.chart-box {
     }
 
     div.chart-container {
-        flex: 2 2;
-        flex-basis: 0;
+        flex: 2 2 0;
     }
 
     div.log-box {
-        flex: 1 1;
-        flex-basis: 0;
+        flex: 1 1 0;
         order: 2;
     }
 }
@@ -159,9 +149,17 @@ div.body {
     user-select: none;
 }
 
+
 @font-face {
     font-family: "SF Pro";
-    src: url('SF-Pro.ttf');
+    font-weight: 400;
+    src: url('small-sf-pro.woff2');
+}
+
+@font-face {
+    font-family: "SF Pro";
+    font-weight: 700;
+    src: url('small-sf-bold.otf');
 }
 
 /* massive screen / TV */
@@ -194,9 +192,9 @@ import { packetData, initWebsocket, loaded, calibrations } from './ws.js';
 initWebsocket();
 
 const filteredData = computed(() => packetData.filter(t => t != null)
-    .filter(
+    .filter( // remove 2/3 of points on mobile
         ({ timestamp }) => THEME.isMobile ? (timestamp * 25) % 3 < 1 : 1
-    ) // remove every other point on mobile
+    )
     .map(({ pressure, height, timestamp }) => ({
         pressure, height, timestamp: 20 - (Date.now() - timestamp) / 1000
     }))
