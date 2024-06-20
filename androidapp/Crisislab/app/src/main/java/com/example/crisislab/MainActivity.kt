@@ -1,11 +1,14 @@
 package com.example.crisislab
 
+import NotificationHandler
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.crisislab.databinding.ActivityMainBinding
@@ -16,10 +19,11 @@ import org.json.JSONObject
 import java.util.ArrayList
 import java.util.HashMap
 
-class MainActivity : ComponentActivity() {
+class MainActivity() : ComponentActivity() {
     lateinit var logViewModel: LogViewModel
-    var notificationHandler = NotificationHandler();
     private lateinit var binding:ActivityMainBinding
+    val notificationModule: NotificationModule = NotificationModule;
+    lateinit var notificationHandler: NotificationHandler;
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +45,9 @@ class MainActivity : ComponentActivity() {
             val ws: WebSocket = client.newWebSocket(request, listener)
         }
         setRecylerView()
-        notificationHandler.sendNotification("Title", "message");
+
+        notificationHandler = NotificationHandler(notificationModule.provideNotificationBuilder(this), notificationModule.provideNotificationManager(this), this)
+        notificationHandler.showNotification();
     }
 
     private fun setRecylerView() {
