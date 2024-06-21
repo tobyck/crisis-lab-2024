@@ -12,13 +12,14 @@ void setup() {
 	Serial.begin(9600);
 }
 
+
 void loop() {
 	alertStartTime = millis();
 
 	if (Serial.available()) {
 		data = Serial.readStringUntil('\r');
 		Serial.println(data);
-		
+
 		if (data.startsWith("T")) alert();
 	}
 }
@@ -30,7 +31,9 @@ void alert() {
 	while (currentTime - alertStartTime <= alertDuration) {
 		currentTime = millis();
 
-		if (currentTime - prevTimeTones > speakerInterval) {
+		if (currentTime - previousSpeakerTime > speakerInterval) {
+			previousSpeakerTime = currentTime;
+
 			noTone(currentTonePin);
 
 			if (currentTonePin == SPEAKER_PIN_1) {
@@ -40,15 +43,12 @@ void alert() {
 				currentTonePin = SPEAKER_PIN_1;
 				tone(currentTonePin, SPEAKER_FREQUENCY_2, SPEAKER_DURATION_2);
 			}
-
-			prevTimeTones = currentTime;
 		}
 
+		if (currentTime - previousServoTime > servoInterval) {
+			previousServoTime = currentTime;
 
-		if (currentTime - prevTimeServos > servoInterval) {
-			prevTimeServos = currentTime;
 			servoPosition += servoDirection;
-
 			// We're using a 180 degree servo, so need to rotate the other way when we reach the limits
 			if (servoPosition >= 180 || servoPosition <= 0) {
 				servoDirection = -servoDirection;
@@ -57,8 +57,8 @@ void alert() {
 			servo1.write(servoPosition);
 		}
 
-		if (currentTime - prevTimeLight > lightInterval) {
-			prevTimeLight = currentTime;
+		if (currentTime - previousLightTime > lightInterval) {
+			previousLightTime = currentTime;
 
 			// This colours every other block of 4 LEDs red
 			for (int i = 0; i < pixels.numPixels(); i++) {

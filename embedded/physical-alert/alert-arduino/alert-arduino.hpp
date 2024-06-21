@@ -22,15 +22,15 @@ const int SPEAKER_PIN_1 = 3;
 const int SPEAKER_PIN_2 = 4;
 
 int currentTonePin = SPEAKER_PIN_1;
-unsigned long prevTimeTones = millis();
+unsigned long previousSpeakerTime = millis();
 long speakerInterval = 200;
 
-unsigned long prevTimeServos;
+unsigned long previousServoTime;
 int servoDirection = 1;
 long servoInterval = 15;
 float servoPosition = 0;
 
-unsigned long prevTimeLight;
+unsigned long previousLightTime;
 long lightInterval = 50;
 int LEDPosition = 0;
 
