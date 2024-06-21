@@ -9,30 +9,32 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_TiCoServo.h>
 
+const int SERVO_PIN = 9;
+#define LED_PIN 6
 Adafruit_TiCoServo servo1;
-Adafruit_NeoPixel pixels(24, 6, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(24, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-float pos = 0;
-float currentTime;
+const int SPEAKER_DURATION_1 = 300;
+const int SPEAKER_DURATION_2 = 200;
+const int SPEAKER_FREQUENCY_1 = 523;
+const int SPEAKER_FREQUENCY_2 = 440;
+const int SPEAKER_PIN_1 = 3;
+const int SPEAKER_PIN_2 = 4;
 
-double currentToneFrequency = 523;
-double currentToneDuration = 300;
-
-int increment = 1;
-int currentTonePin = 4;
-int triggerTime = 10000;
-
-String data = "";
-
+int currentTonePin = SPEAKER_PIN_1;
 unsigned long prevTimeTones = millis();
+long speakerInterval = 200;
+
 unsigned long prevTimeServos;
+int servoDirection = 1;
+long servoInterval = 15;
+float servoPosition = 0;
+
 unsigned long prevTimeLight;
-unsigned long startTime = 0;
-unsigned long globalTime = 0;
+long lightInterval = 50;
+int LEDPosition = 0;
 
-long intervalTones = 200;
-long intervalServos = 15;
-long intervalLight = 50;
-int isWhite = 0;
-
-boolean isTriggering = false;
+int alertDuration = 10000;
+String data = "";
+unsigned long alertStartTime = 0;
+float currentTime;
