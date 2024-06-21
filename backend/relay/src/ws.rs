@@ -20,7 +20,8 @@ pub async fn handle_connection(
     mut broadcast_rx: Receiver<String>, // this is where the handler will receive messages
     cache: SharedCache,
     alerts: SharedAlertsVec,
-    calibrations: SharedCalibrations
+    calibrations: SharedCalibrations,
+    alert_threshold: f32
 ) {
     info!("Client connected to WebSocket");
 
@@ -31,7 +32,8 @@ pub async fn handle_connection(
         websocket_tx.send(Message::text(serde_json::to_string(&InitialDataPacket {
             previous_data: cache.read().await.to_vec(),
             previous_alerts: alerts.read().await.to_vec(),
-            calibrations: calibrations.read().await.clone()
+            calibrations: calibrations.read().await.clone(),
+            alert_threshold
         }).unwrap()))
             .unwrap_or_else(|error| {
                 warn!("Failed to send initial data packet over websocket: {}", error);
@@ -69,26 +71,29 @@ pub fn route(
     broadcast_tx: Sender<String>,
     cache: SharedCache,
     alerts: SharedAlertsVec,
-    calibrations: SharedCalibrations
+    calibrations: SharedCalibrations,
+    alert_threshold: f32
 ) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone {
     // a warp filter that allows us to pass other things to the connection handler
     let with_args = warp::any().map(move || (
         broadcast_tx.subscribe(),
         cache.clone(),
         alerts.clone(),
-        calibrations.clone()
+        calibrations.clone(),
+        alert_threshold
     ));
 
     warp::path::end() // this means the path '/'
         .and(warp::ws())
         .and(with_args)
-        .map(|route: warp::ws::Ws, (broadcast_rx, cache, alerts, calibrations)| {
+        .map(|route: warp::ws::Ws, (broadcast_rx, cache, alerts, calibrations, alert_threshold)| {
             route.on_upgrade(move |websocket| handle_connection(
                 websocket,
                 broadcast_rx,
                 cache,
                 alerts,
-                calibrations
+                calibrations,
+                alert_threshold
             ))
         })
 }

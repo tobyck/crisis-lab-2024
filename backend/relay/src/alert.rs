@@ -33,6 +33,7 @@ async fn social_alert(height: f32) {
 // this function assumes that the data packet containing the current wave height hasn't been cached
 pub async fn check_for_alert(
     alert_threshold_cm: f32,
+    resting_water_level: f32,
     cache: &SharedCache,
     alerts: &SharedAlertsVec
 ) -> Option<Alert> {
@@ -59,7 +60,7 @@ pub async fn check_for_alert(
                 None => true
             };
 
-            let above_threshold = previous_wave_height >= alert_threshold_cm;
+            let above_threshold = previous_wave_height - resting_water_level >= alert_threshold_cm;
             let wave_has_peaked = current_wave_height < previous_wave_height;
             let should_trigger_alert = above_threshold && wave_has_peaked && cooldown_complete;
 
