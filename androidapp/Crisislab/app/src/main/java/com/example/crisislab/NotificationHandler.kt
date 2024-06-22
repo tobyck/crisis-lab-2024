@@ -35,7 +35,7 @@ class NotificationHandler (
         return Service.START_NOT_STICKY;
     }
 
-    fun showNotification(title: String, message: String) {
+    fun showNotification(title: String, message: String, type: String?, timestamp: String?) {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -52,13 +52,17 @@ class NotificationHandler (
             return
         }
         Log.d("NotificationHandler", "Permission Granted, notifying.")
-        notificationBuilder.setContentTitle(title)
-        //notificationBuilder.setContentText(message)
-        notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(message))
-        fullScreenIntent = Intent(context, NotificationHandler::class.java)
-        fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
-            fullScreenIntent, PendingIntent.FLAG_MUTABLE)
-        notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
-        notificationManager.notify(1, notificationBuilder.build());
+
+        if(type === "TSUNAMI") {
+            notificationBuilder.setContentTitle(title)
+            //notificationBuilder.setContentText(message)
+            notificationBuilder.setContentText("A Tsunami has been detected!")
+            notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText("A $message Tsunami has been detected! $timestamp"))
+            fullScreenIntent = Intent(context, NotificationHandler::class.java)
+            fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
+                fullScreenIntent, PendingIntent.FLAG_MUTABLE)
+            notificationBuilder.setFullScreenIntent(fullScreenPendingIntent, true);
+            notificationManager.notify(1, notificationBuilder.build());
+        }
     }
 }

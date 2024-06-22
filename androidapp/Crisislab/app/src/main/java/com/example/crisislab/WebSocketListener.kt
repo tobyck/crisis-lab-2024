@@ -71,9 +71,7 @@ class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: Socke
                     val formattedinstzdt = DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(instzdt)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.notificationHandler.showNotification("WARNING",
-                            "A "+newLog.height+" Tsunami was detected at \n"+ formattedinstzdt
-                        );
+                        context.notificationHandler.showNotification("TSUNAMI WARNING", newLog.height, "TSUNAMI", formattedinstzdt);
                     }
 
                     return;

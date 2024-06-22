@@ -22,8 +22,8 @@ object NotificationModule {
     fun build(context: Context, title: String, message: String): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, "Main Channel ID")
             .setSmallIcon(R.drawable.ic_notif)
-            .setContentTitle(title)
-            .setContentText(message)
+            //.setContentTitle(title)
+            //.setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setOngoing(true)
