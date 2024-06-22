@@ -161,7 +161,7 @@ async fn handle_mqtt_message(
 
             // because we're about to free calibrations_lock (see comment below), we need to
             // extract this here before we pass it to check_for_alert
-            let resting_water_level = calibrations_lock.resting_water_level.unwrap();
+            let resting_water_level = calibrations_lock.resting_water_level;
 
             // if we don't drop this write lock now, then the code in the websocket connection
             // handlers (which will be invoked very soon by messages on the broadcast channel)
@@ -176,16 +176,18 @@ async fn handle_mqtt_message(
                 warn!("Could not broadcast processed data to WebSocket connection handlers: {}", error);
             }
 
-            let alert = check_for_alert(
-                alert_threshold,
-                resting_water_level,
-                &cache,
-                &alerts
-            ).await;
+            if let Some(resting_water_level) = resting_water_level {
+                let alert = check_for_alert(
+                    alert_threshold,
+                    resting_water_level,
+                    &cache,
+                    &alerts
+                ).await;
 
-            if let Some(alert) = alert {
-                if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
-                    warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
+                if let Some(alert) = alert {
+                    if let Err(error) = broadcast_tx.send(serde_json::to_string(&alert).unwrap()) {
+                        warn!("Could not broadcast alert to WebSocket connection handlers: {}", error);
+                    }
                 }
             }
         }
