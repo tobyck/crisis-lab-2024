@@ -35,16 +35,28 @@ const chartData = computed(() => {
             },
         ]
     }
-    // TODO: Threshold, once that's added to the backend
     if (props.dataSource.baseline) {
-        res.datasets.push({
+        res.datasets.unshift({
+            label: 'Threshold',
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+            borderColor: THEME.dark ? '#aaa' : '#888',
+            borderWidth: borderWidth.value,
+            borderDash: [5, 5],
+            radius: 0,
+            data: [{ x: 0, y: props.dataSource.baseline }, { x: 20, y: props.dataSource.baseline }],
+        })
+    }
+    // ideally this should not be duplicated but whatever
+    if (props.dataSource.threshold) {
+        let height = props.dataSource.baseline + props.dataSource.threshold;
+        res.datasets.unshift({
             label: 'Threshold',
             backgroundColor: 'rgba(0, 0, 0, 0)',
             borderColor: '#ff0000',
             borderWidth: borderWidth.value,
             borderDash: [5, 5],
             radius: 0,
-            data: [{ x: 0, y: props.dataSource.baseline }, { x: 20, y: props.dataSource.baseline }],
+            data: [{ x: 0, y: height }, { x: 20, y: height }],
         })
     }
     return res;
