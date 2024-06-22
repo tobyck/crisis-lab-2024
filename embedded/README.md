@@ -39,7 +39,7 @@ FQBN stands for Fully Qualified Board Name, and the instructions below will tell
     Then you can install them with:  
 
     ```
-    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DF_Arduino_Library https://github.com/arduino-libraries/ArduinoMqttClient.git
+    arduino-cli lib install --git-url https://github.com/sparkfun/SparkFun_LPS28DFW_Arduino_Library https://github.com/arduino-libraries/ArduinoMqttClient.git
     ```
 
 3. Change the WiFi SSID and password; the MQTT username and password; and the Server IP address and port variables in `/embedded/wifi.ino`

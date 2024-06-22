@@ -7,11 +7,11 @@
 #include "wifi.hpp"
 
 // Change these to the appropriate values, _don't_ commit them
-const char* wifiName = "";
-const char* wifiPassword "";
+const char* wifiName = "CFs iPhone";
+const char* wifiPassword = "myponyhasnowifi";
 
-const char* mqttUsername = "";
-const char* mqttPassword = "";
+const char* mqttUsername = "sensor";
+const char* mqttPassword = "rVcL1OjYHeJApPsA4fT9";
 
 WiFiClient wifiClient;
 MqttClient mqttClient(wifiClient);
