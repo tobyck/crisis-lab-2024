@@ -57,7 +57,7 @@ void setup() {
 	Serial.println("Connected!");
 }
 
-void sendData(char msg[20]) {
+void sendDataToMQTT(char msg[20]) {
 	mqttClient.beginMessage(mqttTopic);
 	mqttClient.print(msg);
 	mqttClient.endMessage();
@@ -79,11 +79,7 @@ void loop() {
 
 		serialBuffer[strlen(serialBuffer) - 1] = '\0'; // Remove trailing newline
 
-		if (strlen(serialBuffer) != 0) sendData(serialBuffer);
-	}
-
-	if(strlen(serialBuffer) != 0) {
-		sendData(serialBuffer);
+		if (strlen(serialBuffer) != 0) sendDataToMQTT(serialBuffer);
 	}
 
 	delay(40);
