@@ -96,7 +96,7 @@ div.alert-container {
 
 div.chart-container {
     display: flex;
-    flex-flow: column wrap;
+    flex-flow: column;
     flex: 3 3;
     justify-content: center;
     align-items: stretch;
