@@ -65,18 +65,36 @@
                 android:layout_height="match_parent" />
         </ScrollView>
 
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="#e6eaf8"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textAlignment="textStart"
+            android:paddingStart="5dp"
+            android:gravity="center"
+            android:text=""
+            tools:ignore="RtlCompat"/>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/WebSocketStatusRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
         <Button
             android:id="@+id/connect"
             style="@android:style/Widget.Holo.Light.Button"
-            android:layout_width="333dp"
-            android:layout_height="85dp"
+            android:layout_width="160dp"
+            android:layout_height="50dp"
             android:layout_centerInParent="true"
-            android:text="Connect to PieSocket"
-            android:textSize="17sp"
-            app:layout_constraintBottom_toBottomOf="@+id/scrollView2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:text="Connect to Server"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
