@@ -26,7 +26,7 @@ unsigned long previousSpeakerTime = millis();
 long speakerInterval = 200;
 
 unsigned long previousServoTime;
-int servoDirection = 1;
+int servoDirection = 2;
 long servoInterval = 15;
 float servoPosition = 0;
 
