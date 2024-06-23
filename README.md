@@ -6,7 +6,7 @@ This repository contains all the code for our CRISiSLab 2024 project.
 
 To set it up, clone this repo and refer to the instructions in each section below.
 
-Sometimes some more information is contained in READMEs in each section folder
+Sometimes some more information is contained in READMEs in each section folder.
 
 ## Setup
 
