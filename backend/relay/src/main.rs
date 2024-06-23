@@ -6,9 +6,6 @@
 * functions from other modules to start everything up.
 * */
 
-#![feature(test)]
-extern crate test;
-
 use std::{convert::Infallible, env};
 
 use config::MQTT_TOPIC;
