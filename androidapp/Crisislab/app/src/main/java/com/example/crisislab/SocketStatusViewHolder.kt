@@ -14,4 +14,3 @@ class SocketStatusViewHolder(
         binding.WebSocketStatus.text = status
     }
 }
-Build
