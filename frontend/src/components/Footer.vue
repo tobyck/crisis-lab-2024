@@ -8,6 +8,7 @@ import { THEME } from '../theme.js';
             <a href='https://github.com/tobyck/crisis-lab-2024' target='_blank'>GitHub</a>
             <a href='https://www.instagram.com/crisislabs.2024.whs/' target='_blank'>Instagram</a>
             <a href='javascript:;' @click='openMail'>Mailing list</a>
+            <a href='https:/discord.gg/39mn5Zhshn' target='_blank'>Discord</a>
         </span>
         <DarkToggle />
     </div>
