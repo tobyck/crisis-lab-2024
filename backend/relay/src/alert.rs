@@ -60,7 +60,7 @@ pub async fn check_for_alert(
                 None => true
             };
 
-            let previous_height_above_baseline = previous_wave_height - resting_water_level
+            let previous_height_above_baseline = previous_wave_height - resting_water_level;
 
             let above_threshold = previous_height_above_baseline >= alert_threshold_cm;
             let wave_has_peaked = current_wave_height < previous_wave_height;
