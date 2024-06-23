@@ -27,25 +27,6 @@
             android:text="@string/height"
             android:textColor="#e6eaf8"
             android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvTsunamiLabel2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=", at, "
-            android:textColor="#e6eaf8"
-            android:textStyle="bold" />
-
-
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/height"
-            android:textColor="#e6eaf8"
-            android:textStyle="bold" />
-
-
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

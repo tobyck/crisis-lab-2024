@@ -1,29 +1,41 @@
 package com.example.crisislab
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.graphics.drawable.IconCompat
 
 object NotificationModule {
-    fun provideNotificationBuilder(context: Context): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, "Main Channel ID")
-            .setContentTitle("Title")
-            .setContentText("Text")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setSmallIcon(R.drawable.ic_notif)
-    }
+    fun build(context: Context, title: String, message: String, bigText: String?): Notification {
+        // This intent is for when the user taps the notification, it opens the app.
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-    fun build(context: Context, title: String, message: String): NotificationCompat.Builder {
+        // This is for full screen notifications.
+        val fullScreenIntent = Intent(context, MainActivity::class.java)
+        val pendingFullScreenIntent = PendingIntent.getActivity(context, 0, fullScreenIntent,
+            PendingIntent.FLAG_IMMUTABLE)
+
         return NotificationCompat.Builder(context, "Main Channel ID")
-            .setSmallIcon(R.drawable.ic_notif)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setSmallIcon(R.drawable.ic_notif)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setFullScreenIntent(pendingFullScreenIntent, true)
             .setAutoCancel(true)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .build()
     }
 
     fun provideNotificationManager(context: Context): NotificationManagerCompat {
@@ -32,7 +44,7 @@ object NotificationModule {
             val channel = NotificationChannel(
                 "Main Channel ID",
                 "Main Channel",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
         }

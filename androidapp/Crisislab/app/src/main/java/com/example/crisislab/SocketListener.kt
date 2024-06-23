@@ -1,28 +1,19 @@
 package com.example.crisislab
 
 import NotificationHandler
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-
-import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import com.example.crisislab.databinding.ActivityMainBinding
-import com.example.crisislab.LogViewModel
 import org.json.JSONObject
-import java.sql.Timestamp
 import java.time.*
 import java.time.format.DateTimeFormatter
-
 import kotlin.math.round
 
-class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketStatusViewModel, context: MainActivity) : WebSocketListener() {
+class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketStatusViewModel, context: MainActivity) : WebSocketListener() {
     var logViewModel: LogViewModel = logViewModel;
     var socketStatusViewModel: SocketStatusViewModel = socketStatusViewModel;
     var context: MainActivity = context;
@@ -31,9 +22,10 @@ class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: Socke
     override fun onOpen(webSocket: WebSocket, response: Response) {
         Log.d("test", "Connected")
 
-        context.notificationHandler = NotificationHandler(context.notificationModule.provideNotificationBuilder(context), context.notificationModule.provideNotificationManager(context), context)
+        // JANKY JANK JANK
+        context.notificationHandler = NotificationHandler(context.notificationModule.provideNotificationManager(context), context)
         if(!context.notificationHandler.isServiceRunning) {
-            Log.d("ANwd", "service not running")
+            Log.d("WebSocket", "Service not running")
             val intent = Intent(context, context.notificationHandler::class.java)
             context.startService(intent);
             context.notificationHandler.isServiceRunning = true;
@@ -45,7 +37,6 @@ class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: Socke
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val packetList = ArrayList<HashMap<String, String?>>()
         val jObj = JSONObject(text)
 
         for (i in 0 until jObj.length()) {
@@ -56,25 +47,24 @@ class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: Socke
 
 			// Alert packets don't contain a pressure value, only a height and timestamp
             if (packet["pressure"] == "" && packet["height"] != "") {
-				// Make a LogItem with height rounded to 1dp
-                val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 10)) / 10).toString() + " cm", packet["timestamp"]) }
+				// Make a LogItem with height rounded to 2dp
+                val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 100)) / 100).toString() + " cm", packet["timestamp"]) }
 
                 if (newLog != null) {
                     logViewModel.addLogItem(newLog)
 
-                    val inst = Instant.ofEpochMilli(newLog.time!!.toLong())
-                    val instzdt = inst.atZone(ZoneId.of("Pacific/Auckland"))
-                    val formattedinstzdt = DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(instzdt)
+                    // Format timestamp
+                    val time = Instant.ofEpochMilli(newLog.time!!.toLong())
+                    val zonedTime = time.atZone(ZoneId.of("Pacific/Auckland"))
+                    val formattedTime = DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(zonedTime)
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.notificationHandler.showNotification("TSUNAMI WARNING", newLog.height, "TSUNAMI", formattedinstzdt);
+                        context.notificationHandler.showNotification("TSUNAMI WARNING", newLog.height, "TSUNAMI", formattedTime);
                     }
 
                     return;
                 }
             }
-
-            packetList.add(packet)
         }
     }
 

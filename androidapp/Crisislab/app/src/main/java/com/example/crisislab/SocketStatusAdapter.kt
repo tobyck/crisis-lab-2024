@@ -9,11 +9,11 @@ import com.example.crisislab.databinding.StatusCellBinding
 
 class SocketStatusAdapter(
     private val status: String
-): RecyclerView.Adapter<WebSocketStatusViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WebSocketStatusViewHolder {
+): RecyclerView.Adapter<SocketStatusViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SocketStatusViewHolder {
         val from = LayoutInflater.from(parent.context)
         val binding = StatusCellBinding.inflate(from, parent, false)
-        return WebSocketStatusViewHolder(parent.context, binding)
+        return SocketStatusViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -21,7 +21,7 @@ class SocketStatusAdapter(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onBindViewHolder(holder: WebSocketStatusViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SocketStatusViewHolder, position: Int) {
         holder.bindStatus(status)
     }
 
