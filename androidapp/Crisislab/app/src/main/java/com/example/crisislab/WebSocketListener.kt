@@ -45,23 +45,19 @@ class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: Socke
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onMessage(webSocket: WebSocket, text: String) {
-        //Log.d("test", "Received : $text")
         val packetList = ArrayList<HashMap<String, String?>>()
         val jObj = JSONObject(text)
-        if (jObj.names()[0] == "previous_data") {
-            // TODO: Handle previous data
-            return;
-        }
+
         for (i in 0 until jObj.length()) {
             val packet = HashMap<String, String?>()
             packet["pressure"] = jObj.optString("pressure")
             packet["height"] = jObj.optString("height")
             packet["timestamp"] = jObj.optString("timestamp")
-            //packet["previous_data"]  = jObj.optJSONArray("previous_data")?.toString()
 
-            // Alert
+			// Alert packets don't contain a pressure value, only a height and timestamp
             if (packet["pressure"] == "" && packet["height"] != "") {
-                val newLog = packet["height"]?.let { LogItem((round((it.toFloat()*10))/10).toString()+" cm", packet["timestamp"]) }
+				// Make a LogItem with height rounded to 1dp
+                val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 10)) / 10).toString() + " cm", packet["timestamp"]) }
 
                 if (newLog != null) {
                     logViewModel.addLogItem(newLog)
@@ -77,6 +73,7 @@ class WebSocketListener(logViewModel: LogViewModel, socketStatusViewModel: Socke
                     return;
                 }
             }
+
             packetList.add(packet)
         }
     }

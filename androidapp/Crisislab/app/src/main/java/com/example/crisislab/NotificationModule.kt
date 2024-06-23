@@ -8,9 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 
-
 object NotificationModule {
-
     fun provideNotificationBuilder(context: Context): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, "Main Channel ID")
             .setContentTitle("Title")
@@ -22,8 +20,6 @@ object NotificationModule {
     fun build(context: Context, title: String, message: String): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, "Main Channel ID")
             .setSmallIcon(R.drawable.ic_notif)
-            //.setContentTitle(title)
-            //.setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setOngoing(true)

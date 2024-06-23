@@ -55,7 +55,6 @@ class NotificationHandler (
 
         if(type === "TSUNAMI") {
             notificationBuilder.setContentTitle(title)
-            //notificationBuilder.setContentText(message)
             notificationBuilder.setContentText("A Tsunami has been detected!")
             notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText("A $message Tsunami has been detected! $timestamp"))
             fullScreenIntent = Intent(context, NotificationHandler::class.java)

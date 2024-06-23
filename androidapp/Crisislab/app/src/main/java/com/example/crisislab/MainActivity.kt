@@ -29,8 +29,6 @@ class MainActivity() : ComponentActivity() {
     val notificationModule: NotificationModule = NotificationModule;
     lateinit var notificationHandler: NotificationHandler;
 
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +40,7 @@ class MainActivity() : ComponentActivity() {
         socketStatusViewModel = ViewModelProvider(this).get(SocketStatusViewModel::class.java);
         socketStatusViewModel.updateStatus("Status: Disconnected.")
 
+		// If user high enough API version then ask for permission for notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             (ActivityCompat::requestPermissions)(this as Activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 0)
         }
@@ -51,7 +50,6 @@ class MainActivity() : ComponentActivity() {
         }
 
         connectToSocket(client)
-
         setRecylerView()
     }
 
@@ -63,7 +61,7 @@ class MainActivity() : ComponentActivity() {
             return;
         }
 
-        Log.d("Socket","Connecting");
+        Log.d("Socket", "Connecting");
 
         val request: Request = Request
             .Builder()
@@ -74,7 +72,7 @@ class MainActivity() : ComponentActivity() {
     }
 
     private fun setRecylerView() {
-        logViewModel.logItems.observe(this){
+        logViewModel.logItems.observe(this) {
             binding.logListRecyclerView.apply {
                 layoutManager = LinearLayoutManager(applicationContext)
                 adapter = it?.let { it1 -> LogItemAdapter(it1) }
@@ -88,4 +86,4 @@ class MainActivity() : ComponentActivity() {
             }
         }
     }
-}
+} 
