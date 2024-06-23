@@ -4,7 +4,9 @@ _Created by [me](https://github.com/tobyck), [chunkybanana](https://github.com/c
 
 This repository contains all the code for our CRISiSLab 2024 project.
 
-To set it up, clone this repo and refer to the instructions in the readme files in each folder.
+To set it up, clone this repo and refer to the instructions in each section below.
+
+Sometimes some more information is contained in READMEs in each section folder.
 
 ## Setup
 
