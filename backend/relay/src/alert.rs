@@ -60,7 +60,9 @@ pub async fn check_for_alert(
                 None => true
             };
 
-            let above_threshold = previous_wave_height - resting_water_level >= alert_threshold_cm;
+            let previous_height_above_baseline = previous_wave_height - resting_water_level
+
+            let above_threshold = previous_height_above_baseline >= alert_threshold_cm;
             let wave_has_peaked = current_wave_height < previous_wave_height;
             let should_trigger_alert = above_threshold && wave_has_peaked && cooldown_complete;
 
@@ -71,7 +73,7 @@ pub async fn check_for_alert(
             info!("Tsunami detected. Triggering alert");
 
             let alert = Alert {
-                height: previous_wave_height,
+                height: previous_height_above_baseline,
                 timestamp: previous_data_packet.get_timestamp()
             };
 
@@ -80,7 +82,7 @@ pub async fn check_for_alert(
 
             // set the SOCIAL_ALERTS environment variable to enable social media alerts
             if env::var("SOCIAL_ALERTS").is_ok() {
-                social_alert(previous_wave_height).await;
+                social_alert(previous_height_above_baseline).await;
             }
 
             return Some(alert);
@@ -91,3 +93,4 @@ pub async fn check_for_alert(
 
     None
 }
+
