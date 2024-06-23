@@ -58,23 +58,23 @@ serve({
 
         if (url.pathname === "/alert") {
             if (req.method == "GET") {
-                return new Response("Tried to send alert via GET", { status: 400 });
+                return cors(new Response("Tried to send alert via GET", { status: 400 }));
             }
             let json = await req.json();
             if (json.password === undefined || typeof json.password !== "string") {
-                return new Response("No password provided", { status: 400 });
+                return cors(new Response("No password provided", { status: 400 }));
             }
 
             if (!constantTimeCompare(json.password, process.env.ALERT_PASSWORD as string)) {
-                return new Response("Incorrect password", { status: 401 });
+                return cors(new Response("Incorrect password", { status: 401 }));
             }
 
             if (json.height === undefined) {
-                return new Response("No height provided", { status: 400 });
+                return cors(new Response("No height provided", { status: 400 }));
             }
 
             if (typeof json.height !== "number") {
-                return new Response("Invalid height", { status: 400 });
+                return cors(new Response("Invalid height", { status: 400 }));
             }
 
             let message = `WARNING A FAKE TSUNAMI OF HEIGHT ${json.height}cm HAS BEEN RECORDED`;
@@ -83,7 +83,7 @@ serve({
             sendEmail(message);
             postInstagram(message);
             postDiscord(message);
-            return new Response("Alert sent!");
+            return cors(new Response("Alert sent!"));
         }
 
         // The sole purpose of the websocket is for the alerts "online" indicator
