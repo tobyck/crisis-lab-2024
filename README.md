@@ -12,7 +12,17 @@ These instructions assume that you're in a clone of this repo and that [Nix](htt
 
 ### Android app
 
-The android app can be downloaded [here](https://github.com/tobyck/crisis-lab-2024/raw/master/androidapp/Crisislab/app/release/app-release.apk).
+#### Running
+
+1. Download the APK [here](https://github.com/tobyck/crisis-lab-2024/raw/master/androidapp/Crisislab/app/release/app-release.apk).
+2. Open the APK from your perfered file browser on android
+3. Tap install app
+
+#### Build/Develop
+
+1. Open `androidapp/Crisislab` in Android Studio
+2. Change any code needed
+3. Build using the inbuilt "Build Signed APK"
 
 ### Backend
 
