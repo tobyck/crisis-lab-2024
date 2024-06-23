@@ -10,6 +10,10 @@ To set it up, clone this repo and refer to the instructions in the readme files 
 
 These instructions assume that you're in a clone of this repo and that [Nix](https://nixos.org/download/) is installed.
 
+### Android app
+
+The android app can be downloaded [here](https://github.com/tobyck/crisis-lab-2024/raw/master/androidapp/Crisislab/app/release/app-release.apk).
+
 ### Backend
 
 1. Make a `.env` file in the root directory of the project which specifies the following:
