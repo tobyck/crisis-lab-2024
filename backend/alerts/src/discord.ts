@@ -12,7 +12,7 @@ client.once(Events.ClientReady, readyClient => {
     channel = readyClient.channels.cache.find(channel =>
         channel instanceof TextChannel && channel.name === 'tsunami-alerts'
     ) as TextChannel;
-    postDiscord('bot up');
+    postDiscord('Bot online!');
 })
 
 export const postDiscord = async (message: string) => {
