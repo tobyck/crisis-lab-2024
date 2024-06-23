@@ -10,16 +10,14 @@
 #include <Wire.h>
 #include <SoftwareSerial.h>
 
-// Software Serial pins.
-#define RXPin 2
-#define TXPin 3
+#define WifiReadPin 2
+#define WifiWritePin 3
 
-// Calibration pins.
-#define CAPin 7
-#define CWPin 8
+#define AirCalibrationPin 7
+#define WaterCalibrationPin 8
 
 void init_sensor(LPS28DFW sensor);
 float get_pressure(LPS28DFW sensor);
 
-boolean calibratingAir;
-boolean calibratingWater;
+boolean airCalibrationPressed;
+boolean waterCalibrationPressed;
