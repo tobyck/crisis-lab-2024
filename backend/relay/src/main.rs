@@ -23,13 +23,18 @@ async fn main() {
     env_logger::init();
     dotenv::dotenv().ok();
 
+    let alert_threshold: f32 = env::var("ALERT_THRESHOLD_CM")
+        .expect("Must set ALERT_THRESHOLD_CM environment variable")
+        .parse()
+        .expect("Could parse ALERT_THRESHOLD_CM as an f32");
+
     // initialise the client and subscribe to the topic that the sensor will be publishing to
     let (client, event_loop) = mqtt::init_client("localhost");
     client.subscribe(MQTT_TOPIC, QoS::ExactlyOnce).await.unwrap();
 
     // start listening for messages in a separate task and return some other initialised
     // objects that the websocket connection handlers will need
-    let (broadcast_tx, cache, alerts, calibrations) = mqtt::start_listening(event_loop);
+    let (broadcast_tx, cache, alerts, calibrations) = mqtt::start_listening(event_loop, alert_threshold);
 
     let server_addr = [0, 0, 0, 0];
     let ws_port = get_env_port("WS_PORT");
@@ -39,7 +44,7 @@ async fn main() {
     let key_path = env::var("KEY_PATH").expect("Must set KEY_PATH");
 
     // .recover takes a handler for creating replies when something goes wrong
-    let route = ws::route(broadcast_tx, cache, alerts, calibrations).recover(handle_rejection);
+    let route = ws::route(broadcast_tx, cache, alerts, calibrations, alert_threshold).recover(handle_rejection);
 
     // instance of the server with tls
     let secure_sever = warp::serve(route.clone())

@@ -161,14 +161,15 @@ pub type SharedCalibrations = Arc<RwLock<Calibrations>>;
 pub struct InitialDataPacket {
     pub previous_data: Vec<DataPacket>,
     pub previous_alerts: Vec<Alert>,
-    pub calibrations: Calibrations
+    pub calibrations: Calibrations,
+    pub alert_threshold: f32
 }
 
 pub fn height_from_pressure(pressure: f32, air_pressure: f32) -> f32 {
     // these need to be f32s because the values in the cache are f32s to save space
     const WATER_DENSITY: f32 = 998.0;
     const AIR_DENSITY: f32 = 1.2;
-    const GRAVITY: f32 = 9.8;
+    const GRAVITY: f32 = 9.80248; // got this from latitude and altitude standing outside massey
 
     // The formula is height (m) = change in pressure (Pa) / change in density (kg/m^3) / acceleration
     // due to gravity (m/s^2). But our input is in hPa, so multiply by 100 to get Pa, and output is in
@@ -178,14 +179,13 @@ pub fn height_from_pressure(pressure: f32, air_pressure: f32) -> f32 {
 
 pub async fn process_data(
     water_pressure: f32,
-    air_pressure: f32,
-    resting_water_level: f32,
+    air_pressure: f32
 ) -> DataPacket {
-    let wave_height = height_from_pressure(water_pressure, air_pressure) - resting_water_level;
+    let height_from_floor = height_from_pressure(water_pressure, air_pressure);
 
     let data = DataPacket {
         pressure: water_pressure,
-        height: Some(wave_height),
+        height: Some(height_from_floor),
         timestamp: Instant::now()
     };
 
