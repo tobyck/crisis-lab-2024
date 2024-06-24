@@ -17,7 +17,7 @@ These instructions assume that you're in a clone of this repo and that [Nix](htt
 #### Install
 
 1. Download the APK [here](https://github.com/tobyck/crisis-lab-2024/raw/master/androidapp/Crisislab/app/release/app-release.apk).
-2. Open the APK from your perfered file browser on android
+2. Open the APK from your preferred file browser on android
 3. Tap install app
 
 #### Build/Develop
