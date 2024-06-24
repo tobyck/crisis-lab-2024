@@ -17,9 +17,9 @@ async fn social_alert(height: f32) {
     let social_alerts_endpoint = env::var("ALERT_ENDPOINT")
         .expect("Error reading ALERT_ENDPOINT environment variable");
 
-    info!("Posting alert to social alerts system");
+    info!("Posting alert to social alerts system with body of {}", body);
 
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder().danger_accept_invalid_certs(true).build().unwrap();
     let response = client.post(&social_alerts_endpoint)
         .json(&body)
         .send()

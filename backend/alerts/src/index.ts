@@ -29,7 +29,7 @@ const conns: ServerWebSocket<any>[] = [];
 serve({
     port: 8783,
     async fetch(req, server) {
-        const url = new URL(req.url);
+	const url = new URL(req.url);
 
         if (url.pathname === "/subscribe") {
             // subscribe email
@@ -77,7 +77,7 @@ serve({
                 return cors(new Response("Invalid height", { status: 400 }));
             }
 
-            let message = `WARNING A FAKE TSUNAMI OF HEIGHT ${json.height}cm HAS BEEN RECORDED`;
+            let message = `WARNING A FAKE TSUNAMI OF HEIGHT ${json.height.toFixed(2)}cm HAS BEEN RECORDED`;
             console.log('Triggering alert', message)
 
             sendEmail(message);

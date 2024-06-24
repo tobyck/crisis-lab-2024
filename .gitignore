@@ -3,6 +3,7 @@
 **/.env
 result
 ssl
+*.log
 
 # Had to add this to fix rust_analyzer in vscode
 Cargo.toml
