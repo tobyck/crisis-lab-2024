@@ -65,6 +65,7 @@ async fn handle_mqtt_message(
 
     if first_word.is_none() {
         warn!("Got empty message. Doing nothing");
+        return;
     }
 
     match first_word.unwrap() {
@@ -76,6 +77,7 @@ async fn handle_mqtt_message(
 
             if recent_data.is_none() {
                 warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
+                return;
             }
 
             let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
