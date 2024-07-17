@@ -10,8 +10,8 @@
 .DS_Store
 /build
 /captures
-/app/src/test
-/app/src/androidTest
+/app/src/test/*
+/app/src/androidTest/*
 .externalNativeBuild
 .cxx
 local.properties

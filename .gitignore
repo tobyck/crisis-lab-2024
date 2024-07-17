@@ -5,3 +5,5 @@
 Cargo.lock
 target
 Cargo.toml
+androidapp/Crisislab/app/src/androidTest/
+androidapp/Crisislab/app/src/test/
