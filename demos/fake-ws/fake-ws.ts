@@ -4,16 +4,18 @@ import { RingBuffer } from './ring-buffer';
 import { question } from 'readline-sync';
 
 type DataPacket = {
-    timeStamp: number;
-    pressure: number;
-    waterLevel: number;
+    timestamp: number;
+    pressure?: number;
+    height: number;
 }
 
 const hertz = 10;
-const bufferSize = 20;
+const bufferSize = 10;
 
 
-let ws = new r_ws.Server({ port: 8081 });
+let ws = new r_ws.Server({ host: "10.165.228.97", port: 8081 });
+
+console.log(ws)
 
 let conns: r_ws[] = [];
 
@@ -21,9 +23,7 @@ let prevData = new RingBuffer<DataPacket>(bufferSize * hertz);
 
 ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
     conn.send(JSON.stringify({
-        type: 'init',
-        data: prevData.toArray(),
-        incidents: incidents
+        prevData: prevData.toArray().concat(incidents),
     }));
     console.log('new connection');
     conns.push(conn);
@@ -36,13 +36,16 @@ ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
 function* randGenerator(avg: number, variation: number, bound: number): Generator<number> {
     let val = avg;
     while (true) {
-        yield val;
+        //yield val;
+        yield 1000;
+        /*
         let dv = Math.random() * variation;
         if (Math.random() > (val - avg + bound) / bound / 2) {
             val += dv;
         } else {
             val -= dv
         }
+        */
     }
 }
 
@@ -51,13 +54,12 @@ let currentWaterLevel = randGenerator(1, 0.2, 1);
 
 setInterval(() => {
     let newPacket: DataPacket = {
-        timeStamp: Date.now(),
+        timestamp: Date.now(),
         pressure: currentPressure.next().value,
-        waterLevel: currentWaterLevel.next().value
+        height: currentWaterLevel.next().value
     }
     prevData.pushpop(newPacket);
     let toDeliver = JSON.stringify({
-        type: "data",
         data: newPacket
     })
     for (let conn of conns) {
@@ -71,13 +73,12 @@ while (true) {
     let trigger = question('alert?');
     if (trigger.trim() === 'y') {
         let incident = {
-            timeStamp: Date.now(),
-            height: prevData.get(0).waterLevel
+            timestamp: Date.now(),
+            height: prevData.get(0).height
         };
         incidents.push(incident);
         for (let conn of conns) {
             conn.send(JSON.stringify({
-                type: 'alert',
                 data: incident
             }))
         }
@@ -86,6 +87,6 @@ while (true) {
 }
 
 type Incident = {
-    timeStamp: number;
+    timestamp: number;
     height: number;
 }

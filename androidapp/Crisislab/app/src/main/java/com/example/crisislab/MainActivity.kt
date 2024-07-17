@@ -29,7 +29,7 @@ class MainActivity() : ComponentActivity() {
         setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val client: OkHttpClient =  OkHttpClient()
+        val client = OkHttpClient()
         logViewModel = ViewModelProvider(this).get(LogViewModel::class.java)
         socketStatusViewModel = ViewModelProvider(this).get(SocketStatusViewModel::class.java);
         socketStatusViewModel.updateStatus("Status: Disconnected.")
@@ -60,7 +60,7 @@ class MainActivity() : ComponentActivity() {
 
         val request: Request = Request
             .Builder()
-            .url("ws://dashboard.alex-berry.net:8080")
+            .url("http://10.165.228.97:8081")
             .build()
         val listener = SocketListener(logViewModel, socketStatusViewModel, this);
         val ws: WebSocket = client.newWebSocket(request, listener)

@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="16dp"
+    android:layout_height="32dp"
     android:layout_margin="5dp"
     >
 
@@ -27,6 +27,23 @@
             android:text="@string/height"
             android:textColor="#e6eaf8"
             android:textStyle="bold" />
-    </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvTsunamiLabel2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" at\n"
+            android:textColor="#e6eaf8"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:text=""
+        android:textColor="#e6eaf8"
+        android:textStyle="bold" />
 </androidx.cardview.widget.CardView>
