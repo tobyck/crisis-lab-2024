@@ -20,15 +20,15 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        Log.d("test", "Connected")
-
         context.notificationHandler = NotificationHandler(context.notificationModule.provideNotificationManager(context), context)
         if(!context.notificationHandler.isServiceRunning) {
-            Log.d("WebSocket", "Service not running")
+            output("Service not running")
+
             val intent = Intent(context, context.notificationHandler::class.java)
             context.startService(intent);
             context.notificationHandler.isServiceRunning = true;
-            Log.d("WebSocket", "Notification Service began.")
+
+            output("Notification Service began.")
         }
 
         socketStatusViewModel.updateStatus("Status: Connected.")
@@ -36,13 +36,12 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val jObj = JSONObject(text)
-        val data = jObj.optJSONObject("data");
-        val prevData = jObj.optJSONArray("prevData")
+        val data = JSONObject(text)
+        val prevAlerts = data.optJSONArray("previous_alerts")
 
-        if(prevData!=null) {
-            for(i in 0 until prevData.length()) {
-                val prevPacket: JSONObject = prevData.getJSONObject(i)
+        if(prevAlerts!=null) {
+            for(i in 0 until prevAlerts.length()) {
+                val prevPacket: JSONObject = prevAlerts.getJSONObject(i)
                 val currentPacket = checkPacket(prevPacket)
 
                 if(currentPacket.bool) {
@@ -51,12 +50,10 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
             }
         }
 
-        for (i in 0 until jObj.length()) {
-            val checked = checkPacket(data);
+        val checked = checkPacket(data);
 
-            if (checked.bool) {
-                logPacket(checked.packet, true)
-            }
+        if (checked.bool) {
+            logPacket(checked.packet, true)
         }
     }
 
@@ -64,6 +61,7 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun logPacket(packet: HashMap<String, String?>, notify: Boolean) {
+        // Format the log
         val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 100)) / 100).toString() + " cm", packet["timestamp"]) }
 
         if (newLog != null) {
@@ -112,7 +110,7 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
     }
 
     fun output(text: String?) {
-        Log.d("PieSocket", text!!)
+        Log.d("WebSocket", text!!)
     }
 
     companion object {

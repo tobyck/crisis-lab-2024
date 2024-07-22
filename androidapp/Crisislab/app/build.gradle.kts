@@ -61,6 +61,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
     implementation(libs.androidx.appcompat)
     implementation ("com.squareup.okhttp3:okhttp:4.2.1")
+    implementation(libs.androidx.media3.common)
     val ktorVersion = "2.3.11"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("org.java-websocket:Java-WebSocket:1.4.0")

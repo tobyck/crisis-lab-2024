@@ -14,11 +14,12 @@ class LogItemViewHolder(
 ): RecyclerView.ViewHolder(binding.root) {
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindLogItem(logItem: LogItem) {
-        binding.height.text = logItem.height
         val time = Instant.ofEpochMilli(logItem.time!!.toLong())
         val zonedTime = time.atZone(ZoneId.of("Pacific/Auckland"))
         val formattedTime =
             DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy").format(zonedTime)
+
+        binding.height.text = logItem.height
         binding.time.text = formattedTime
     }
 }
