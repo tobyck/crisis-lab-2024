@@ -29,14 +29,13 @@ class MainActivity() : ComponentActivity() {
         setContentView(R.layout.activity_main)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val client: OkHttpClient =  OkHttpClient()
+        val client = OkHttpClient()
         logViewModel = ViewModelProvider(this).get(LogViewModel::class.java)
         socketStatusViewModel = ViewModelProvider(this).get(SocketStatusViewModel::class.java);
         socketStatusViewModel.updateStatus("Status: Disconnected.")
 
-		// If user high enough API version then ask for permission for notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Log.d("Permission", "Asking for permissions")
+            Log.d("Main", "Asking for permissions")
             (ActivityCompat::requestPermissions)(this as Activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT), 0)
         }
 
@@ -45,18 +44,18 @@ class MainActivity() : ComponentActivity() {
         }
 
         connectToSocket(client)
-        setRecylerView()
+        setRecyclerView()
     }
 
     private fun connectToSocket(client: OkHttpClient) {
         val connections = client.connectionPool.connectionCount()
 
         if(connections > 0) {
-            Log.e("Socket", "Already connected to WebSocket.")
+            Log.e("Main", "Already connected to WebSocket.")
             return;
         }
 
-        Log.d("Socket", "Connecting");
+        Log.d("Main", "Connecting");
 
         val request: Request = Request
             .Builder()
@@ -66,7 +65,7 @@ class MainActivity() : ComponentActivity() {
         val ws: WebSocket = client.newWebSocket(request, listener)
     }
 
-    private fun setRecylerView() {
+    private fun setRecyclerView() {
         logViewModel.logItems.observe(this) {
             binding.logListRecyclerView.apply {
                 layoutManager = LinearLayoutManager(applicationContext)
@@ -81,4 +80,4 @@ class MainActivity() : ComponentActivity() {
             }
         }
     }
-} 
+}

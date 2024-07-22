@@ -24,5 +24,4 @@ class SocketStatusAdapter(
     override fun onBindViewHolder(holder: SocketStatusViewHolder, position: Int) {
         holder.bindStatus(status)
     }
-
 }

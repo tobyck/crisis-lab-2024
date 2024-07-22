@@ -14,11 +14,9 @@ import com.example.crisislab.NotificationModule
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class NotificationHandler (
     private val notificationManager: NotificationManagerCompat,
-
     private val context: Context
 ) : Service() {
     var isServiceRunning = false;
-
 
     override fun onBind(intent: Intent?): IBinder? {
         return null!!

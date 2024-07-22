@@ -20,16 +20,15 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        Log.d("test", "Connected")
-
-        // JANKY JANK JANK
         context.notificationHandler = NotificationHandler(context.notificationModule.provideNotificationManager(context), context)
         if(!context.notificationHandler.isServiceRunning) {
-            Log.d("WebSocket", "Service not running")
+            output("Service not running")
+
             val intent = Intent(context, context.notificationHandler::class.java)
             context.startService(intent);
             context.notificationHandler.isServiceRunning = true;
-            Log.d("WebSocket", "Notification Service began.")
+
+            output("Notification Service began.")
         }
 
         socketStatusViewModel.updateStatus("Status: Connected.")
@@ -37,35 +36,67 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onMessage(webSocket: WebSocket, text: String) {
-        val jObj = JSONObject(text)
+        val data = JSONObject(text)
+        val prevAlerts = data.optJSONArray("previous_alerts")
 
-        for (i in 0 until jObj.length()) {
-            val packet = HashMap<String, String?>()
-            packet["pressure"] = jObj.optString("pressure")
-            packet["height"] = jObj.optString("height")
-            packet["timestamp"] = jObj.optString("timestamp")
+        if(prevAlerts!=null) {
+            for(i in 0 until prevAlerts.length()) {
+                val prevPacket: JSONObject = prevAlerts.getJSONObject(i)
+                val currentPacket = checkPacket(prevPacket)
 
-			// Alert packets don't contain a pressure value, only a height and timestamp
-            if (packet["pressure"] == "" && packet["height"] != "") {
-				// Make a LogItem with height rounded to 2dp
-                val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 100)) / 100).toString() + " cm", packet["timestamp"]) }
-
-                if (newLog != null) {
-                    logViewModel.addLogItem(newLog)
-
-                    // Format timestamp
-                    val time = Instant.ofEpochMilli(newLog.time!!.toLong())
-                    val zonedTime = time.atZone(ZoneId.of("Pacific/Auckland"))
-                    val formattedTime = DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(zonedTime)
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.notificationHandler.showNotification("TSUNAMI WARNING", newLog.height, "TSUNAMI", formattedTime);
-                    }
-
-                    return;
+                if(currentPacket.bool) {
+                    logPacket(currentPacket.packet, false)
                 }
             }
         }
+
+        val checked = checkPacket(data);
+
+        if (checked.bool) {
+            logPacket(checked.packet, true)
+        }
+    }
+
+    data class packetType(val bool: Boolean, val packet: HashMap<String, String?>)
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun logPacket(packet: HashMap<String, String?>, notify: Boolean) {
+        // Format the log
+        val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 100)) / 100).toString() + " cm", packet["timestamp"]) }
+
+        if (newLog != null) {
+            logViewModel.addLogItem(newLog)
+
+            // Format timestamp
+            val time = Instant.ofEpochMilli(newLog.time!!.toLong())
+            val zonedTime = time.atZone(ZoneId.of("Pacific/Auckland"))
+            val formattedTime =
+                DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(zonedTime)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && notify) {
+                context.notificationHandler.showNotification(
+                    "TSUNAMI WARNING",
+                    newLog.height,
+                    "TSUNAMI",
+                    formattedTime
+                );
+            }
+            return;
+        }
+    }
+
+    fun checkPacket(data: JSONObject?): packetType {
+        val packet = HashMap<String, String?>()
+
+        packet["pressure"] = data?.optString("pressure")
+        packet["height"] = data?.optString("height")
+        packet["timestamp"] = data?.optString("timestamp")
+
+        // Alert packets don't contain a pressure value, only a height and timestamp
+        if (packet["pressure"] == "" && packet["height"] != "") {
+            return packetType(true, packet)
+        }
+        return packetType(false, packet)
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -79,7 +110,7 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
     }
 
     fun output(text: String?) {
-        Log.d("PieSocket", text!!)
+        Log.d("WebSocket", text!!)
     }
 
     companion object {
