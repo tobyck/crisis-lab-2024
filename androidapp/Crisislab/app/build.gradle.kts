@@ -90,3 +90,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+android.sourceSets.all {
+    kotlin.srcDir("src/$name/kotlin")
+    java.srcDir("src/$name/kotlin")
+};
