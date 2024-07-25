@@ -9,17 +9,21 @@ async fn social_alert(height: f32) {
     let password = env::var("ALERT_PASSWORD")
         .expect("Error reading ALERT_PASSWORD environment variable");
 
+    let social_alerts_endpoint = env::var("ALERT_ENDPOINT")
+        .expect("Error reading ALERT_ENDPOINT environment variable");
+
     let body = json!({
         "height": height,
         "password": password
     });
 
-    let social_alerts_endpoint = env::var("ALERT_ENDPOINT")
-        .expect("Error reading ALERT_ENDPOINT environment variable");
+    info!("Posting alert to social alerts system with body: {}", body);
+  
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
 
-    info!("Posting alert to social alerts system with body of {}", body);
-
-    let client = reqwest::Client::builder().danger_accept_invalid_certs(true).build().unwrap();
     let response = client.post(&social_alerts_endpoint)
         .json(&body)
         .send()

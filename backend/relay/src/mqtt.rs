@@ -65,6 +65,7 @@ async fn handle_mqtt_message(
 
     if first_word.is_none() {
         warn!("Got empty message. Doing nothing");
+        return;
     }
 
     match first_word.unwrap() {
@@ -76,6 +77,7 @@ async fn handle_mqtt_message(
 
             if recent_data.is_none() {
                 warn!("Not enough recent data for calibration, {} seconds of data are required", CALIBRATION_SECONDS);
+                return;
             }
 
             let first_of_recent_data = cache_lock.at(cache_lock.len() - AMOUNT_OF_CALIBRATION_DATA);
@@ -279,4 +281,42 @@ pub fn start_listening(mut event_loop: EventLoop, alert_threshold: f32) -> (
 
     // return data to be passed to websocket connection handlers
     (broadcast_tx_original, cache_original, alerts_original, calibrations_original)
+}
+
+#[cfg(test)]
+mod benchmarks {
+    use test::Bencher;
+    use std::{hint::black_box, sync::Arc};
+    use tokio::sync::{broadcast, RwLock};
+    use futures::executor::block_on;
+
+    use crate::{config::{CACHE_CAPACITY, CHANNEL_CAPACITY}, data::{Cache, Calibrations, SharedAlertsVec, SharedCache}};
+
+    use super::handle_mqtt_message;
+
+    #[bench]
+    fn bench_handle_mqtt_message(b: &mut Bencher) {
+        black_box({
+            let (broadcast_tx, _broadcast_rx) = broadcast::channel::<String>(CHANNEL_CAPACITY);
+            let cache: SharedCache = Arc::new(RwLock::new(Cache::new(CACHE_CAPACITY)));
+            let alerts: SharedAlertsVec = Arc::new(RwLock::new(Vec::new()));
+
+            let calibrations = Arc::new(RwLock::new(Calibrations {
+                air_pressure: None,
+                resting_water_level: None
+            }));
+
+            b.iter(|| {
+                block_on(handle_mqtt_message(
+                    1000.to_string(),
+                    &broadcast_tx,
+                    &cache,
+                    &alerts,
+                    &calibrations,
+                    5.0,
+                    &mut None
+                ));
+            })
+        })
+    }
 }
