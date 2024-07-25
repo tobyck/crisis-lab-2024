@@ -17,11 +17,15 @@ import okhttp3.Request
 import okhttp3.WebSocket
 
 class MainActivity() : ComponentActivity() {
+    // ViewModels for managing logs and socket status
     lateinit var logViewModel: LogViewModel
-    lateinit var socketStatusViewModel: SocketStatusViewModel;
-    private lateinit var binding:ActivityMainBinding
-    val notificationModule: NotificationModule = NotificationModule;
-    lateinit var notificationHandler: NotificationHandler;
+    lateinit var socketStatusViewModel: SocketStatusViewModel
+    // Binding object for the main activity layout
+    private lateinit var binding: ActivityMainBinding
+    // Notification module instance
+    val notificationModule: NotificationModule = NotificationModule
+    // Notification handler instance
+    lateinit var notificationHandler: NotificationHandler
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,19 +34,24 @@ class MainActivity() : ComponentActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val client = OkHttpClient()
+
+        // Initialize ViewModels
         logViewModel = ViewModelProvider(this).get(LogViewModel::class.java)
-        socketStatusViewModel = ViewModelProvider(this).get(SocketStatusViewModel::class.java);
+        socketStatusViewModel = ViewModelProvider(this).get(SocketStatusViewModel::class.java)
         socketStatusViewModel.updateStatus("Status: Disconnected.")
 
+        // Request necessary permissions for notifications
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Log.d("Main", "Asking for permissions")
-            (ActivityCompat::requestPermissions)(this as Activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT), 0)
+            ActivityCompat.requestPermissions(this as Activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT), 0)
         }
 
+        // Set click listener for connect button
         binding.connect.setOnClickListener {
             connectToSocket(client)
         }
 
+        // Connect to WebSocket and set up RecyclerView
         connectToSocket(client)
         setRecyclerView()
     }
@@ -50,22 +59,25 @@ class MainActivity() : ComponentActivity() {
     private fun connectToSocket(client: OkHttpClient) {
         val connections = client.connectionPool.connectionCount()
 
-        if(connections > 0) {
+        // Check if already connected
+        if (connections > 0) {
             Log.e("Main", "Already connected to WebSocket.")
-            return;
+            return
         }
 
-        Log.d("Main", "Connecting");
+        Log.d("Main", "Connecting")
 
-        val request: Request = Request
-            .Builder()
+        // Create WebSocket request and listener
+        val request: Request = Request.Builder()
             .url("ws://dashboard.alex-berry.net:8080")
             .build()
-        val listener = SocketListener(logViewModel, socketStatusViewModel, this);
+        val listener = SocketListener(logViewModel, socketStatusViewModel, this)
         val ws: WebSocket = client.newWebSocket(request, listener)
     }
 
+    // Set up RecyclerView with adapters
     private fun setRecyclerView() {
+        // Observe log items and update RecyclerView adapter
         logViewModel.logItems.observe(this) {
             binding.logListRecyclerView.apply {
                 layoutManager = LinearLayoutManager(applicationContext)
@@ -73,6 +85,7 @@ class MainActivity() : ComponentActivity() {
             }
         }
 
+        // Observe socket status and update RecyclerView adapter
         socketStatusViewModel.status.observe(this) {
             binding.WebSocketStatusRecyclerView.apply {
                 layoutManager = LinearLayoutManager(applicationContext)

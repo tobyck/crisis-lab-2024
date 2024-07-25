@@ -10,7 +10,6 @@ android {
     compileSdk = 34
 
 
-
     defaultConfig {
         applicationId = "com.example.crisislab"
         minSdk = 24

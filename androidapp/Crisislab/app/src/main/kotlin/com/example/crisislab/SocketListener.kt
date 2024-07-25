@@ -13,33 +13,50 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 import kotlin.math.round
 
-class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketStatusViewModel, context: MainActivity) : WebSocketListener() {
-    var logViewModel: LogViewModel = logViewModel;
-    var socketStatusViewModel: SocketStatusViewModel = socketStatusViewModel;
-    var context: MainActivity = context;
+// Listens for WebSocket events and processes messages accordingly
+class SocketListener(
+    logViewModel: LogViewModel,
+    socketStatusViewModel: SocketStatusViewModel,
+    context: MainActivity
+) : WebSocketListener() {
 
+    // ViewModel to manage logs
+    var logViewModel: LogViewModel = logViewModel
+    // ViewModel to manage socket status
+    var socketStatusViewModel: SocketStatusViewModel = socketStatusViewModel
+    // Context of the main activity
+    var context: MainActivity = context
+
+    // Called when the WebSocket connection is opened
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        context.notificationHandler = NotificationHandler(context.notificationModule.provideNotificationManager(context), context)
+        // Initialize the notification handler
+        context.notificationHandler = NotificationHandler(
+            context.notificationModule.provideNotificationManager(context),
+            context
+        )
+
+        // Start the notification service if it's not running
         if(!context.notificationHandler.isServiceRunning) {
             output("Service not running")
-
             val intent = Intent(context, context.notificationHandler::class.java)
-            context.startService(intent);
-            context.notificationHandler.isServiceRunning = true;
-
+            context.startService(intent)
+            context.notificationHandler.isServiceRunning = true
             output("Notification Service began.")
         }
 
+        // Update socket status to connected
         socketStatusViewModel.updateStatus("Status: Connected.")
     }
 
+    // Called when a message is received from the WebSocket
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onMessage(webSocket: WebSocket, text: String) {
         val data = JSONObject(text)
         val prevAlerts = data.optJSONArray("previous_alerts")
 
-        if(prevAlerts!=null) {
+        // Process previous alerts if any
+        if(prevAlerts != null) {
             for(i in 0 until prevAlerts.length()) {
                 val prevPacket: JSONObject = prevAlerts.getJSONObject(i)
                 val currentPacket = checkPacket(prevPacket)
@@ -50,28 +67,32 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
             }
         }
 
-        val checked = checkPacket(data);
-
+        // Check and log the current packet
+        val checked = checkPacket(data)
         if (checked.bool) {
             logPacket(checked.packet, true)
         }
     }
 
+    // Data class to hold packet information
     data class packetType(val bool: Boolean, val packet: HashMap<String, String?>)
 
+    // Log the packet and show notification if required
     @RequiresApi(Build.VERSION_CODES.O)
     fun logPacket(packet: HashMap<String, String?>, notify: Boolean) {
         // Format the log
-        val newLog = packet["height"]?.let { LogItem((round((it.toFloat() * 100)) / 100).toString() + " cm", packet["timestamp"]) }
+        val newLog = packet["height"]?.let {
+            LogItem((round((it.toFloat() * 100)) / 100).toString() + " cm", packet["timestamp"])
+        }
 
+        // Add log item and show notification if necessary
         if (newLog != null) {
             logViewModel.addLogItem(newLog)
 
             // Format timestamp
             val time = Instant.ofEpochMilli(newLog.time!!.toLong())
             val zonedTime = time.atZone(ZoneId.of("Pacific/Auckland"))
-            val formattedTime =
-                DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(zonedTime)
+            val formattedTime = DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy - z").format(zonedTime)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && notify) {
                 context.notificationHandler.showNotification(
@@ -79,41 +100,47 @@ class SocketListener(logViewModel: LogViewModel, socketStatusViewModel: SocketSt
                     newLog.height,
                     "TSUNAMI",
                     formattedTime
-                );
+                )
             }
-            return;
+            return
         }
     }
 
+    // Check the packet data and determine its validity
     fun checkPacket(data: JSONObject?): packetType {
         val packet = HashMap<String, String?>()
 
+        // Extract data from JSON
         packet["pressure"] = data?.optString("pressure")
         packet["height"] = data?.optString("height")
         packet["timestamp"] = data?.optString("timestamp")
 
-        // Alert packets don't contain a pressure value, only a height and timestamp
+        // Check if the packet is an alert (no pressure value)
         if (packet["pressure"] == "" && packet["height"] != "") {
             return packetType(true, packet)
         }
         return packetType(false, packet)
     }
 
+    // Called when the WebSocket is closing
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         webSocket.close(NORMAL_CLOSURE_STATUS, null)
         output("Closing : $code / $reason")
         socketStatusViewModel.updateStatus("Status: Disconnected.")
     }
 
+    // Called when there's a failure in the WebSocket connection
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         Log.e("WebSocket", "Error : " + t.message)
     }
 
+    // Utility function to output logs
     fun output(text: String?) {
         Log.d("WebSocket", text!!)
     }
 
     companion object {
+        // Normal closure status code
         private const val NORMAL_CLOSURE_STATUS = 1000
     }
 }

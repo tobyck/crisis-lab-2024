@@ -11,43 +11,47 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
 object NotificationModule {
+
+    // Function to build a notification
     fun build(context: Context, title: String, message: String, bigText: String?): Notification {
-        // This intent is for when the user taps the notification, it opens the app.
+        // Intent to open the app when the user taps the notification
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-        // This is for full screen notifications.
+        // Intent for full-screen notifications
         val fullScreenIntent = Intent(context, MainActivity::class.java)
-        val pendingFullScreenIntent = PendingIntent.getActivity(context, 0, fullScreenIntent,
-            PendingIntent.FLAG_IMMUTABLE)
+        val pendingFullScreenIntent = PendingIntent.getActivity(context, 0, fullScreenIntent, PendingIntent.FLAG_IMMUTABLE)
 
+        // Build and return the notification
         return NotificationCompat.Builder(context, "Main Channel ID")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSmallIcon(R.drawable.ic_notif)
             .setContentTitle(title)
             .setContentText(message)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))  // Set the style for the notification with big text
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)  // Set the priority of the notification
             .setContentIntent(pendingIntent)
             .setFullScreenIntent(pendingFullScreenIntent, true)
-            .setAutoCancel(true)
+            .setAutoCancel(true)  // Automatically remove the notification when the user taps it
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
     }
 
+    // Function to provide the NotificationManagerCompat
     fun provideNotificationManager(context: Context): NotificationManagerCompat {
         val notificationManager = NotificationManagerCompat.from(context)
+        // Create a notification channel for devices running Android O or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                "Main Channel ID",
-                "Main Channel",
-                NotificationManager.IMPORTANCE_HIGH
+                "Main Channel ID",  // Channel ID
+                "Main Channel",  // Channel name
+                NotificationManager.IMPORTANCE_HIGH  // Channel importance
             )
             notificationManager.createNotificationChannel(channel)
         }
-        return notificationManager;
+        return notificationManager
     }
 }
