@@ -215,6 +215,7 @@ const height = computed(() => ({
         y: height
     })),
     loaded: loaded.value,
-    baseline: calibrations?.resting_water_level
+    baseline: calibrations?.resting_water_level,
+    threshold: calibrations?.threshold
 }))
 </script>
