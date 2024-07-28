@@ -1,3 +1,9 @@
+/*
+ * Author: Alex Berry & Maxwell Robati
+ * Version: 29/07/2024
+ * Purpose: Connects to the server via WebSocket and updates information.
+ */
+
 package com.example.crisislab
 
 import NotificationHandler
@@ -13,7 +19,7 @@ import java.time.*
 import java.time.format.DateTimeFormatter
 import kotlin.math.round
 
-// Listens for WebSocket events and processes messages accordingly
+// Listens for WebSocket messages and processes them accordingly
 class WebSocketListener(
     logViewModel: LogViewModel,
     socketStatusViewModel: SocketStatusViewModel,
@@ -24,7 +30,6 @@ class WebSocketListener(
     var logViewModel: LogViewModel = logViewModel
     // ViewModel to manage socket status
     var socketStatusViewModel: SocketStatusViewModel = socketStatusViewModel
-    // Context of the main activity
     var context: MainActivity = context
 
     // Called when the WebSocket connection is opened
@@ -73,7 +78,7 @@ class WebSocketListener(
         }
     }
 
-    // Data class to hold packet information
+    // Struct to hold packet information
     data class Packet(val bool: Boolean, val packet: HashMap<String, String?>)
 
     // Log the packet and show notification if required
