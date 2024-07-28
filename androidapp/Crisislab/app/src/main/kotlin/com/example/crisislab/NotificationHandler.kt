@@ -1,3 +1,9 @@
+/*
+ * Author: Maxwell Robati
+ * Version: 29/07/2024
+ * Purpose: Posts notifications
+ */
+
 import android.Manifest
 import android.app.Service
 import android.content.Context
