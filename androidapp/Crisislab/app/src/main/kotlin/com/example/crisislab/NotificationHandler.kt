@@ -27,7 +27,7 @@ class NotificationHandler (
 
     // Binding the service to a client (not used)
     override fun onBind(intent: Intent?): IBinder? {
-        return null!!
+        return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
