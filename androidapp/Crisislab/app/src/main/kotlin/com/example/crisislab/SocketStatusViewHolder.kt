@@ -1,3 +1,9 @@
+/*
+ * Author: Alex Berry
+ * Version: 29/07/2024
+ * Purpose: Display for the WebSocket's status
+ */
+
 package com.example.crisislab
 
 import android.os.Build
@@ -7,10 +13,9 @@ import com.example.crisislab.databinding.StatusCellBinding
 
 // ViewHolder for displaying socket status in a RecyclerView
 class SocketStatusViewHolder(
-    // Binding object for the item layout
     private val binding: StatusCellBinding
 ) : RecyclerView.ViewHolder(binding.root) {
-
+    
     // Bind the status data to the item view
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindStatus(status: String) {
