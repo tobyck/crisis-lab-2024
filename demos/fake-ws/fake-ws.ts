@@ -5,17 +5,15 @@ import { question } from 'readline-sync';
 
 type DataPacket = {
     timestamp: number;
-    pressure?: number;
+    pressure: number;
     height: number;
 }
 
-const hertz = 10;
-const bufferSize = 10;
+const hertz = 25;
+const bufferSize = 20;
 
 
-let ws = new r_ws.Server({ host: "10.165.228.97", port: 8081 });
-
-console.log(ws)
+let ws = new r_ws.Server({ port: 8443 });
 
 let conns: r_ws[] = [];
 
@@ -23,7 +21,9 @@ let prevData = new RingBuffer<DataPacket>(bufferSize * hertz);
 
 ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
     conn.send(JSON.stringify({
-        prevData: prevData.toArray().concat(incidents),
+        type: 'init',
+        previous_data: prevData.toArray(),
+        previous_alerts: incidents
     }));
     console.log('new connection');
     conns.push(conn);
@@ -36,16 +36,13 @@ ws.on('connection', (conn: r_ws, req: IncomingMessage) => {
 function* randGenerator(avg: number, variation: number, bound: number): Generator<number> {
     let val = avg;
     while (true) {
-        //yield val;
-        yield 1000;
-        /*
+        yield val;
         let dv = Math.random() * variation;
         if (Math.random() > (val - avg + bound) / bound / 2) {
             val += dv;
         } else {
             val -= dv
         }
-        */
     }
 }
 
@@ -61,9 +58,7 @@ setInterval(() => {
         height: currentWaterLevel.next().value
     }
     prevData.pushpop(newPacket);
-    let toDeliver = JSON.stringify({
-        data: newPacket
-    })
+    let toDeliver = JSON.stringify(newPacket)
     for (let conn of conns) {
         conn.send(toDeliver);
     }
@@ -81,9 +76,7 @@ while (true) {
         };
         incidents.push(incident);
         for (let conn of conns) {
-            conn.send(JSON.stringify({
-                data: incident
-            }))
+            conn.send(JSON.stringify(incident))
         }
 
     }
