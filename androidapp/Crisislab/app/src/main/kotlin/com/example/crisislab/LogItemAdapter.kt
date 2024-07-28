@@ -1,7 +1,7 @@
 /*
  * Author: Alex Berry
  * Version: 29/07/2024
- * Purpose:
+ * Purpose: Manages the entire data set of and creates ViewHolder instances as needed
  */
 package com.example.crisislab
 

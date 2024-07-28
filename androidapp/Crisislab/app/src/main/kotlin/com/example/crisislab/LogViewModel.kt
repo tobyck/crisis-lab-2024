@@ -1,14 +1,14 @@
 /*
  * Author: Alex Berry
  * Version: 29/07/2024
- * Purpose:
+ * Purpose: Manages and edits and creates the list of logs
  */
 package com.example.crisislab
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-// ViewModel to store and manage log items
+// ViewModel to store and manage log items within the recyler view
 class LogViewModel : ViewModel() {
     var logItems = MutableLiveData<MutableList<LogItem>>(ArrayList())
 

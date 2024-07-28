@@ -1,7 +1,7 @@
 /*
  * Author: Alex Berry
  * Version: 29/07/2024
- * Purpose:
+ * Purpose: Handles the presentation of individual items within the RecyclerView
  */
 package com.example.crisislab
 
