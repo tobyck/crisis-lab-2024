@@ -16,15 +16,13 @@ class SocketStatusAdapter(
     // Create and return a ViewHolder for the item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SocketStatusViewHolder {
         // Inflate the layout for the item
-        val from = LayoutInflater.from(parent.context)
-        val binding = StatusCellBinding.inflate(from, parent, false)
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = StatusCellBinding.inflate(layoutInflater, parent, false)
         return SocketStatusViewHolder(binding)
     }
 
     // Return the number of items in the adapter (fixed to 1 in this case)
-    override fun getItemCount(): Int {
-        return 1
-    }
+    override fun getItemCount(): Int = 1
 
     // Bind the status data to the ViewHolder
     @RequiresApi(Build.VERSION_CODES.O)

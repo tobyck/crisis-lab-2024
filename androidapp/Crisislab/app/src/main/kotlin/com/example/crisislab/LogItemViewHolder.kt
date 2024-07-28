@@ -14,7 +14,6 @@ class LogItemViewHolder(
     private val binding: LogItemCellBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    // Function to bind log item data to the views
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindLogItem(logItem: LogItem) {
         // Convert the timestamp to a human-readable format

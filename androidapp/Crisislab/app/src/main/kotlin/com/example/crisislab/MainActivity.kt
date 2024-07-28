@@ -22,9 +22,8 @@ class MainActivity() : ComponentActivity() {
     lateinit var socketStatusViewModel: SocketStatusViewModel
     // Binding object for the main activity layout
     private lateinit var binding: ActivityMainBinding
-    // Notification module instance
+
     val notificationModule: NotificationModule = NotificationModule
-    // Notification handler instance
     lateinit var notificationHandler: NotificationHandler
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -48,15 +47,14 @@ class MainActivity() : ComponentActivity() {
 
         // Set click listener for connect button
         binding.connect.setOnClickListener {
-            connectToSocket(client)
+            connectToWebSocket(client)
         }
 
-        // Connect to WebSocket and set up RecyclerView
-        connectToSocket(client)
+        connectToWebSocket(client)
         setRecyclerView()
     }
 
-    private fun connectToSocket(client: OkHttpClient) {
+    private fun connectToWebSocket(client: OkHttpClient) {
         val connections = client.connectionPool.connectionCount()
 
         // Check if already connected
@@ -71,7 +69,7 @@ class MainActivity() : ComponentActivity() {
         val request: Request = Request.Builder()
             .url("ws://dashboard.alex-berry.net:8080")
             .build()
-        val listener = SocketListener(logViewModel, socketStatusViewModel, this)
+        val listener = WebSocketListener(logViewModel, socketStatusViewModel, this)
         val ws: WebSocket = client.newWebSocket(request, listener)
     }
 

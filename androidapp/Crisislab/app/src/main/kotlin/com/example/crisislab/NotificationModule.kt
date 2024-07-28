@@ -18,7 +18,7 @@ object NotificationModule {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE) // Opens the app when triggered
 
         // Intent for full-screen notifications
         val fullScreenIntent = Intent(context, MainActivity::class.java)
@@ -31,12 +31,12 @@ object NotificationModule {
             .setContentTitle(title)
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))  // Set the style for the notification with big text
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)  // Set the priority of the notification
-            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)  // Allows the notification to be a heads up one
+            .setContentIntent(pendingIntent) // Triggers pendingIntent when the user clicks on the notification
             .setFullScreenIntent(pendingFullScreenIntent, true)
             .setAutoCancel(true)  // Automatically remove the notification when the user taps it
             .setOngoing(true)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC) // Makes the notification visible in full on the lock screen
             .build()
     }
 
@@ -46,9 +46,9 @@ object NotificationModule {
         // Create a notification channel for devices running Android O or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                "Main Channel ID",  // Channel ID
-                "Main Channel",  // Channel name
-                NotificationManager.IMPORTANCE_HIGH  // Channel importance
+                "Main Channel ID",
+                "Main Channel",
+                NotificationManager.IMPORTANCE_HIGH  // Makes the notification make a sound and be a headsup notification
             )
             notificationManager.createNotificationChannel(channel)
         }

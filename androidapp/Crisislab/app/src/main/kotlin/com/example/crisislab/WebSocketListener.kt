@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.round
 
 // Listens for WebSocket events and processes messages accordingly
-class SocketListener(
+class WebSocketListener(
     logViewModel: LogViewModel,
     socketStatusViewModel: SocketStatusViewModel,
     context: MainActivity
@@ -45,7 +45,6 @@ class SocketListener(
             output("Notification Service began.")
         }
 
-        // Update socket status to connected
         socketStatusViewModel.updateStatus("Status: Connected.")
     }
 
@@ -75,7 +74,7 @@ class SocketListener(
     }
 
     // Data class to hold packet information
-    data class packetType(val bool: Boolean, val packet: HashMap<String, String?>)
+    data class Packet(val bool: Boolean, val packet: HashMap<String, String?>)
 
     // Log the packet and show notification if required
     @RequiresApi(Build.VERSION_CODES.O)
@@ -107,19 +106,19 @@ class SocketListener(
     }
 
     // Check the packet data and determine its validity
-    fun checkPacket(data: JSONObject?): packetType {
-        val packet = HashMap<String, String?>()
+    fun checkPacket(data: JSONObject?): Packet {
+        val jsonData = HashMap<String, String?>()
 
         // Extract data from JSON
-        packet["pressure"] = data?.optString("pressure")
-        packet["height"] = data?.optString("height")
-        packet["timestamp"] = data?.optString("timestamp")
+        jsonData["pressure"] = data?.optString("pressure")
+        jsonData["height"] = data?.optString("height")
+        jsonData["timestamp"] = data?.optString("timestamp")
 
         // Check if the packet is an alert (no pressure value)
-        if (packet["pressure"] == "" && packet["height"] != "") {
-            return packetType(true, packet)
+        if (jsonData["pressure"] == "" && jsonData["height"] != "") {
+            return Packet(true, jsonData)
         }
-        return packetType(false, packet)
+        return Packet(false, jsonData)
     }
 
     // Called when the WebSocket is closing

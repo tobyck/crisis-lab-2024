@@ -15,7 +15,7 @@ import com.example.crisislab.NotificationModule
 class NotificationHandler (
     // Notification manager for displaying notifications
     private val notificationManager: NotificationManagerCompat,
-    // Application context
+    // Needs a comment
     private val context: Context
 ) : Service() {
     var isServiceRunning = false
@@ -25,9 +25,8 @@ class NotificationHandler (
         return null!!
     }
 
-    // Handle service start commands
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_NOT_STICKY
+        return START_NOT_STICKY // Service won't restart if the system stops it
     }
 
     fun showNotification(title: String, message: String, type: String?, timestamp: String?) {

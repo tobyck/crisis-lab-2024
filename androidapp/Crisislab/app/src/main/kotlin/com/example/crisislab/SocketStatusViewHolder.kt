@@ -14,7 +14,6 @@ class SocketStatusViewHolder(
     // Bind the status data to the item view
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindStatus(status: String) {
-        // Set the text of the WebSocket status TextView
         binding.WebSocketStatus.text = status
     }
 }

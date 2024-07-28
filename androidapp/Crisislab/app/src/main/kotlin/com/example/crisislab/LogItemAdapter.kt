@@ -9,20 +9,17 @@ import com.example.crisislab.databinding.LogItemCellBinding
 
 // Adapter class for displaying LogItem data in a RecyclerView
 class LogItemAdapter(
-    // List of log items to display
     private val logItems: List<LogItem>
 ) : RecyclerView.Adapter<LogItemViewHolder>() {
 
     // Called when RecyclerView needs a new ViewHolder of the given type to represent an item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogItemViewHolder {
-        // Get a LayoutInflater instance from the parent's context
-        val from = LayoutInflater.from(parent.context)
+        val layoutInflater = LayoutInflater.from(parent.context)
         // Inflate the layout for individual log item cells and create a binding object
-        val binding = LogItemCellBinding.inflate(from, parent, false)
+        val binding = LogItemCellBinding.inflate(layoutInflater, parent, false)
         return LogItemViewHolder(binding)
     }
 
-    // Returns the total number of items in the data set held by the adapter
     override fun getItemCount(): Int = logItems.size
 
     // Called by RecyclerView to display the data at the specified position
