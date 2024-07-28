@@ -1,3 +1,9 @@
+/*
+ * Author: Alex Berry
+ * Version: 29/07/2024
+ * Purpose: Displays the WebSocket's current connectivity status
+ */
+
 package com.example.crisislab
 
 import android.os.Build
@@ -9,13 +15,10 @@ import com.example.crisislab.databinding.StatusCellBinding
 
 // Adapter for displaying socket status in a RecyclerView
 class SocketStatusAdapter(
-    // Status to be displayed
     private val status: String
 ) : RecyclerView.Adapter<SocketStatusViewHolder>() {
-
     // Create and return a ViewHolder for the item
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SocketStatusViewHolder {
-        // Inflate the layout for the item
         val layoutInflater = LayoutInflater.from(parent.context)
         val binding = StatusCellBinding.inflate(layoutInflater, parent, false)
         return SocketStatusViewHolder(binding)
