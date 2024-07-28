@@ -15,7 +15,6 @@ import com.example.crisislab.NotificationModule
 class NotificationHandler (
     // Notification manager for displaying notifications
     private val notificationManager: NotificationManagerCompat,
-    // Needs a comment
     private val context: Context
 ) : Service() {
     var isServiceRunning = false
@@ -39,9 +38,10 @@ class NotificationHandler (
             Log.d("NotificationHandler", "Permission denied")
             return
         }
+        
         Log.d("NotificationHandler", "Permission Granted, notifying.")
 
-        // Create and display a notification if the type is "TSUNAMI"
+        // Create and display a notification if a Tsunami is detected
         if (type == "TSUNAMI") {
             val notif = NotificationModule.build(context, title, "A Tsunami has been detected!", "A $message Tsunami has been detected! $timestamp")
             notificationManager.notify(1, notif)
