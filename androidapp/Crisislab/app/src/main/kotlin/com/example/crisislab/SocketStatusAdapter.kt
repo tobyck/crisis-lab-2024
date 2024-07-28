@@ -3,7 +3,6 @@
  * Version: 29/07/2024
  * Purpose: Displays the WebSocket's current connectivity status
  */
-
 package com.example.crisislab
 
 import android.os.Build

@@ -1,3 +1,8 @@
+/*
+ * Author: Alex Berry & Maxwell Robati
+ * Version: 29/07/2024
+ * Purpose: The main file which initialises everything and asks the user for notification permissions
+ */
 package com.example.crisislab
 
 import NotificationHandler

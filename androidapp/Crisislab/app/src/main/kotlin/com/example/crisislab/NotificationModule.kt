@@ -1,5 +1,5 @@
 /*
- * Author: Maxwell Robati
+ * Author: Maxwell Robati & Alex Berry
  * Version: 29/07/2024
  * Purpose: Container for all notifications
  */
