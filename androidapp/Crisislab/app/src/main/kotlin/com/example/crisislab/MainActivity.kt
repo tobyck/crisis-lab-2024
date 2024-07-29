@@ -3,6 +3,7 @@
  * Version: 29/07/2024
  * Purpose: The main file which initialises everything and asks the user for notification permissions
  */
+
 package com.example.crisislab
 
 import NotificationHandler
@@ -50,7 +51,7 @@ class MainActivity() : ComponentActivity() {
             ActivityCompat.requestPermissions(this as Activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.USE_FULL_SCREEN_INTENT), 0)
         }
 
-        // Set click listener for connect button
+        // Set click listener for the connect button
         binding.connect.setOnClickListener {
             connectToWebSocket(client)
         }
@@ -62,7 +63,6 @@ class MainActivity() : ComponentActivity() {
     private fun connectToWebSocket(client: OkHttpClient) {
         val connections = client.connectionPool.connectionCount()
 
-        // Check if already connected
         if (connections > 0) {
             Log.e("Main", "Already connected to WebSocket.")
             return
@@ -70,7 +70,6 @@ class MainActivity() : ComponentActivity() {
 
         Log.d("Main", "Connecting")
 
-        // Create WebSocket request and listener
         val request: Request = Request.Builder()
             .url("ws://dashboard.alex-berry.net:8080")
             .build()
