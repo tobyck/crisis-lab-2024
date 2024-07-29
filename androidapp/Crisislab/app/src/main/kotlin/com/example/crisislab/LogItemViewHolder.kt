@@ -1,8 +1,9 @@
 /*
  * Author: Alex Berry
  * Version: 29/07/2024
- * Purpose: Handles the presentation of individual items within the RecyclerView
+ * Purpose: Handles displaying individual items within the RecyclerView
  */
+
 package com.example.crisislab
 
 import android.os.Build
@@ -15,13 +16,11 @@ import java.time.format.DateTimeFormatter
 
 // ViewHolder class for rendering log items in the RecyclerView
 class LogItemViewHolder(
-    // Binding object for the log item cell layout
     private val binding: LogItemCellBinding
 ) : RecyclerView.ViewHolder(binding.root) {
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun bindLogItem(logItem: LogItem) {
-        // Convert the timestamp to a human-readable format
+        // Convert the unix timestamp to a human-readable format
         val time = Instant.ofEpochMilli(logItem.time!!.toLong())
         val zonedTime = time.atZone(ZoneId.of("Pacific/Auckland"))
         val formattedTime = DateTimeFormatter.ofPattern("kk:mm - dd/MM/yy").format(zonedTime)
