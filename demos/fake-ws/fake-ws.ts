@@ -1,3 +1,5 @@
+// Fake websocket server that sends fake pressure/height data to the frontend, for testing purposes
+
 import { IncomingMessage } from 'http';
 import r_ws from 'ws';
 import { RingBuffer } from './ring-buffer';
