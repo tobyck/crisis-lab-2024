@@ -1,3 +1,8 @@
+/*
+ * Author: Alex Berry
+ * Version: 31/07/2024
+ * Purpose: Modified version of alex-demo1, doesn't work
+ */
 #include <Wire.h>
 #include <SparkFun_LPS28DFW_Arduino_Library.h>
 

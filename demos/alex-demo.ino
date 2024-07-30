@@ -1,3 +1,8 @@
+/*
+ * Author: Alex Berry
+ * Version: 31/07/2024
+ * Purpose: Demo example of reading data from the sensor from the sensor library
+ */
 #include <SparkFun_LPS28DFW_Arduino_Library.h>
 #include <Wire.h>
 

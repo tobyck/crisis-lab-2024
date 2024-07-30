@@ -1,3 +1,8 @@
+/*
+ * Author: Alex Berry
+ * Version: 31/07/2024
+ * Purpose: Test program for the lighthouse ring light that blinks one colour
+ */
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
 }
