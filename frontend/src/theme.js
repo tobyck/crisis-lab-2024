@@ -1,6 +1,6 @@
 import { reactive, computed } from 'vue';
 
-// yay dark mode autodetection
+// Get the current theme from local storage, or use the system theme if it's not set
 let defaultMode = localStorage.getItem('dark')
     ? localStorage.getItem('dark') == 'true'
     : window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
@@ -35,7 +35,7 @@ export const THEME = reactive({
     toggleDark: () => {
         localStorage.setItem('dark', THEME.dark = !THEME.dark);
     },
-    isMobile: computed(() => window.innerWidth < 900), // TODO: stronger check
+    isMobile: computed(() => window.innerWidth < 900),
     alertActive: false,
 });
 

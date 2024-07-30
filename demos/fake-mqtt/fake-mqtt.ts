@@ -1,3 +1,6 @@
+// Sends pseudorandom data to the MQTT broker, and triggers alerts when prompted
+// Also sends fake calibration data
+
 import { question } from 'readline-sync';
 function* randGenerator(avg: number, variation: number, bound: number): Generator<number> {
     let val = avg;

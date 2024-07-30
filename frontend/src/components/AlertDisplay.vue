@@ -1,5 +1,5 @@
-<!-- this pops up if an alert occurs -->
-<!-- for complicated reasons we have two of these - one for mobile, one otherwise -->
+<!-- this pops up if an alert occurs 
+     for complicated reasons we have two of these - one for mobile, one otherwise -->
 <template>
     <div class="box">
         <div v-if="THEME.alertActive" class="exc">⚠️</div>

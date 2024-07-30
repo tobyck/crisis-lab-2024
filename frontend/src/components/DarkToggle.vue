@@ -1,3 +1,4 @@
+<!-- a switch that toggles dark/light mode -->
 <template>
     <span class="box">
         <span class="text">
@@ -92,6 +93,7 @@ label {
     margin-top: 2px;
 }
 
+/* Double size on larger screens */
 @media screen and (min-width: 3000px) {
     .slider:before {
         position: absolute;

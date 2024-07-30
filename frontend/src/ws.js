@@ -9,7 +9,7 @@ export const loaded = ref(false);
 
 export let calibrations = {};
 
-let LOCAL = false;
+let LOCAL = true;
 
 export async function initWebsocket() {
     let ws = new WebSocket(LOCAL ? 'ws://localhost:8443' : 'wss://dashboard.alex-berry.net:8443');
@@ -18,7 +18,7 @@ export async function initWebsocket() {
 
         lastRelayMessage.value = Date.now();
 
-        if (loaded.value == false) { // init packet
+        if (loaded.value == false) { // handle initial data packet
             loaded.value = true;
             calibrations = {
                 ...data.calibrations,
@@ -29,14 +29,14 @@ export async function initWebsocket() {
             if (packetData.length < 500) {
                 packetData.unshift(...Array(500 - packetData.length).fill(null));
             }
-        } else if (data.pressure) { // data packet
+        } else if (data.pressure) { // regular data packet
             packetData.shift();
             packetData.push(data);
 
             lastSensorMessage.value = Date.now();
         } else if (data.sensor_offline) {
             // don't need to do anything, just update the last message time
-        } else if (data.height) { // alert packet
+        } else if (data.height) { // alert packets have height but not pressure
             logs.unshift(stringifyIncident(data));
 
             THEME.alertActive = true;

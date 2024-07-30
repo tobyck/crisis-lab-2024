@@ -1,3 +1,4 @@
+<!-- a generic chart using vue-chartjs to display data. There are two of these -->
 <template>
     <Line v-if="dataSource.loaded" ref="chart" :id="name" :options="chartOptions" :data="chartData" />
 </template>
@@ -18,6 +19,7 @@ ChartJS.defaults.font.size = window.innerWidth > 3000 ? 20 : 10;
 const props = defineProps(['name', 'data-source', 'loaded', 'options']);
 console.log(props.dataSource, props.dataSource.loaded);
 
+// Line width changes depending on screen size. There's probably a better way to do this.
 const borderWidth = computed(() => window.innerWidth > 3000 ? 6 : THEME.isMobile ? 1.5 : 3);
 
 const chartData = computed(() => {
@@ -35,6 +37,8 @@ const chartData = computed(() => {
             },
         ]
     }
+    // Add a baseline and threshold line if they exist
+    // only used for the wave height chart
     if (props.dataSource.baseline) {
         res.datasets.unshift({
             label: 'Threshold',
@@ -46,7 +50,6 @@ const chartData = computed(() => {
             data: [{ x: 0, y: props.dataSource.baseline }, { x: 20, y: props.dataSource.baseline }],
         })
     }
-    // ideally this should not be duplicated but whatever
     if (props.dataSource.threshold) {
         let height = props.dataSource.baseline + props.dataSource.threshold;
         res.datasets.unshift({
@@ -69,14 +72,16 @@ let c = computed(() => props.dataSource.values);
 let minY = ref(null), maxY = ref(null);
 
 watch(c, (val) => {
-    if (minY.value == null) {
+    if (minY.value == null) { // If it hasn't been initialized yet, set it to the min and max of the existing data
         minY.value = Math.min(...val.map(v => v.y));
         maxY.value = Math.max(...val.map(v => v.y));
     } else {
         let mostRecent = (val.at(-1) ?? val.findLastIndex(x => x)).y;
-        // I would use Math.min/max but it triggers a rescale constantly
         if (mostRecent < minY.value) minY.value = mostRecent;
-        if (mostRecent > maxY.value) maxY.value = mostRecent;
+        if (mostRecent > maxY.value) maxY.value = mostRecent
+        // In the actual competition, we also had to report the maximum height of non-triggering waves
+        // so I hacked this into the chart for that purpose
+        //console.log(props.options.title, 'max changed', maxY.value, props.dataSource.baseline ? maxY.value - props.dataSource.baseline : 0)
     }
 });
 
@@ -94,6 +99,7 @@ const chartOptions = computed(() => ({
                 color: THEME.textColor,
             },
             ticks: {
+                // Invert x axis so it's from -20 to 0
                 callback(value) {
                     return value - 20;
                 },
@@ -107,7 +113,7 @@ const chartOptions = computed(() => ({
             }
         },
         y: {
-            // this is a mess
+            // Scale min/max slightly beyond the computed min/max values - 15% tolerance in this case
             min: Math.floor((minY.value - (maxY.value - minY.value) * 0.15) * 10) / 10,
             max: Math.ceil((maxY.value + (maxY.value - minY.value) * 0.15) * 10) / 10,
             title: {
@@ -139,6 +145,7 @@ const chartOptions = computed(() => ({
             text: props.options.title,
             display: true,
             font: {
+                // Increase font size on larger screens
                 size: window.innerWidth > 3000 ? 40 : 20,
                 weight: '',
             },
