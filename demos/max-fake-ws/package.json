@@ -4,6 +4,6 @@
 		"dev": "node servertest.js"
 	},
 	"dependencies": {
-		"ws": "^8.17.0"
+		"ws": "^8.17.1"
 	}
 }
