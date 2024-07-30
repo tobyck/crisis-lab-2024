@@ -96,11 +96,11 @@ impl<T: Copy + Send> Cache<T> {
             Some(Box::new(self.content[length - n..].iter()))
         } else if n <= self.next_index {
             // if the end of the cache is somewhere else but we don't need to wrap around
-            let end_index = if self.next_index == 0 { length } else { self.next_index };
-            Some(Box::new(self.content[end_index - n..end_index].iter()))
+            Some(Box::new(self.content[self.next_index - n..self.next_index].iter()))
         } else {
             // otherwise, we need to wrap around and concatenate two sections
             Some(Box::new(
+                // n - self.next_index is the amount that we need from the end of the vec
                 self.content[length - (n - self.next_index)..]
                     .iter()
                     .chain(self.content[..self.next_index].iter())
@@ -200,15 +200,38 @@ mod cache_tests {
 
     #[test]
     fn write() {
-        let mut cache: Cache<i32> = Cache::new(3);
-
+        let mut cache = Cache::new(4);
         cache.write(8);
-        assert_eq!(cache.content.len(), 1);
         assert!(cache.content.eq(&vec![8]));
 
+        let mut cache = Cache::new(4);
+        cache.write(8);
         cache.write(1);
-        assert_eq!(cache.content.len(), 2);
         assert!(cache.content.eq(&vec![8, 1]));
+
+        let mut cache = Cache::new(4);
+        cache.write(8);
+        cache.write(1);
+        cache.write(3);
+        cache.write(6);
+        cache.write(4);
+        assert!(cache.content.eq(&vec![4, 1, 3, 6]));
+
+        let mut cache = Cache::new(4);
+        cache.write(8);
+        cache.write(1);
+        cache.write(3);
+        cache.write(6);
+        assert!(cache.content.eq(&vec![8, 1, 3, 6]));
+
+        let mut cache = Cache::new(4);
+        cache.write(6);
+        cache.write(5);
+        cache.write(4);
+        cache.write(3);
+        cache.write(2);
+        cache.write(1);
+        assert!(cache.content.eq(&vec![2, 1, 4, 3]));
     }
 
     fn cache_from_iter<T, I>(capacity: usize, items: I) -> Cache<T>
@@ -227,72 +250,82 @@ mod cache_tests {
 
     #[test]
     fn len() {
+        let cache = Cache::<i32>::new(4);
+        assert_eq!(cache.len(), 0);
+
         let cache = cache_from_iter(4, [1, 2]);
         assert_eq!(cache.len(), 2);
 
-        let cache = cache_from_iter(3, [1, 2, 3, 4]);
-        assert_eq!(cache.len(), 3);
+        let cache = cache_from_iter(4, [1, 2, 3, 4, 5]);
+        assert_eq!(cache.len(), 4);
     }
 
     #[test]
     fn to_vec() {
-        let cache = cache_from_iter(3, [1, 2, 3]);
+        let cache = Cache::<i32>::new(4);
+        assert_eq!(cache.to_vec(), Vec::<i32>::new());
+
+        let cache = cache_from_iter(4, [1, 2, 3]);
         assert_eq!(cache.to_vec(), vec![1, 2, 3]);
 
-        let cache: Cache<i32> = Cache::new(3);
-        let empty_vec: Vec<i32> = Vec::new();
-        assert_eq!(cache.to_vec(), empty_vec);
+        let cache = cache_from_iter(4, [1, 2, 3, 4, 5, 6]);
+        assert_eq!(cache.to_vec(), vec![3, 4, 5, 6]);
     }
 
     #[test]
     fn last() {
-        let cache = cache_from_iter(3, [1, 4, 9]);
-        let last = cache.last();
-        assert_eq!(last, Some(9));
+        let cache = cache_from_iter(4, [1, 2]);
+        assert_eq!(cache.last(), Some(2));
 
-        let cache = cache_from_iter(3, [0, 1, 4, 9]);
-        let last = cache.last();
-        assert_eq!(last, Some(9));
+        let cache = cache_from_iter(4, [0, 1, 2, 3, 4]);
+        assert_eq!(cache.last(), Some(4));
 
-        let cache: Cache<i32> = Cache::new(0);
-        let last = cache.last();
-        assert_eq!(last, None);
+        let cache = Cache::<i32>::new(0);
+        assert_eq!(cache.last(), None);
+
+        let cache = cache_from_iter(4, [1, 2, 3, 4]);
+        assert_eq!(cache.last(), Some(4));
     }
 
     #[test]
     fn at() {
-        let cache = cache_from_iter(5, [5, 4, 7]);
-        assert_eq!(cache.at(0), Some(5));
+        let cache = cache_from_iter(4, [5, 4, 7, 2]);
         assert_eq!(cache.at(1), Some(4));
-        assert_eq!(cache.at(2), Some(7));
-        assert_eq!(cache.at(3), None);
 
-        let cache = cache_from_iter(3, [0, 9, 2, 1]);
-        assert_eq!(cache.at(0), Some(9));
-        assert_eq!(cache.at(1), Some(2));
-        assert_eq!(cache.at(2), Some(1));
-        assert_eq!(cache.at(3), None);
+        let cache = cache_from_iter(4, [1, 0, 9, 5, 0, 4]);
+        assert_eq!(cache.at(2), Some(0));
+
+        let cache = cache_from_iter(4, [3, 6, 8, 5]);
+        assert_eq!(cache.at(0), Some(3));
+
+        let cache = cache_from_iter(4, [5, 4, 7, 2]);
+        assert_eq!(cache.at(3), Some(2));
+
+        let cache = cache_from_iter(4, [5, 4, 7, 2]);
+        assert_eq!(cache.at(4), None);
+
+        let cache = cache_from_iter(4, [1, 0, 9, 5, 0, 4]);
+        assert_eq!(cache.at(4), None);
     }
 
     #[test]
     fn last_n() {
-        let cache = cache_from_iter(5, [1, 4, 8, 5, 6]);
-        let last3 = cache.last_n(3);
-        assert!(last3.is_some());
-        assert!(last3.unwrap().eq([8, 5, 6].iter()));
+        let cache = cache_from_iter(4, [1, 2, 3]);
+        itertools::assert_equal(cache.last_n(2).unwrap(), [2, 3].iter());
 
-        let cache = cache_from_iter(5, [0, 0, 8, 5, 6, 1, 4]);
-        let last4 = cache.last_n(4);
-        assert!(last4.is_some());
-        assert!(last4.unwrap().eq([5, 6, 1, 4].iter()));
+        let cache = cache_from_iter(4, [1, 2, 3, 4, 5, 6]);
+        itertools::assert_equal(cache.last_n(1).unwrap(), [6].iter());
 
-        let cache = cache_from_iter(5, [0, 0, 0, 0, 6, 1, 4, 8, 5,]);
-        let last2 = cache.last_n(2);
-        assert!(last2.is_some());
-        assert!(last2.unwrap().eq([8, 5].iter()));
+        let cache = cache_from_iter(4, [1, 2, 3]);
+        assert!(cache.last_n(4).is_none());
 
-        let cache: Cache<i32> = Cache::new(0);
-        let last2 = cache.last_n(2);
-        assert!(last2.is_none());
+        let cache = Cache::<i32>::new(4);
+        itertools::assert_equal(cache.last_n(0).unwrap(), std::iter::empty::<&i32>());
+
+        let cache = cache_from_iter(4, [1, 2, 3, 4]);
+        itertools::assert_equal(cache.last_n(2).unwrap(), [3, 4].iter());
+
+        let cache = cache_from_iter(4, [1, 2, 3, 4, 5, 6]);
+        itertools::assert_equal(cache.last_n(3).unwrap(), [4, 5, 6].iter());
     }
 }
