@@ -1,43 +1,26 @@
-// Library imports
 const ws = require('ws');
 const SerialPort = require('serialport');
 
-// WebSocket variables
 const socket = new ws.WebSocket("ws://dashboard.alex-berry.net:8080");
-let triggered = false;
+const serialport = new SerialPort.SerialPort({ path: '/dev/ttyACM0', baudRate: 9600 });
 
-// Serial variables
-let serialport = new SerialPort.SerialPort({ path: '/dev/ttyACM0', baudRate: 9600 });
+socket.onopen = () => console.log("Connected to WebSocket");
+socket.onerror = err => console.log("WebSocket Error: ", err);
 
-// WebSocket logs
-socket.onopen = e => {
- 	console.log("Connected to WebSocket")
-	
-};
+socket.onmessage = message => {
+	let { height, pressure } = JSON.parse(message.data);
 
-socket.onerror = e => {
-	console.log("WebSocket Error: ", e)
-};
+	// Alerts are formatted as { height: 0.0, timestamp: 0 } whereas normal data is { pressure: 0.0, height: 0.0 }
+	// So we use this to distinguish between the two
+	let isAlertPacket = pressure == undefined && height != undefined;
+	if (!isAlertPacket) return;
 
-socket.onmessage = e => {
-	// Data is sent from relay server in stringified JSON, convert it back to JSON
-	let JSONdata = JSON.parse(e.data);
-
-	/* console.log("Recieved message: ", JSONdata); */
-
-	// Tells us if a trigger has been sent
-	// If a trigger has been sent, the server will only send wave height, and not pressure.
-	triggered = (JSONdata.pressure == undefined && JSONdata.height != undefined);
-
-	if(triggered) {
-		console.log("Serial port is open? " + serialport.isOpen);
-		console.log("Triggered");
-		// Output trigger via Serial to Arduino
+	if (serialport.isOpen) {
 		serialport.write("T\r");
+		console.log("Triggered alert");
+	} else {
+		console.log("Serial port is not open");
 	}
-
 };
 
-socket.onclose = e => {
-	console.log("WebSocket connection has been closed successfully.", e)
-};
+socket.onclose = e => console.log("WebSocket closed", e);

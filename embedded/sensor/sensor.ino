@@ -6,10 +6,6 @@
 
 #include "sensor.hpp"
 
-/*
- *	Initialize the sensor.
- */
-
 void init_sensor(LPS28DFW sensor) {
 	uint8_t i2c_address = LPS28DFW_I2C_ADDRESS_DEFAULT;
 
@@ -22,10 +18,6 @@ void init_sensor(LPS28DFW sensor) {
 		delay(1000);
 	}
 }
-
-/*
- *	Get pressure data in hPa.
- */
 
 float get_pressure(LPS28DFW sensor) {
 	sensor.getSensorData();

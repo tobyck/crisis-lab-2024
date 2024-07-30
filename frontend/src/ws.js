@@ -20,7 +20,10 @@ export async function initWebsocket() {
 
         if (loaded.value == false) { // init packet
             loaded.value = true;
-            calibrations = data.calibrations;
+            calibrations = {
+                ...data.calibrations,
+                threshold: data.alert_threshold
+            }
             packetData.push(...data.previous_data);
             logs.push(...data.previous_alerts.map(stringifyIncident).reverse());
             if (packetData.length < 500) {

@@ -6,59 +6,49 @@
 
 #include "wifi.hpp"
 
-const char* wifissid = "";  // Change what's inside the "" to your WiFi Name
-const char* wifipass = "";  // "                                 " WiFi Password 
+// Change these to the appropriate values, _don't_ commit them
+const char* wifiName = "";
+const char* wifiPassword = "";
 
-// Broker username and password for the sensor.
-const char* mqttuser = "";
-const char* mqttpass = "";
+const char* mqttUsername = "";
+const char* mqttPassword = "";
 
 WiFiClient wifiClient;
 MqttClient mqttClient(wifiClient);
 
-const char* broker = "170.64.254.27";
-int         port   = 1883;
-const char* topic = "data";
+const char* brokerIPAddress = "170.64.254.27";
+const char* mqttTopic = "data";
+int mqttPort = 1883;
 
-/*
- *	Init.
- */
+// All prints to Serial are for debugging purposes
 
 void setup() {
-	// Begin the serial
 	Serial.setDebugOutput(true);
 	Serial.begin(9600);
-	while(!Serial) {
-		; // Wait for serial to begin, only needed for using USB Port.
-	}
 
-	// Attempt to connect to WiFi
+	while (!Serial); // Wait for serial to begin
+
 	Serial.print("Attempting to connect to WPA SSID: ");
-	Serial.println(wifissid);
-	WiFi.begin(wifissid, wifipass);
+	Serial.println(wifiName);
+	WiFi.begin(wifiName, wifiPassword);
 
 	// Wait to connect, abort after 15 seconds.
-	for(int i = 0; i < 15 && WiFi.status() != WL_CONNECTED; i++) {
-		// Retry
+	for (int i = 0; i < 15 && WiFi.status() != WL_CONNECTED; i++) {
 		Serial.print(".");
 		delay(1000);
 	}
   
-	// Couldn't connect to WiFi, abort.
-	if(WiFi.status() != WL_CONNECTED) {
+	if (WiFi.status() != WL_CONNECTED) {
 		Serial.println("No WiFi!");
 		return;
 	}
-  
-	// Connected to WiFi
-	Serial.print("\nWiFi connected, Connecting to MQTT broker: ");
-	Serial.println(broker);
-  
-	// Set MQTT username and password for the sensor.
-	mqttClient.setUsernamePassword(mqttuser, mqttpass);
 
-	// Try to connect to the broker
-	if(!mqttClient.connect(broker, port)) {
+	Serial.print("\nWiFi connected, Connecting to MQTT broker: ");
+	Serial.println(brokerIPAddress);
+  
+	mqttClient.setUsernamePassword(mqttUsername, mqttPassword);
+
+	if (!mqttClient.connect(brokerIPAddress, mqttPort)) {
 		Serial.print("MQTT connnection failed! Error code: ");
 		Serial.println(mqttClient.connectError());
 		return;
@@ -67,41 +57,30 @@ void setup() {
 	Serial.println("Connected!");
 }
 
-/*
- *	Send data to MQTT broker over WiFi.
- */
-
-void sendData(char msg[20]) {
-	mqttClient.beginMessage(topic);
+void sendDataToMQTT(char msg[20]) {
+	mqttClient.beginMessage(mqttTopic);
 	mqttClient.print(msg);
 	mqttClient.endMessage();
-	// Debug logging
+
 	Serial.print("Sent data: ");
 	Serial.println(msg);
 }
 
-/*
- *	Main loop.
- */
+char serialBuffer[20] = "";
 
 void loop() {
 	// Call poll to keep the server alive, avoids being disconnected by the broker.
 	mqttClient.poll();
 
-	// Get Sensor data from Arduino.
-	char buffer[20] = "";
-	if(Serial.available()) {
+	while (Serial.available()) {
+		for (int i = 0; i < 20; i++) serialBuffer[i] = 0;
 		// Store up to 20 bytes from Arduino into buffer, terminating at a newline.
-		Serial.readBytesUntil('\n', buffer, 20);
+		Serial.readBytesUntil('\n', serialBuffer, 20);
 
-		// Remove \n
-		buffer[strlen(buffer)-1] = '\0';
+		serialBuffer[strlen(serialBuffer) - 1] = '\0'; // Remove trailing newline
+
+		if (strlen(serialBuffer) != 0) sendDataToMQTT(serialBuffer);
 	}
 
-	// If the buffer has data
-	if(strlen(buffer) != 0) {
-		sendData(buffer); // Send pressure sensor data to MQTT broker.
-	}
-
-	delay(40);	// Run at 25Hz.
+	delay(40);
 }

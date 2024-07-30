@@ -50,6 +50,11 @@ div.box {
     padding-bottom: 0.8vw;
     border-radius: 0.5vw;
     background-color: v-bind('THEME.backgroundColor3');
+    scrollbar-width: none;
+}
+
+.rest::-webkit-scrollbar {
+	display: none;
 }
 
 .status,

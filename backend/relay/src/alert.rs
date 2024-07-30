@@ -18,7 +18,7 @@ async fn social_alert(height: f32) {
     });
 
     info!("Posting alert to social alerts system with body: {}", body);
-
+  
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(true)
         .build()
